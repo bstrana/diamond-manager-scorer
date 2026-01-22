@@ -1,0 +1,369 @@
+.perspective {
+  position: relative;
+  width: 100%;
+  max-width: min(70vh, 70vw);
+  margin: 0 auto;
+  aspect-ratio: 1;
+}
+
+.field {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  background: #004d00;
+  border-radius: 5%;
+  border-bottom-left-radius: 10%;
+  border-top-right-radius: 70%;
+  border: calc(2vw * 0.7) solid #994d00;
+  transform: rotate(-45deg);
+  overflow: hidden;
+}
+
+.fan.field-inner {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+}
+
+.fan.field:before {
+  height: 0;
+  width: 0;
+  content: "";
+  border-top: 160% solid rgba(0, 0, 0, 0.1);
+  border-left: 20% solid transparent;
+  border-right: 20% solid transparent;
+  position: absolute;
+  transform: rotate(30deg);
+  top: -50%;
+  left: 21%;
+}
+
+.fan.field:after {
+  height: 0;
+  width: 0;
+  content: "";
+  border-top: 160% solid rgba(0, 0, 0, 0.1);
+  border-left: 20% solid transparent;
+  border-right: 20% solid transparent;
+  position: absolute;
+  transform: rotate(60deg);
+  top: -21%;
+  left: 50%;
+}
+
+.fan .field-inner:before {
+  height: 0;
+  width: 0;
+  content: "";
+  border-top: 160% solid rgba(0, 0, 0, 0.1);
+  border-left: 20% solid transparent;
+  border-right: 20% solid transparent;
+  position: absolute;
+  transform: rotate(0deg);
+  top: -58%;
+  left: -19%;
+}
+
+.fan .field-inner:after {
+  height: 0;
+  width: 0;
+  content: "";
+  border-top: 160% solid rgba(0, 0, 0, 0.1);
+  border-left: 20% solid transparent;
+  border-right: 20% solid transparent;
+  position: absolute;
+  transform: rotate(90deg);
+  top: 24%;
+  left: 19%;
+}
+
+.stripes.field {
+  background: repeating-linear-gradient(
+    -45deg,
+    #004d00,
+    #004d00 3%,
+    #004500 3%,
+    #004500 6%
+  );
+}
+
+.wide-stripes.field {
+  background: repeating-linear-gradient(
+    -45deg,
+    #004d00,
+    #004d00 10%,
+    #004500 10%,
+    #004500 20%
+  );
+}
+
+.radial.field {
+  background: repeating-radial-gradient(
+    circle at 21% 79%,
+    #004d00,
+    #004d00 3%,
+    #004500 3%,
+    #004500 6%
+  );
+}
+
+.cross-cut.field {
+  background-color: #004d00;
+  background-image: 
+    linear-gradient(90deg, rgba(0, 100, 0, 0.5) 50%, transparent 50%),
+    linear-gradient(rgba(0, 100, 0, 0.5) 50%, transparent 50%);
+  background-size: 6% 6%;
+}
+
+.diamond.field {
+  background-color: #004d00;
+  background-image: 
+    repeating-linear-gradient(
+      -75deg,
+      rgba(0, 100, 0, 0.5),
+      rgba(0, 100, 0, 0.5) 3%,
+      transparent 3%,
+      transparent 6%
+    ),
+    repeating-linear-gradient(
+      -15deg,
+      rgba(0, 100, 0, 0.5),
+      rgba(0, 100, 0, 0.5) 3%,
+      transparent 3%,
+      transparent 6%
+    );
+}
+
+.right-field-line {
+  height: 95.2%;
+  width: 1px;
+  background: #fff;
+  position: absolute;
+  top: -4%;
+  left: 8.9%;
+  z-index: 1000;
+  opacity: 0.6;
+}
+
+.left-field-line {
+  width: 95%;
+  height: 1px;
+  background: #fff;
+  position: absolute;
+  bottom: 8.7%;
+  left: 8.9%;
+  z-index: 1000;
+  opacity: 0.6;
+}
+
+.infield {
+  position: absolute;
+  height: 40%;
+  width: 40%;
+  background-color: #994d00;
+  left: 8%;
+  bottom: 8%;
+  border-top-right-radius: 75%;
+  z-index: 2;
+}
+
+.infield-inner {
+  background: #004d00;
+  height: 55%;
+  width: 55%;
+  bottom: 5%;
+  left: 5%;
+  position: absolute;
+}
+
+.stripes .infield-inner {
+  background: repeating-linear-gradient(
+    -45deg,
+    #004d00,
+    #004d00 2%,
+    #004500 2%,
+    #004500 4%
+  );
+}
+
+.wide-stripes .infield-inner {
+  background: repeating-linear-gradient(
+    -45deg,
+    #004d00,
+    #004d00 8%,
+    #004500 8%,
+    #004500 16%
+  );
+}
+
+.radial .infield-inner,
+.fan .infield-inner {
+  background: repeating-radial-gradient(
+    circle,
+    #004d00,
+    #004d00 2%,
+    #004500 2%,
+    #004500 4%
+  );
+}
+
+.cross-cut .infield-inner {
+  background-color: #004d00;
+  background-image: 
+    linear-gradient(90deg, rgba(0, 100, 0, 0.5) 50%, transparent 50%),
+    linear-gradient(rgba(0, 100, 0, 0.5) 50%, transparent 50%);
+  background-size: 4% 4%;
+}
+
+.diamond .infield-inner {
+  background-color: #004d00;
+  background-image: 
+    repeating-linear-gradient(
+      -75deg,
+      rgba(0, 100, 0, 0.5),
+      rgba(0, 100, 0, 0.5) 2%,
+      transparent 2%,
+      transparent 4%
+    ),
+    repeating-linear-gradient(
+      -15deg,
+      rgba(0, 100, 0, 0.5),
+      rgba(0, 100, 0, 0.5) 2%,
+      transparent 2%,
+      transparent 4%
+    );
+}
+
+.home {
+  width: 10%;
+  height: 10%;
+  border-radius: 50%;
+  background: #994d00;
+  position: absolute;
+  left: -5%;
+  bottom: -5%;
+}
+
+.plate {
+  content: "";
+  background: #fff;
+  height: 1.2%;
+  width: 1.4%;
+  position: absolute;
+  left: calc(50% - 0.7%);
+  top: calc(50% - 0.22%);
+  transform: rotate(45deg);
+}
+
+.plate:before {
+  content: "";
+  background: #fff;
+  height: 1%;
+  width: 1%;
+  position: absolute;
+  left: 0.2%;
+  bottom: -0.4%;
+  transform: rotate(45deg);
+}
+
+.pitchers-mound {
+  width: 6%;
+  height: 6%;
+  border-radius: 50%;
+  background: #994d00;
+  position: absolute;
+  left: calc(50% - 3%);
+  bottom: calc(50% - 3%);
+}
+
+.pitchers-mound:after {
+  width: 2%;
+  height: 0.5%;
+  background: #fff;
+  content: "";
+  position: absolute;
+  transform: rotate(45deg);
+  top: calc(50% - 0.2%);
+  left: calc(50% - 1%);
+}
+
+.first,
+.second,
+.third {
+  width: 3.5%;
+  height: 3.5%;
+  background: #994d00;
+  position: absolute;
+  border-top-left-radius: 50%;
+  right: -1%;
+  bottom: -1.2%;
+}
+
+.first:after,
+.second:after,
+.third:after {
+  background: #fff;
+  content: " ";
+  width: 1%;
+  height: 1%;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.second {
+  top: -1%;
+  transform: rotate(-90deg);
+}
+
+.third {
+  left: -1%;
+  top: -1%;
+  transform: rotate(180deg);
+}
+
+.pattern-selector {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.pattern-label {
+  color: #fff;
+  font-family: "Arvo", serif;
+  font-size: 20px;
+  padding: 15px;
+  display: inline-block;
+}
+
+.pattern-select {
+  font-size: 18px;
+  position: relative;
+  display: inline-block;
+  top: -2px;
+  background-color: rgba(55, 65, 81, 0.8);
+  border: 1px solid rgba(107, 114, 128, 0.5);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+}
+
+.pattern-select:hover {
+  background-color: rgba(55, 65, 81, 1);
+  border-color: rgba(250, 204, 21, 0.5);
+}
+
+.player-positions-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2000;
+}
+
+.player-positions-overlay > * {
+  pointer-events: auto;
+}
+
