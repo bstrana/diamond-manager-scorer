@@ -35,8 +35,8 @@ These models work without purchasing credits:
    - Good for detailed recaps
    - No credits required
 
-4. **`google/gemini-2.0-flash-exp:free`** (if available)
-   - Fast and capable
+4. **`mistralai/mistral-7b-instruct:free`**
+   - Strong general-purpose model
    - Good quality for game recaps
    - Check OpenRouter for current Gemini model names
 

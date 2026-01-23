@@ -4,7 +4,7 @@
 
 **Keycloak** is an open-source Identity and Access Management (IAM) solution that provides:
 - **Single Sign-On (SSO)** - Users authenticate once, access multiple apps
-- **User Federation** - Connect to LDAP, Active Directory, or social providers (Google, Facebook, etc.)
+- **User Federation** - Connect to LDAP, Active Directory, or social providers (GitHub, Facebook, etc.)
 - **Multi-factor Authentication (MFA)** - Support for 2FA, SMS, hardware tokens
 - **Fine-grained Authorization** - Role-based access control (RBAC)
 - **Token-based Authentication** - Uses OpenID Connect (OIDC) and OAuth 2.0 standards
@@ -24,7 +24,7 @@
 - **Session management** - Automatic token refresh, logout, session timeout
 - **Multi-user support** - Different users can have different roles/permissions
 - **Audit trails** - Track who accessed what and when
-- **Social login** - Optional integration with Google, Facebook, etc.
+- **Social login** - Optional integration with common social providers
 
 ## How It Would Work
 
@@ -148,7 +148,7 @@ KEYCLOAK_CLIENT_ID=baseball-scorer-app
 
 ### User Experience
 ✅ **Single Sign-On** - Users login once, access multiple apps  
-✅ **Social login** - Optional Google/Facebook login  
+✅ **Social login** - Optional social provider login  
 ✅ **Password reset** - Built-in password recovery  
 ✅ **Remember me** - Session persistence  
 

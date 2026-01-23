@@ -306,7 +306,6 @@
 - Keycloak authentication
 - OpenRouter AI
 - WordPress (optional)
-- Google Sheets (optional)
 
 ---
 

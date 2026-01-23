@@ -4,7 +4,7 @@
 
 The Baseball Scoreboard app now includes AI-powered game recap generation using OpenRouter. This allows you to generate engaging, narrative-style game recaps automatically after a game ends.
 
-**✨ Using Free Models**: The app is configured to use **free AI models** by default (`google/gemini-flash-1.5`), so there's **no cost per recap**!
+**✨ Using Free Models**: The app is configured to use **free AI models** by default (`mistralai/mistral-7b-instruct:free`), so there's **no cost per recap**!
 
 ## Features
 
@@ -106,7 +106,7 @@ const model = getEnvVar('OPENROUTER_MODEL') || 'mistralai/mistral-7b-instruct:fr
 
 ### Recommended Free Models
 
-- **Default (Free)**: `google/gemini-flash-1.5` - Fast, capable, and free
+- **Default (Free)**: `mistralai/mistral-7b-instruct:free` - Fast, capable, and free
 - **Alternative Free**: `meta-llama/llama-3.2-3b-instruct` - Good quality, free
 - **Alternative Free**: `microsoft/phi-3-mini-128k-instruct` - Fast, free
 
@@ -119,7 +119,7 @@ const model = getEnvVar('OPENROUTER_MODEL') || 'mistralai/mistral-7b-instruct:fr
 
 ## Cost Considerations
 
-The default model (`google/gemini-flash-1.5`) is **FREE**:
+The default model (`mistralai/mistral-7b-instruct:free`) is **FREE**:
 - **Typical recap**: ~500-800 tokens
 - **Cost**: $0.00 per recap (free tier)
 - **No monthly costs** for free models
