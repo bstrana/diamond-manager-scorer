@@ -1,33 +1,12 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
-
 # Baseball Scoreboard ⚾
 
 A professional, feature-rich baseball scoring application with real-time scoreboard overlays, comprehensive statistics tracking, and AI-powered game recaps.
 
 ## 📚 Documentation
 
-- **[QUICK_START.md](./QUICK_START.md)** - Get started in minutes
-- **[FEATURES.md](./FEATURES.md)** - Complete feature list
-- **[DEPLOY_STEPS.md](./DEPLOY_STEPS.md)** - Cloudron deployment guide
-- **[KEYCLOAK_INTEGRATION_SUMMARY.md](./KEYCLOAK_INTEGRATION_SUMMARY.md)** - Authentication setup
-- **[OPENROUTER_SETUP.md](./OPENROUTER_SETUP.md)** - AI recap configuration
 
 ## 🚀 Quick Start
 
-```bash
-# Docker
-docker run -d -p 3000:3000 \
-  -e KEYCLOAK_URL=https://your-keycloak.com \
-  -e KEYCLOAK_REALM=baseball-scorer \
-  -e KEYCLOAK_CLIENT_ID=baseball-scorer-app \
-  7od9/baseball-scorer:latest
-
-# Or local development
-npm install
-npm run dev
-```
 
 See [QUICK_START.md](./QUICK_START.md) for detailed instructions.
 
@@ -63,14 +42,6 @@ A real-time baseball scoring application with live scoreboard overlay for stream
    SCHEDULE_PROVIDER=pocketbase
    POCKETBASE_URL=https://pb.your-domain.com
    
-   # Directus (legacy, optional)
-   # DIRECTUS_URL: Your Directus instance URL (e.g., https://your-directus-instance.com)
-   # DIRECTUS_STATIC_TOKEN: Admin/static token for saving game data
-   # DIRECTUS_SCOREKEEPER_TOKEN: User token for fetching scheduled games (scorekeeper user)
-   DIRECTUS_URL=https://your-directus-instance.com
-   DIRECTUS_STATIC_TOKEN=your-admin-static-token-here
-   DIRECTUS_SCOREKEEPER_TOKEN=your-scorekeeper-user-token-here
-   
    # WordPress Integration (optional - deprecated, use Directus instead)
    WP_SITE_URL=https://your-wordpress-site.com
    WP_USERNAME=your-wp-username
@@ -91,9 +62,6 @@ A real-time baseball scoring application with live scoreboard overlay for stream
 - **DATA_PROVIDER**: Persistence provider (`pocketbase`, `directus`, or `none`)
 - **SCHEDULE_PROVIDER**: Schedule provider (`pocketbase`, `directus`, or `none`)
 - **POCKETBASE_URL**: Your PocketBase instance URL (optional - app works without it)
-- **DIRECTUS_URL**: Your Directus instance URL (legacy)
-- **DIRECTUS_STATIC_TOKEN**: Admin/static token for saving game data to Directus CMS (legacy)
-- **DIRECTUS_SCOREKEEPER_TOKEN**: User token for fetching scheduled games from Directus (legacy)
 - **WP_SITE_URL**, **WP_USERNAME**, **WP_APP_PASS**: For WordPress integration (deprecated - use Directus instead)
 
 **Note:** The app will work perfectly fine without any environment variables. You'll just see console warnings about missing integrations, but all core scoring features will function normally.
@@ -261,9 +229,7 @@ This app can be deployed to Cloudron.io, a self-hosting platform for web applica
 All environment variables are optional. The app will work without them, but you'll see console warnings about missing integrations:
 
 - **UNLOCK_KEY**: Password to unlock the app (defaults to "unlock")
-- **DIRECTUS_URL**: Your Directus CMS instance URL
-- **DIRECTUS_STATIC_TOKEN**: Admin/static token for saving game data
-- **DIRECTUS_SCOREKEEPER_TOKEN**: User token for fetching scheduled games
+
 
 ### Post-Deployment
 
