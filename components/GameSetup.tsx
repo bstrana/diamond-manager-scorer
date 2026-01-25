@@ -684,6 +684,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameSetup, onUpdateSetupData, o
   }, []);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   
+  const isScheduleDisabled = scheduleProvider.provider === 'none';
   const scheduleProviderLabel = scheduleProvider.provider === 'directus'
     ? 'Directus'
     : scheduleProvider.provider === 'pocketbase'
@@ -693,7 +694,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameSetup, onUpdateSetupData, o
     ? 'Set DIRECTUS_URL and DIRECTUS_SCOREKEEPER_TOKEN to enable.'
     : scheduleProvider.provider === 'pocketbase'
       ? 'Set POCKETBASE_URL and SCHEDULE_PROVIDER=pocketbase to enable.'
-      : 'Set SCHEDULE_PROVIDER and provider credentials to enable.';
+      : 'Set SCHEDULE_PROVIDER to directus or pocketbase and provider credentials to enable.';
   
   // Roster modal state
   const [isRosterModalOpen, setIsRosterModalOpen] = useState(false);
@@ -893,7 +894,11 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameSetup, onUpdateSetupData, o
         </button>
         {isScheduleFetchOpen && (
           <div className="p-4 border-t border-gray-700 space-y-4">
-            {!areScheduleCredentialsSet ? (
+            {isScheduleDisabled ? (
+              <div className="p-3 bg-gray-700 border border-gray-600 text-gray-300 text-sm rounded-lg text-center">
+                Game schedule integration is disabled. {scheduleConfigHint}
+              </div>
+            ) : !areScheduleCredentialsSet ? (
               <div className="p-3 bg-gray-700 border border-gray-600 text-gray-300 text-sm rounded-lg text-center">
                 {scheduleProviderLabel} integration is not configured. {scheduleConfigHint}
               </div>

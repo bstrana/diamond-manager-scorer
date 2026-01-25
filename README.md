@@ -41,6 +41,13 @@ A real-time baseball scoring application with live scoreboard overlay for stream
    DATA_PROVIDER=pocketbase
    SCHEDULE_PROVIDER=pocketbase
    POCKETBASE_URL=https://pb.your-domain.com
+
+  # Scheduler app schedule source (optional)
+  # When set, the scorer reads schedules from the scheduler app's published collection
+  POCKETBASE_SCHEDULE_SOURCE_COLLECTION=schedules
+  POCKETBASE_SCHEDULE_APP_ID=scheduler
+  POCKETBASE_SCHEDULE_ORG_ID=your-org-id
+  POCKETBASE_SCHEDULE_USER_ID=your-user-id
    
    # WordPress Integration (optional - deprecated, use Directus instead)
    WP_SITE_URL=https://your-wordpress-site.com
@@ -62,11 +69,13 @@ A real-time baseball scoring application with live scoreboard overlay for stream
 - **DATA_PROVIDER**: Persistence provider (`pocketbase`, `directus`, or `none`)
 - **SCHEDULE_PROVIDER**: Schedule provider (`pocketbase`, `directus`, or `none`)
 - **POCKETBASE_URL**: Your PocketBase instance URL (optional - app works without it)
+- **POCKETBASE_SCHEDULE_SOURCE_COLLECTION**: Scheduler app collection to read from
+- **POCKETBASE_SCHEDULE_APP_ID**: App id stored by Scheduler (default: `scheduler`)
+- **POCKETBASE_SCHEDULE_ORG_ID**: Org id filter (optional)
+- **POCKETBASE_SCHEDULE_USER_ID**: User id filter (optional)
 - **WP_SITE_URL**, **WP_USERNAME**, **WP_APP_PASS**: For WordPress integration (deprecated - use Directus instead)
 
 **Note:** The app will work perfectly fine without any environment variables. You'll just see console warnings about missing integrations, but all core scoring features will function normally.
-
-**PocketBase prep:** The app is wired for a PocketBase provider but the implementation is a stub. Plan to integrate via server-side proxy and use Keycloak-issued access tokens for authenticated requests.
 
 ## Testing the App
 
