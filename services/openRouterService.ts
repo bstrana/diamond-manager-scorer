@@ -163,7 +163,7 @@ Please write an engaging game recap that tells the story of this game, highlight
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`,
         'HTTP-Referer': window.location.origin, // Optional: for analytics
-        'X-Title': 'Baseball Scoreboard Game Recap' // Optional: for analytics
+        'X-Title': 'Diamond Manager Scorer Game Recap' // Optional: for analytics
       },
       body: JSON.stringify({
         model: model, // Configurable via OPENROUTER_MODEL environment variable

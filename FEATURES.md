@@ -1,4 +1,4 @@
-# Baseball Scoreboard - Feature List
+# Diamond Manager Scorer - Feature List
 
 ## 🎯 Core Features
 

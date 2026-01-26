@@ -1,8 +1,8 @@
-# Baseball Scoreboard - Quick Start Tutorial
+# Diamond Manager Scorer - Quick Start Tutorial
 
 ## 🚀 Getting Started
 
-This guide will help you get up and running with the Baseball Scoreboard application in minutes.
+This guide will help you get up and running with the Diamond Manager Scorer application in minutes.
 
 ## Prerequisites
 

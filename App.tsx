@@ -242,9 +242,8 @@ const App: React.FC = () => {
                   (e.target as HTMLImageElement).style.display = 'none';
                 }}
               />
-              <h1 className="text-3xl sm:text-4xl font-bold text-yellow-300 tracking-wider">Baseball Scoreboard Overlay</h1>
+              <h1 className="text-3xl sm:text-4xl font-bold text-yellow-300 tracking-wider">Diamond Manager Scorer</h1>
             </div>
-            <p className="text-gray-400">Live Scoring for Your Stream</p>
           </>
         )}
          <div className="absolute top-0 right-0 flex items-center space-x-2">
@@ -519,9 +518,8 @@ const AppWithAuth: React.FC = () => {
                   (e.target as HTMLImageElement).style.display = 'none';
                 }}
               />
-              <h1 className="text-3xl sm:text-4xl font-bold text-yellow-300 tracking-wider">Baseball Scoreboard</h1>
+              <h1 className="text-3xl sm:text-4xl font-bold text-yellow-300 tracking-wider">Diamond Manager Scorer</h1>
             </div>
-            <p className="text-gray-400 mt-2">Live Scoring for Your Stream</p>
           </header>
           <div className="bg-gray-800 border border-gray-700 rounded-lg p-8 shadow-2xl">
             <div className="space-y-4">
@@ -569,9 +567,8 @@ const AppWithAuth: React.FC = () => {
                     (e.target as HTMLImageElement).style.display = 'none';
                   }}
                 />
-                <h1 className="text-3xl sm:text-4xl font-bold text-yellow-300 tracking-wider">Baseball Scoreboard</h1>
+                <h1 className="text-3xl sm:text-4xl font-bold text-yellow-300 tracking-wider">Diamond Manager Scorer</h1>
               </div>
-              <p className="text-gray-400 mt-2">Live Scoring for Your Stream</p>
             </header>
             <div className="bg-gray-800 border border-gray-700 rounded-lg p-8 shadow-2xl">
               <div className="flex flex-col items-center space-y-4">

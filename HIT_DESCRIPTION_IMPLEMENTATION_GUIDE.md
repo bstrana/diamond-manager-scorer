@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide explains how to implement detailed hit descriptions like "center field line drive" or "grounder between SS and 3B" in the Baseball Scoreboard app.
+This guide explains how to implement detailed hit descriptions like "center field line drive" or "grounder between SS and 3B" in the Diamond Manager Scorer app.
 
 ## Current State
 

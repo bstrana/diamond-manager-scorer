@@ -171,57 +171,6 @@ const loadSchedulePayload = async (): Promise<SchedulerPayload> => {
   return payload;
 };
 
-const loadSchedulePayloadFromCollection = async (collection: string): Promise<SchedulerPayload | null> => {
-  const baseParams = {
-    perPage: '1',
-  };
-  const sortCandidates = ['-updated', '-created', ''];
-  const filter = buildScheduleSourceFilter();
-  let lastError: unknown = null;
-
-  const tryFetch = async (useFilter: boolean, sort: string): Promise<PocketBaseListResponse<PocketBaseRecord>> => {
-    const params: Record<string, string> = {
-      ...baseParams,
-      ...(useFilter ? { filter } : {}),
-      ...(sort ? { sort } : {}),
-    };
-    const url = buildUrl(`/api/collections/${collection}/records`, params);
-    return requestJson<PocketBaseListResponse<PocketBaseRecord>>(url);
-  };
-
-  for (const sort of sortCandidates) {
-    try {
-      const data = await tryFetch(true, sort);
-      const record = data.items?.[0];
-      if (record?.data) {
-        return (record.data || {}) as SchedulerPayload;
-      }
-      return null;
-    } catch (error) {
-      const status = (error as Error & { status?: number }).status;
-      if (status === 400) {
-        try {
-          const data = await tryFetch(false, sort);
-          const record = data.items?.[0];
-          if (record?.data) {
-            return (record.data || {}) as SchedulerPayload;
-          }
-          return null;
-        } catch (innerError) {
-          lastError = innerError;
-        }
-      } else {
-        lastError = error;
-      }
-    }
-  }
-
-  if (lastError) {
-    throw lastError instanceof Error ? lastError : new Error('[PocketBase] Failed to load schedule payload.');
-  }
-  return null;
-};
-
 const formatTeamName = (team?: { name?: string; city?: string }) => {
   if (!team) return 'Unknown';
   return `${team.city || ''} ${team.name || ''}`.trim() || 'Unknown';
@@ -309,28 +258,6 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
       });
     }
 
-    const schedulePayload = await loadSchedulePayloadFromCollection('schedules');
-    if (schedulePayload) {
-      const teams = schedulePayload.teams || [];
-      const games = [...(schedulePayload.games || [])]
-        .filter((game) => isActiveScheduleStatus((game as { status?: string }).status))
-        .sort((a, b) => {
-          const left = `${a.date || ''}T${a.time || '00:00'}`;
-          const right = `${b.date || ''}T${b.time || '00:00'}`;
-          return left.localeCompare(right);
-        });
-      const teamById = new Map(teams.map((team) => [team.id, team]));
-      return games.map((game) => {
-        const home = teamById.get(game.homeTeamId);
-        const away = teamById.get(game.awayTeamId);
-        const dateTimeLabel = formatScheduleDateTime(game.date, game.time);
-        return {
-          id: game.id,
-          title: `${formatTeamName(away)} @ ${formatTeamName(home)}${dateTimeLabel ? ` (${dateTimeLabel})` : ''}`,
-        };
-      });
-    }
-
     const urlWithSort = buildUrl('/api/collections/schedules/records', {
       sort: 'date',
       perPage: '200',
@@ -367,44 +294,6 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
       const teams = payload.teams || [];
       const leagues = payload.leagues || [];
       const games = payload.games || [];
-      const teamById = new Map(teams.map((team) => [team.id, team]));
-      const leagueById = new Map(leagues.map((league) => [league.id, league]));
-
-      const game = games.find((item) => String(item.id) === String(gameId));
-      if (!game) {
-        throw new Error(`Schedule game ${gameId} was not found.`);
-      }
-
-      const homeTeam = teamById.get(game.homeTeamId);
-      const awayTeam = teamById.get(game.awayTeamId);
-
-      const leagueId = game.leagueIds?.[0] || game.leagueId;
-      const competition = leagueId ? leagueById.get(leagueId)?.name || '' : '';
-
-      return {
-        homeTeam: {
-          name: formatTeamName(homeTeam),
-          roster: '',
-          logoUrl: homeTeam?.logoUrl || '',
-          color: homeTeam?.primaryColor || '#ffffff',
-        },
-        awayTeam: {
-          name: formatTeamName(awayTeam),
-          roster: '',
-          logoUrl: awayTeam?.logoUrl || '',
-          color: awayTeam?.primaryColor || '#ffffff',
-        },
-        competition,
-        location: game.location || '',
-        gameDate: `${game.date}T${game.time || '19:00'}:00`,
-      };
-    }
-
-    const schedulePayload = await loadSchedulePayloadFromCollection('schedules');
-    if (schedulePayload) {
-      const teams = schedulePayload.teams || [];
-      const leagues = schedulePayload.leagues || [];
-      const games = schedulePayload.games || [];
       const teamById = new Map(teams.map((team) => [team.id, team]));
       const leagueById = new Map(leagues.map((league) => [league.id, league]));
 

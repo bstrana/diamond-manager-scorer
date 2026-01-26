@@ -1,6 +1,6 @@
-# Baseball Scoreboard App - Color Scheme
+# Diamond Manager Scorer - Color Scheme
 
-This document outlines the complete color palette used in the Baseball Scoreboard application. Use these colors to create a matching Keycloak theme.
+This document outlines the complete color palette used in the Diamond Manager Scorer application. Use these colors to create a matching Keycloak theme.
 
 ## Primary Brand Colors
 

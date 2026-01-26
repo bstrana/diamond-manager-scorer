@@ -334,7 +334,7 @@ const server = http.createServer((req, res) => {
 
 server.listen(port, '0.0.0.0', () => {
   const isProduction = process.env.NODE_ENV === 'production';
-  console.log(`Baseball Scoreboard server running on port ${port}`);
+  console.log(`Diamond Manager Scorer server running on port ${port}`);
   console.log(`Serving files from: ${distDir}`);
   
   if (!isProduction) {

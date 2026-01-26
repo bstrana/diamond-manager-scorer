@@ -1,5 +1,5 @@
 {
-  "name": "Baseball Scoreboard",
+  "name": "Diamond Manager Scorer",
   "description": "A live baseball scoring application designed to provide a real-time scoreboard overlay for streaming. It tracks teams, rosters, score, counts, and game progress, and logs each plate appearance.",
   "requestFramePermissions": []
 }

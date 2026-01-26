@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Baseball Scoreboard app now includes AI-powered game recap generation using OpenRouter. This allows you to generate engaging, narrative-style game recaps automatically after a game ends.
+The Diamond Manager Scorer app now includes AI-powered game recap generation using OpenRouter. This allows you to generate engaging, narrative-style game recaps automatically after a game ends.
 
 **✨ Using Free Models**: The app is configured to use **free AI models** by default (`mistralai/mistral-7b-instruct:free`), so there's **no cost per recap**!
 

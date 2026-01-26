@@ -1,4 +1,4 @@
-# Baseball Scoreboard ⚾
+# Diamond Manager Scorer ⚾
 
 A professional, feature-rich baseball scoring application with real-time scoreboard overlays, comprehensive statistics tracking, and AI-powered game recaps.
 
@@ -10,7 +10,7 @@ A professional, feature-rich baseball scoring application with real-time scorebo
 
 See [QUICK_START.md](./QUICK_START.md) for detailed instructions.
 
-## ⚾ Baseball Scoreboard Overlay
+## ⚾ Diamond Manager Scorer
 
 A real-time baseball scoring application with live scoreboard overlay for streaming.
 

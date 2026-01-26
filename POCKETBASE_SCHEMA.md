@@ -1,10 +1,7 @@
 ## PocketBase Schema and Setup
 
 This document describes a suggested PocketBase schema and setup flow for the current app.
-It is designed to mirror the app's data flows while keeping things flexible
-for PocketBase integration.
-
-Note: The PocketBase integration is not implemented yet. Use this schema as the target.
+It focuses on a normalized data model (Option B) to support richer querying and future features.
 
 ### Environment Variables
 
@@ -21,7 +18,7 @@ KEYCLOAK_CLIENT_ID=baseball-scorer-app
 ### Collections
 
 #### 1) games
-Stores game metadata and the live score snapshot.
+Stores game metadata and live score snapshot.
 
 Fields:
 - `status` (select: setup, playing, final)
@@ -30,17 +27,17 @@ Fields:
 - `scorekeeper_name` (text)
 - `game_start_time` (datetime)
 - `game_end_time` (datetime)
-- `home_team_name` (text)
-- `away_team_name` (text)
-- `home_team_roster_text` (long text)
-- `away_team_roster_text` (long text)
+- `home_team` (relation -> teams)
+- `away_team` (relation -> teams)
+- `home_team_roster_text` (long text, optional)
+- `away_team_roster_text` (long text, optional)
 - `home_team_score` (number)
 - `away_team_score` (number)
 - `external_game_id` (text or number)
 
 Notes:
-- `home_team_roster_text` and `away_team_roster_text` should store the raw roster
-  strings used by the app (one player per line).
+- `home_team_roster_text` and `away_team_roster_text` can store raw roster strings
+  used by the app (one player per line) to avoid mapping friction.
 
 #### 2) plate_appearances
 Stores plate appearance events for a game.
@@ -54,22 +51,23 @@ Fields:
 - `pitch_sequence` (text)
 - `batter_name` (text)
 - `pitcher_name` (text)
-- `defensive_plays_json` (long text)
-- `hit_description_json` (long text)
+- `defensive_plays` (json)
+- `hit_description` (json)
 
 Notes:
-- `defensive_plays_json` and `hit_description_json` store JSON strings.
+- Use JSON fields to avoid manual serialization.
 
 #### 3) teams
-Optional, only needed if you plan to use the schedule import flow.
+Stores team metadata.
 
 Fields:
 - `name` (text)
 - `logo_url` (url or text)
 - `color` (text)
+- `short_name` (text, optional)
 
 #### 4) players
-Optional, only needed if you plan to use the schedule import flow.
+Stores player metadata.
 
 Fields:
 - `first_name` (text)
@@ -77,16 +75,19 @@ Fields:
 - `number` (number, optional)
 - `position` (text, optional)
 - `photo_url` (url or text, optional)
+- `full_name` (text, optional, can be derived)
 
 #### 5) rosters
-Optional, only needed if you plan to use the schedule import flow.
+Stores roster groupings for teams (by season or game).
 
 Fields:
 - `team` (relation -> teams)
 - `players` (relation -> players, multiple)
+- `season` (text, optional)
+- `game` (relation -> games, optional)
 
-#### 6) scheduled_games
-Optional, only needed if you plan to use the schedule import flow.
+#### 6) schedules
+Stores scheduled games for import.
 
 Fields:
 - `title` (text)
@@ -126,12 +127,18 @@ These are minimal suggestions and should be refined when the provider is impleme
 - `games`: read/write for authenticated users; optional server-side proxy if you want to
   keep write tokens off the client.
 - `plate_appearances`: read/write for authenticated users.
-- `scheduled_games`: read for authenticated users; filter by team membership if needed.
+- `schedules`: read for authenticated users; filter by team membership if needed.
 - `team_members`: read for authenticated users; write restricted to admins.
+
+### Optional: Read-Optimized Schedule Cache
+
+If you want faster reads in the app, you can add a separate `schedule_payloads`
+collection with a single `data` JSON field that contains `{ teams, leagues, games }`.
+This can be kept in sync by a scheduled job or admin uploads.
 
 ### Implementation Notes
 
-- The app currently expects schedule import to return team names, logos, colors, rosters,
+- The app expects schedule import to return team names, logos, colors, rosters,
   competition, location, and game date. Mirror that in PocketBase or update the provider.
 - Store rosters as raw text to avoid mapping friction during the first integration pass.
 - Prefer a server-side proxy for PocketBase writes if you want to keep credentials secure.
