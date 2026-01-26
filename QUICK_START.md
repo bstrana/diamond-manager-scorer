@@ -61,7 +61,7 @@ KEYCLOAK_REALM=baseball-scorer
 KEYCLOAK_CLIENT_ID=baseball-scorer-app
 
 # PocketBase Integration (Optional)
-POCKETBASE_URL=https://pb.your-domain.com
+POCKETBASE_URL=https://scorer-db.your-domain.com
 
 # OpenRouter AI (Optional, for AI recaps)
 OPENROUTER_API_KEY=your-api-key

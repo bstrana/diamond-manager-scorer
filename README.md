@@ -37,7 +37,7 @@ A real-time baseball scoring application with live scoreboard overlay for stream
    # Data providers (optional)
    # DATA_PROVIDER: one of "pocketbase", "none"
    # SCHEDULE_PROVIDER: one of "pocketbase", "none"
-   # POCKETBASE_URL: Your PocketBase instance URL (e.g., https://pb.your-domain.com)
+   # POCKETBASE_URL: Scorer PocketBase DB URL (e.g., https://scorer-db.your-domain.com)
    DATA_PROVIDER=pocketbase
    SCHEDULE_PROVIDER=pocketbase
    POCKETBASE_URL=https://pb.your-domain.com

@@ -6,7 +6,7 @@ It focuses on a normalized data model (Option B) to support richer querying and 
 ### Environment Variables
 
 ```env
-POCKETBASE_URL=https://pb.your-domain.com
+POCKETBASE_URL=https://scorer-db.your-domain.com
 DATA_PROVIDER=pocketbase
 SCHEDULE_PROVIDER=pocketbase
 
@@ -138,6 +138,8 @@ This can be kept in sync by a scheduled job or admin uploads.
 
 ### Implementation Notes
 
+- The scorer app is expected to use its own PocketBase database (set `POCKETBASE_URL`
+  to the scorer DB instance).
 - The app expects schedule import to return team names, logos, colors, rosters,
   competition, location, and game date. Mirror that in PocketBase or update the provider.
 - Store rosters as raw text to avoid mapping friction during the first integration pass.
