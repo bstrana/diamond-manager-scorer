@@ -21,6 +21,8 @@ type ScheduledGameRecord = PocketBaseRecord & {
   competition?: string;
   location?: string;
   status?: string;
+  org_id?: string;
+  orgId?: string;
   home_team?: string;
   away_team?: string;
   home_roster?: string;
@@ -111,10 +113,11 @@ const scheduleSourceAppId = getEnvVar('POCKETBASE_SCHEDULE_APP_ID');
 
 const shouldUseScheduleSource = () => scheduleSourceCollection.length > 0;
 
-const buildScheduleSourceFilter = (): string => {
+const buildScheduleSourceFilter = (orgIdOverride?: string): string => {
   const filters: string[] = ['active=true'];
-  if (scheduleSourceOrgId) {
-    filters.push(`org_id="${scheduleSourceOrgId}"`);
+  const resolvedOrgId = orgIdOverride || scheduleSourceOrgId;
+  if (resolvedOrgId) {
+    filters.push(`org_id="${resolvedOrgId}"`);
   }
   if (scheduleSourceUserId) {
     filters.push(`user_id="${scheduleSourceUserId}"`);
@@ -127,19 +130,25 @@ const buildScheduleSourceFilter = (): string => {
 
 let cachedSchedulePayload: SchedulerPayload | null = null;
 let cachedScheduleFetchedAt = 0;
+let cachedScheduleOrgId: string | null = null;
 const SCHEDULE_CACHE_MS = 30000;
 
-const loadSchedulePayload = async (): Promise<SchedulerPayload> => {
+const loadSchedulePayload = async (orgId?: string): Promise<SchedulerPayload> => {
   if (!scheduleSourceCollection) {
     throw new Error('[PocketBase] Missing POCKETBASE_SCHEDULE_SOURCE_COLLECTION.');
   }
+  const normalizedOrgId = (orgId || scheduleSourceOrgId || '').trim();
   const now = Date.now();
-  if (cachedSchedulePayload && now - cachedScheduleFetchedAt < SCHEDULE_CACHE_MS) {
+  if (
+    cachedSchedulePayload &&
+    now - cachedScheduleFetchedAt < SCHEDULE_CACHE_MS &&
+    cachedScheduleOrgId === normalizedOrgId
+  ) {
     return cachedSchedulePayload;
   }
 
   const baseParams = {
-    filter: buildScheduleSourceFilter(),
+    filter: buildScheduleSourceFilter(orgId),
     perPage: '1',
   };
 
@@ -168,6 +177,7 @@ const loadSchedulePayload = async (): Promise<SchedulerPayload> => {
   const payload = (record?.data || {}) as SchedulerPayload;
   cachedSchedulePayload = payload;
   cachedScheduleFetchedAt = now;
+  cachedScheduleOrgId = normalizedOrgId;
   return payload;
 };
 
@@ -232,12 +242,24 @@ const fetchRoster = async (rosterId: string, expanded?: RosterRecord): Promise<R
   }));
 };
 
+const getRecordOrgId = (record: ScheduledGameRecord): string | undefined => {
+  return record.org_id || record.orgId;
+};
+
+const matchesOrg = (record: ScheduledGameRecord, orgId?: string): boolean => {
+  if (!orgId) return true;
+  const recordOrgId = getRecordOrgId(record);
+  if (!recordOrgId) return false;
+  return String(recordOrgId) === String(orgId);
+};
+
 export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
   provider: 'pocketbase',
   isConfigured: () => !!getEnvVar('POCKETBASE_URL'),
-  fetchUserScheduledGames: async (): Promise<ScheduledGameSummary[]> => {
+  fetchUserScheduledGames: async (context?: { orgId?: string }): Promise<ScheduledGameSummary[]> => {
+    const orgId = context?.orgId;
     if (shouldUseScheduleSource()) {
-      const payload = await loadSchedulePayload();
+      const payload = await loadSchedulePayload(orgId);
       const teams = payload.teams || [];
       const games = [...(payload.games || [])]
         .filter((game) => isActiveScheduleStatus((game as { status?: string }).status))
@@ -267,6 +289,7 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
       const data = await requestJson<PocketBaseListResponse<ScheduledGameRecord>>(urlWithSort);
       return (data.items || [])
         .filter((game) => !game.status || game.status === 'scheduled' || game.status === 'in_progress')
+        .filter((game) => matchesOrg(game, orgId))
         .map((game) => ({
           id: game.id,
           title: `${game.title || game.competition || `Game #${game.id}`}${game.date ? ` (${formatScheduleDateTime(game.date)})` : ''}`,
@@ -282,15 +305,17 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
       const data = await requestJson<PocketBaseListResponse<ScheduledGameRecord>>(urlNoSort);
       return (data.items || [])
         .filter((game) => !game.status || game.status === 'scheduled' || game.status === 'in_progress')
+        .filter((game) => matchesOrg(game, orgId))
         .map((game) => ({
           id: game.id,
           title: `${game.title || game.competition || `Game #${game.id}`}${game.date ? ` (${formatScheduleDateTime(game.date)})` : ''}`,
         }));
     }
   },
-  fetchGameScheduleData: async (gameId: number | string): Promise<FetchedGameScheduleData> => {
+  fetchGameScheduleData: async (gameId: number | string, context?: { orgId?: string }): Promise<FetchedGameScheduleData> => {
+    const orgId = context?.orgId;
     if (shouldUseScheduleSource()) {
-      const payload = await loadSchedulePayload();
+      const payload = await loadSchedulePayload(orgId);
       const teams = payload.teams || [];
       const leagues = payload.leagues || [];
       const games = payload.games || [];
@@ -332,6 +357,9 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
     });
 
     const game = await requestJson<ScheduledGameRecord>(url);
+    if (!matchesOrg(game, orgId)) {
+      throw new Error('Scheduled game is not available for the current organization.');
+    }
 
     const extractId = (value: unknown): string | undefined => {
       if (!value) return undefined;

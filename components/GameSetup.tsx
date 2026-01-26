@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import type { TeamSetup, GameState, ScoreboardSettings } from '../types';
 import { getGameScheduleProvider } from '../services/gameScheduleProvider';
+import { useKeycloakAuth } from './KeycloakAuth';
 import SettingsModal from './SettingsModal';
 
 interface GameSetupProps {
@@ -660,6 +661,15 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameSetup, onUpdateSetupData, o
   const [selectedGameId, setSelectedGameId] = useState('');
   
   const [scheduleProvider, setScheduleProvider] = useState(() => getGameScheduleProvider());
+  const auth = useKeycloakAuth();
+  const orgId = useMemo(() => {
+    const profile = auth?.user?.profile as Record<string, unknown> | undefined;
+    const raw = profile?.org_id ?? profile?.orgId ?? profile?.organization_id ?? profile?.organizationId;
+    if (Array.isArray(raw)) {
+      return typeof raw[0] === 'string' ? raw[0] : undefined;
+    }
+    return typeof raw === 'string' ? raw : undefined;
+  }, [auth?.user]);
   
   // Check if schedule provider is configured (use state so it updates when window.__ENV__ becomes available)
   const [areScheduleCredentialsSet, setAreScheduleCredentialsSet] = useState(() => {
@@ -776,7 +786,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameSetup, onUpdateSetupData, o
     setScheduleError(null);
     setGamesList([]);
     try {
-      const games = await scheduleProvider.fetchUserScheduledGames();
+      const games = await scheduleProvider.fetchUserScheduledGames({ orgId });
       setGamesList(games);
       setIsConnected(true);
     } catch (err) {
@@ -798,7 +808,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameSetup, onUpdateSetupData, o
     setScheduleIsLoading(true);
     setScheduleError(null);
     try {
-      const data = await scheduleProvider.fetchGameScheduleData(selectedGameId);
+      const data = await scheduleProvider.fetchGameScheduleData(selectedGameId, { orgId });
       setHomeTeamName(data.homeTeam.name);
       setHomeTeamRoster(data.homeTeam.roster || ''); // May be empty if rosters not in schema
       setHomeTeamLogo(data.homeTeam.logoUrl || '');

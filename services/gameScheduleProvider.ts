@@ -25,8 +25,8 @@ export interface FetchedGameScheduleData {
 export interface GameScheduleProvider {
   provider: 'none' | 'pocketbase';
   isConfigured: () => boolean;
-  fetchUserScheduledGames: () => Promise<ScheduledGameSummary[]>;
-  fetchGameScheduleData: (gameId: number | string) => Promise<FetchedGameScheduleData>;
+  fetchUserScheduledGames: (context?: { orgId?: string }) => Promise<ScheduledGameSummary[]>;
+  fetchGameScheduleData: (gameId: number | string, context?: { orgId?: string }) => Promise<FetchedGameScheduleData>;
   updateGameScheduleStatus: (gameId: number | string, status: 'in_progress' | 'finished') => Promise<void>;
 }
 
