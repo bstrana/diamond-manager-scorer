@@ -670,6 +670,21 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameSetup, onUpdateSetupData, o
     }
     return typeof raw === 'string' ? raw : undefined;
   }, [auth?.user]);
+  const profileName = useMemo(() => {
+    const profile = auth?.user?.profile as Record<string, unknown> | undefined;
+    const name = profile?.name;
+    const preferredUsername = profile?.preferred_username;
+    const email = profile?.email;
+    const givenName = profile?.given_name;
+    const familyName = profile?.family_name;
+    if (typeof name === 'string' && name.trim()) return name.trim();
+    if (typeof preferredUsername === 'string' && preferredUsername.trim()) return preferredUsername.trim();
+    if (typeof email === 'string' && email.trim()) return email.trim();
+    const combined = [givenName, familyName]
+      .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+      .join(' ');
+    return combined || undefined;
+  }, [auth?.user]);
   
   // Check if schedule provider is configured (use state so it updates when window.__ENV__ becomes available)
   const [areScheduleCredentialsSet, setAreScheduleCredentialsSet] = useState(() => {
@@ -977,7 +992,22 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameSetup, onUpdateSetupData, o
         {error && <p className="text-red-500 text-center">{error}</p>}
         
         <div className="pt-4">
-            <label htmlFor="scorekeeper-name" className="block mb-2 text-sm font-medium text-gray-300 text-center">Scorekeeper Name</label>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <label htmlFor="scorekeeper-name" className="text-sm font-medium text-gray-300 text-center">Scorekeeper Name</label>
+              {profileName && (
+                <button
+                  type="button"
+                  onClick={() => setScorekeeperName(profileName)}
+                  className="text-gray-400 hover:text-white transition-colors"
+                  title={`Use profile: ${profileName}`}
+                  aria-label="Use profile name for scorekeeper"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-4.418 0-8 2.015-8 4.5V20h16v-1.5c0-2.485-3.582-4.5-8-4.5z" />
+                  </svg>
+                </button>
+              )}
+            </div>
             <input
               id="scorekeeper-name"
               type="text"
