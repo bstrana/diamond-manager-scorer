@@ -157,15 +157,19 @@ const ManagerReportPage: React.FC = () => {
 
   const searchParams = useMemo(() => new URLSearchParams(window.location.search), []);
   const initialScheduleId = searchParams.get('schedule') || 'all';
+  const initialGameId = searchParams.get('game') || 'all';
   const initialTeam = searchParams.get('team') || 'all';
   const initialPlayer = searchParams.get('player') || 'all';
   const isShareView = searchParams.get('share') === '1';
 
   const [schedules, setSchedules] = useState<ScheduleRecord[]>([]);
   const [selectedScheduleId, setSelectedScheduleId] = useState(initialScheduleId);
+  const [games, setGames] = useState<GameRecord[]>([]);
+  const [selectedGameId, setSelectedGameId] = useState(initialGameId);
   const [teamFilter, setTeamFilter] = useState(initialTeam);
   const [playerFilter, setPlayerFilter] = useState(initialPlayer);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGamesLoading, setIsGamesLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [reportStats, setReportStats] = useState<AggregatedPlayerStats[]>([]);
@@ -187,6 +191,33 @@ const ManagerReportPage: React.FC = () => {
       isMounted = false;
     };
   }, [orgId]);
+
+  useEffect(() => {
+    if (selectedScheduleId === 'all') {
+      setGames([]);
+      setSelectedGameId('all');
+      return;
+    }
+    let isMounted = true;
+    setIsGamesLoading(true);
+    fetchGames([selectedScheduleId])
+      .then((data) => {
+        if (!isMounted) return;
+        setGames(data);
+        setSelectedGameId('all');
+      })
+      .catch((err) => {
+        if (!isMounted) return;
+        setError(err instanceof Error ? err.message : 'Failed to load games.');
+      })
+      .finally(() => {
+        if (!isMounted) return;
+        setIsGamesLoading(false);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedScheduleId]);
 
   const loadReport = async () => {
     setIsLoading(true);
@@ -210,9 +241,12 @@ const ManagerReportPage: React.FC = () => {
         const status = (game.status || '').toLowerCase();
         return status === 'final' || status === 'finished';
       });
-      const filteredGames = scheduleIds.length === schedules.length
+      const scheduleFilteredGames = scheduleIds.length === schedules.length
         ? playedGames
         : playedGames.filter((game) => scheduleIds.some((id) => String(game.external_game_id) === String(id)));
+      const filteredGames = selectedGameId === 'all'
+        ? scheduleFilteredGames
+        : scheduleFilteredGames.filter((game) => String(game.id) === String(selectedGameId));
 
       const gameIds = filteredGames.map((game) => game.id);
       if (!gameIds.length) {
@@ -350,6 +384,15 @@ const ManagerReportPage: React.FC = () => {
     }
   }, [isShareView]);
 
+  useEffect(() => {
+    if (isShareView) return;
+    if (selectedScheduleId === 'all') return;
+    if (isGamesLoading) return;
+    if (selectedGameId !== 'all') {
+      loadReport();
+    }
+  }, [selectedScheduleId, selectedGameId, isGamesLoading, isShareView]);
+
   const filteredStats = useMemo(() => {
     return reportStats.filter((player) => {
       const teamMatch = teamFilter === 'all' || (player.team || 'Unknown') === teamFilter;
@@ -368,11 +411,12 @@ const ManagerReportPage: React.FC = () => {
   const shareLink = useMemo(() => {
     const url = new URL('/manager-report', window.location.origin);
     if (selectedScheduleId !== 'all') url.searchParams.set('schedule', selectedScheduleId);
+    if (selectedGameId !== 'all') url.searchParams.set('game', selectedGameId);
     if (teamFilter !== 'all') url.searchParams.set('team', teamFilter);
     if (playerFilter !== 'all') url.searchParams.set('player', playerFilter);
     url.searchParams.set('share', '1');
     return url.toString();
-  }, [selectedScheduleId, teamFilter, playerFilter]);
+  }, [selectedScheduleId, selectedGameId, teamFilter, playerFilter]);
 
   const handleCopyShare = () => {
     navigator.clipboard.writeText(shareLink).then(() => {
@@ -399,7 +443,7 @@ const ManagerReportPage: React.FC = () => {
 
         {!isShareView && (
           <section className="bg-gray-800 border border-gray-700 rounded-lg p-4 space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Schedule</label>
                 <select
@@ -414,6 +458,26 @@ const ManagerReportPage: React.FC = () => {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Game</label>
+                <select
+                  className="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5"
+                  value={selectedGameId}
+                  onChange={(e) => setSelectedGameId(e.target.value)}
+                  disabled={selectedScheduleId === 'all'}
+                >
+                  <option value="all">{selectedScheduleId === 'all' ? 'Select a schedule first' : 'All games'}</option>
+                  {games.map((game) => (
+                    <option key={game.id} value={game.id}>
+                      {`${game.competition || game.location || `Game ${game.id}`}${game.game_date ? ` (${new Date(game.game_date).toLocaleDateString()})` : ''}`}
+                    </option>
+                  ))}
+                </select>
+                {isGamesLoading && (
+                  <div className="text-xs text-gray-500 mt-1">Loading games...</div>
+                )}
               </div>
 
               <div>
