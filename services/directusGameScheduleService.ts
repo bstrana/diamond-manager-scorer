@@ -26,6 +26,15 @@ function getEnvVar(key: string): string | undefined {
   return process.env[key];
 }
 
+const formatScheduleDateTime = (date?: string): string => {
+  if (!date) return '';
+  const parsed = new Date(date);
+  if (!Number.isNaN(parsed.getTime())) {
+    return parsed.toLocaleString();
+  }
+  return date;
+};
+
 // Create a separate Directus client for game schedule operations
 // This uses the scorekeeper user's token (not admin token)
 let scheduleClient: ReturnType<typeof createDirectus> | null = null;
@@ -343,10 +352,14 @@ export const fetchUserScheduledGames = async (): Promise<Array<{ id: number | st
       }
     }
 
-    return games.map((game: DirectusGameItem) => ({
-      id: game.id,
-      title: game.Title || game.competition || `Game #${game.id}`,
-    }));
+    return games.map((game: DirectusGameItem) => {
+      const title = game.Title || game.competition || `Game #${game.id}`;
+      const dateLabel = formatScheduleDateTime(game.Date);
+      return {
+        id: game.id,
+        title: `${title}${dateLabel ? ` (${dateLabel})` : ''}`,
+      };
+    });
   } catch (error: any) {
     console.error("Failed to fetch scheduled games:", error);
     

@@ -246,6 +246,11 @@ export const useGameState = () => {
           clearTimeout(localStorageWriteTimeout);
         }
         localStorageWriteTimeout = setTimeout(() => {
+          const obsSyncEnabled = (process.env.ENABLE_OBS_SYNC || '').toString().toLowerCase() === 'true';
+          const shouldSyncToApi = process.env.NODE_ENV === 'production' || obsSyncEnabled;
+          if (!shouldSyncToApi) {
+            return;
+          }
           fetch('/api/gamestate', {
             method: 'POST',
             headers: { 

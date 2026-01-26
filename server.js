@@ -133,6 +133,7 @@ function injectEnvVars(html) {
     DATA_PROVIDER: process.env.DATA_PROVIDER || '',
     SCHEDULE_PROVIDER: process.env.SCHEDULE_PROVIDER || '',
     POCKETBASE_URL: process.env.POCKETBASE_URL || '',
+    ENABLE_OBS_SYNC: process.env.ENABLE_OBS_SYNC || '',
   };
   
   // Log environment variable status (only log first time, no sensitive data)

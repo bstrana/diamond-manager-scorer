@@ -26,6 +26,7 @@ export default defineConfig(({ mode }) => {
         'process.env.DATA_PROVIDER': JSON.stringify(env.DATA_PROVIDER || ''),
         'process.env.SCHEDULE_PROVIDER': JSON.stringify(env.SCHEDULE_PROVIDER || ''),
         'process.env.POCKETBASE_URL': JSON.stringify(env.POCKETBASE_URL || ''),
+        'process.env.ENABLE_OBS_SYNC': JSON.stringify(env.ENABLE_OBS_SYNC || ''),
       },
       resolve: {
         alias: {
