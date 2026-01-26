@@ -13,6 +13,7 @@ import LinescorePage from './components/LinescorePage';
 import LowProfileScoreboardPage from './components/LowProfileScoreboardPage';
 import FieldPlayersPage from './components/FieldPlayersPage';
 import BattingOrderPage from './components/BattingOrderPage';
+import ManagerReportPage from './components/ManagerReportPage';
 import { KeycloakAuthProvider } from './components/KeycloakAuth';
 import { getEnvVar } from './utils/env';
 
@@ -105,6 +106,10 @@ const App: React.FC = () => {
   
   if (window.location.pathname.toLowerCase() === '/batting-order') {
     return <BattingOrderPage />;
+  }
+
+  if (window.location.pathname.toLowerCase() === '/manager-report') {
+    return <ManagerReportPage />;
   }
 
   const { 
@@ -216,6 +221,10 @@ const App: React.FC = () => {
         setCopiedBattingOrderLink(true);
         setTimeout(() => setCopiedBattingOrderLink(false), 2000);
     });
+  };
+  const openManagerReport = () => {
+    const url = new URL('/manager-report', window.location.origin);
+    window.open(url.href, '_blank', 'noopener,noreferrer');
   };
 
   const battingTeam = gameState.isTopInning ? gameState.awayTeam : gameState.homeTeam;
@@ -408,6 +417,13 @@ const App: React.FC = () => {
                 title="Copy the batting order overlay URL to your clipboard"
               >
                 {copiedBattingOrderLink ? 'Copied!' : 'Copy Batting Order Link'}
+              </button>
+              <button
+                onClick={openManagerReport}
+                className="px-6 py-2 bg-sky-600 hover:bg-sky-700 rounded-md font-bold transition-colors"
+                title="Open the manager report dashboard in a new tab"
+              >
+                Open Manager Report
               </button>
             </footer>
           </div>
