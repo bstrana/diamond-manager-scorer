@@ -662,6 +662,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameSetup, onUpdateSetupData, o
   
   const [scheduleProvider, setScheduleProvider] = useState(() => getGameScheduleProvider());
   const auth = useKeycloakAuth();
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const orgId = useMemo(() => {
     const profile = auth?.user?.profile as Record<string, unknown> | undefined;
     const raw = profile?.org_id ?? profile?.orgId ?? profile?.organization_id ?? profile?.organizationId;
@@ -895,6 +896,39 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameSetup, onUpdateSetupData, o
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
         </button>
+
+        <div className={`absolute top-4 ${isEditing && initialState?.gameStatus !== 'setup' ? 'right-16' : 'right-4'}`}>
+          <button
+            type="button"
+            onClick={() => setIsUserMenuOpen((prev) => !prev)}
+            className="p-2 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+            aria-label="Open user menu"
+            title="User menu"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-4.418 0-8 2.015-8 4.5V20h16v-1.5c0-2.485-3.582-4.5-8-4.5z" />
+            </svg>
+          </button>
+          {isUserMenuOpen && (
+            <div className="absolute right-0 mt-2 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-20">
+              <div className="p-3 border-b border-gray-700">
+                <div className="text-sm font-semibold text-white truncate">
+                  {profileName || 'Signed in user'}
+                </div>
+                <div className="text-xs text-gray-400 mt-1">
+                  Organization: {orgId || 'N/A'}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => auth?.signoutRedirect?.()}
+                className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+              >
+                Log out
+              </button>
+            </div>
+          )}
+        </div>
 
       <h2 className="text-2xl font-bold text-center mb-6">Game Setup</h2>
 
