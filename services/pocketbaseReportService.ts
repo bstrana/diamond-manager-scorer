@@ -120,12 +120,16 @@ const tryFetchWithFilterFallback = async <T>(collection: string, params: Record<
 };
 
 export const fetchSchedules = async (orgId?: string): Promise<ScheduleRecord[]> => {
-  const filter = orgId ? `org_id="${orgId}"` : undefined;
-  return tryFetchWithFilterFallback<ScheduleRecord>('schedules', {
+  const schedulesFromProvider = await tryFetchWithFilterFallback<ScheduleRecord>('schedules', {
     sort: 'date',
     perPage: '200',
-    ...(filter ? { filter } : {}),
     expand: 'home_team,away_team',
+  });
+
+  return schedulesFromProvider.filter((schedule) => {
+    if (!orgId) return true;
+    const recordOrgId = schedule.org_id || schedule.orgId;
+    return recordOrgId ? String(recordOrgId) === String(orgId) : false;
   });
 };
 
