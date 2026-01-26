@@ -2,7 +2,6 @@
 import { useState, useCallback } from 'react';
 import type { GameState, Player, TeamSetup, PitchType, HitType, OutType, PlateAppearanceResult, PlayerStats, Team, PlateAppearance, DefensivePlays, ScoreboardSettings, HitDescription } from '../types';
 import { getGameDataStore } from '../services/gameDataStore';
-// import { updateGameScheduleStatus } from '../services/directusGameScheduleService'; // Disabled - will tackle later
 import { broadcastGameState } from '../services/broadcastService';
 import { generateGameSummary } from '../services/gameSummaryService';
 
@@ -184,7 +183,7 @@ const scoreRun = (runner: Player, state: GameState): GameState => {
     team.roster = updatedRoster;
     const newState = { ...state, [teamKey]: team };
 
-    // SYNC WITH DIRECTUS
+    // Sync with configured data store
     const dataStore = getGameDataStore();
     if (newState.gameId && dataStore.isConfigured()) {
         dataStore.updateGameScores(newState.gameId, newState.homeTeam.score, newState.awayTeam.score)
@@ -216,8 +215,9 @@ export const useGameState = () => {
     }
   });
 
-  // Debounce localStorage writes to improve performance
+  // Debounce localStorage writes and API sync separately to improve performance
   let localStorageWriteTimeout: NodeJS.Timeout | null = null;
+  let apiSyncTimeout: NodeJS.Timeout | null = null;
   
   const setGameState = useCallback((updater: React.SetStateAction<GameState>) => {
     setGameStateInternal(prevState => {
@@ -242,10 +242,10 @@ export const useGameState = () => {
         broadcastGameState(newState);
         
         // Also POST to server API for OBS browser sources (debounced)
-        if (localStorageWriteTimeout) {
-          clearTimeout(localStorageWriteTimeout);
+        if (apiSyncTimeout) {
+          clearTimeout(apiSyncTimeout);
         }
-        localStorageWriteTimeout = setTimeout(() => {
+        apiSyncTimeout = setTimeout(() => {
           const obsSyncEnabled = (process.env.ENABLE_OBS_SYNC || '').toString().toLowerCase() === 'true';
           const shouldSyncToApi = process.env.NODE_ENV === 'production' || obsSyncEnabled;
           if (!shouldSyncToApi) {
@@ -421,7 +421,7 @@ export const useGameState = () => {
     
     setGameState(newState);
 
-    // SYNC WITH DIRECTUS
+    // Sync with configured data store
     const dataStore = getGameDataStore();
     if (dataStore.isConfigured()) {
       dataStore.createGame(newState)
@@ -447,19 +447,14 @@ export const useGameState = () => {
       
       const finalState: GameState = { ...prevState, gameStatus: 'final', gameEndTime: Date.now() };
       
-      // SYNC WITH DIRECTUS
+      // Sync with configured data store
       const dataStore = getGameDataStore();
       if (finalState.gameId && dataStore.isConfigured()) {
           dataStore.updateGameStatus(finalState.gameId, 'final', finalState.gameEndTime)
               .catch(e => console.error("Failed to update game status in data store:", e));
       }
 
-      // SYNC WITH DIRECTUS GAME SCHEDULE - DISABLED (will tackle later)
-      // const { gameId } = finalState;
-      // const areDirectusScheduleCredentialsSet = !!(process.env.DIRECTUS_URL && process.env.DIRECTUS_SCOREKEEPER_TOKEN);
-      // if (gameId && areDirectusScheduleCredentialsSet) {
-      //   updateGameScheduleStatus(gameId, 'finished').catch(err => console.error("Failed to update Directus game status:", err));
-      // }
+      // Schedule status updates can be handled by the configured provider if needed.
 
       return finalState;
     });
@@ -511,7 +506,7 @@ export const useGameState = () => {
         defensivePlays: resolvedDefensivePlays,
     };
     
-    // SYNC WITH DIRECTUS
+    // Sync with configured data store
     const dataStore = getGameDataStore();
     if (prevState.gameId && dataStore.isConfigured()) {
         dataStore.createPlateAppearance(newPA, prevState.gameId, prevState.inning, prevState.isTopInning)

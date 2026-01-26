@@ -94,8 +94,8 @@ export interface PlateAppearance {
 
 When saved to a configured data provider, the plate appearance is stored in the `plate_appearances` collection with the following fields:
 
-| Directus Field | Source | Description |
-|----------------|--------|-------------|
+| Field | Source | Description |
+|-------|--------|-------------|
 | `game` | `gameId` | Reference to the game |
 | `inning` | `inning` | Inning number |
 | `is_top_inning` | `isTopInning` | Boolean: top or bottom of inning |

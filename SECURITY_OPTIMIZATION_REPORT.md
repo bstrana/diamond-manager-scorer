@@ -65,8 +65,8 @@
    - Add strict CSP headers in `server.js` to prevent XSS
    - Example: `Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'`
 
-3. **Server-Side Proxy for Directus**
-   - Currently: Directus tokens are exposed client-side
+3. **Server-Side Proxy for External APIs**
+   - Currently: External tokens may be exposed client-side
    - Recommendation: Create server-side proxy endpoints to keep tokens server-side only
 
 ### Medium Priority
@@ -196,7 +196,7 @@
 ### Next Steps
 1. Implement team name sanitization
 2. Add React.memo to frequently re-rendering components
-3. Consider server-side proxy for Directus tokens
+3. Consider server-side proxy for external tokens
 4. Add CSP headers
 
 

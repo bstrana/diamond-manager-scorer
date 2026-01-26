@@ -165,11 +165,6 @@ KEYCLOAK_CLIENT_ID=baseball-scorer-app
 - **Database** - Keycloak requires a database (PostgreSQL, MySQL, etc.)
 - **Configuration** - More setup required than simple password
 
-### Cloudron Compatibility
-✅ **Keycloak available on Cloudron** - Can be installed as a Cloudron app  
-✅ **Same platform** - Both apps on Cloudron, easier integration  
-✅ **Internal networking** - Apps can communicate internally  
-
 ### Migration Path
 1. **Phase 1**: Keep both systems (Keycloak + password unlock)
 2. **Phase 2**: Make Keycloak primary, password as fallback
@@ -177,7 +172,7 @@ KEYCLOAK_CLIENT_ID=baseball-scorer-app
 
 ## Estimated Implementation Time
 
-- **Keycloak setup**: 1-2 hours (if using Cloudron app)
+- **Keycloak setup**: 1-2 hours
 - **React integration**: 2-4 hours
 - **Testing & refinement**: 1-2 hours
 - **Total**: 4-8 hours
@@ -189,7 +184,6 @@ KEYCLOAK_CLIENT_ID=baseball-scorer-app
 - Want better security than password-based unlock
 - Plan to have multiple applications
 - Want centralized user management
-- Are already using Cloudron (Keycloak available as app)
 
 **Consider keeping password unlock** if you:
 - Only need single-user access
@@ -198,7 +192,7 @@ KEYCLOAK_CLIENT_ID=baseball-scorer-app
 
 ## Next Steps (If Proceeding)
 
-1. **Install Keycloak on Cloudron** (or your server)
+1. **Install Keycloak** (or use an existing instance)
 2. **Create realm and client** in Keycloak admin console
 3. **Install React library** (`react-oidc-context` recommended)
 4. **Replace LockScreen** with Keycloak authentication
@@ -210,6 +204,5 @@ KEYCLOAK_CLIENT_ID=baseball-scorer-app
 - [Keycloak Documentation](https://www.keycloak.org/docs)
 - [react-oidc-context GitHub](https://github.com/authts/react-oidc-context)
 - [Keycloak JavaScript Adapter](https://www.keycloak.org/docs/latest/securing_apps/#_javascript_adapter)
-- [Cloudron Keycloak App](https://www.cloudron.io/store/com.keycloak.cloudronapp.html)
 
 

@@ -35,8 +35,8 @@ A real-time baseball scoring application with live scoreboard overlay for stream
    UNLOCK_KEY=unlock
    
    # Data providers (optional)
-   # DATA_PROVIDER: one of "pocketbase", "directus", "none"
-   # SCHEDULE_PROVIDER: one of "pocketbase", "directus", "none"
+   # DATA_PROVIDER: one of "pocketbase", "none"
+   # SCHEDULE_PROVIDER: one of "pocketbase", "none"
    # POCKETBASE_URL: Your PocketBase instance URL (e.g., https://pb.your-domain.com)
    DATA_PROVIDER=pocketbase
    SCHEDULE_PROVIDER=pocketbase
@@ -49,7 +49,7 @@ A real-time baseball scoring application with live scoreboard overlay for stream
   POCKETBASE_SCHEDULE_ORG_ID=your-org-id
   POCKETBASE_SCHEDULE_USER_ID=your-user-id
    
-   # WordPress Integration (optional - deprecated, use Directus instead)
+   # WordPress Integration (optional - deprecated)
    WP_SITE_URL=https://your-wordpress-site.com
    WP_USERNAME=your-wp-username
    WP_APP_PASS=your-wp-application-password
@@ -66,14 +66,14 @@ A real-time baseball scoring application with live scoreboard overlay for stream
 ### Environment Variables Explained
 
 - **UNLOCK_KEY**: Password to unlock the app on first load (defaults to `'unlock'` if not set)
-- **DATA_PROVIDER**: Persistence provider (`pocketbase`, `directus`, or `none`)
-- **SCHEDULE_PROVIDER**: Schedule provider (`pocketbase`, `directus`, or `none`)
+- **DATA_PROVIDER**: Persistence provider (`pocketbase` or `none`)
+- **SCHEDULE_PROVIDER**: Schedule provider (`pocketbase` or `none`)
 - **POCKETBASE_URL**: Your PocketBase instance URL (optional - app works without it)
 - **POCKETBASE_SCHEDULE_SOURCE_COLLECTION**: Scheduler app collection to read from
 - **POCKETBASE_SCHEDULE_APP_ID**: App id stored by Scheduler (default: `scheduler`)
 - **POCKETBASE_SCHEDULE_ORG_ID**: Org id filter (optional)
 - **POCKETBASE_SCHEDULE_USER_ID**: User id filter (optional)
-- **WP_SITE_URL**, **WP_USERNAME**, **WP_APP_PASS**: For WordPress integration (deprecated - use Directus instead)
+- **WP_SITE_URL**, **WP_USERNAME**, **WP_APP_PASS**: For WordPress integration (deprecated)
 
 **Note:** The app will work perfectly fine without any environment variables. You'll just see console warnings about missing integrations, but all core scoring features will function normally.
 
@@ -164,97 +164,3 @@ The built files will be in the `dist` directory.
 npm run preview
 ```
 
-## Cloudron Environment Variables
-
-When installed on Cloudron, you can edit environment variables after installation:
-
-1. **Via Cloudron Dashboard:**
-   - Go to your app → Settings → Environment Variables
-   - Edit variables directly in the UI
-
-2. **Via .env file in `/app/data/`:**
-   - Use Cloudron File Manager or Terminal to access `/app/data/`
-   - Create or edit `/app/data/.env` file
-   - Format: `KEY=value` (one per line)
-   - Example:
-     ```
-     UNLOCK_KEY=my-secure-password
-     DIRECTUS_URL=https://app.yourball.club
-     DIRECTUS_STATIC_TOKEN=your-token-here
-     DIRECTUS_SCOREKEEPER_TOKEN=your-token-here
-     ```
-   - Restart the app for changes to take effect
-   - The `.env` file takes precedence over Cloudron dashboard environment variables
-
-**Note:** See `.env.example` for a template of available environment variables.
-
-## Deploy to Cloudron.io
-
-This app can be deployed to Cloudron.io, a self-hosting platform for web applications.
-
-### Prerequisites
-
-- A Cloudron instance set up and running
-- Docker installed on your local machine (for building the app package)
-- Cloudron CLI installed (optional, for easier deployment)
-
-### Deployment Steps
-
-1. **Build the Docker image:**
-   ```bash
-   docker build -t baseball-scorer:latest .
-   ```
-
-2. **Tag the image for your Cloudron registry:**
-   ```bash
-   docker tag baseball-scorer:latest your-cloudron-instance.com:5000/baseball-scorer:latest
-   ```
-
-3. **Push to Cloudron registry:**
-   ```bash
-   docker push your-cloudron-instance.com:5000/baseball-scorer:latest
-   ```
-
-4. **Install via Cloudron UI:**
-   - Log into your Cloudron dashboard
-   - Go to "Apps" → "Install App"
-   - Select "Custom App"
-   - Choose "From Docker Image"
-   - Enter: `your-cloudron-instance.com:5000/baseball-scorer:latest`
-   - Fill in the app details from `CloudronManifest.json`
-   - Configure environment variables (optional):
-     - `UNLOCK_KEY`: Password to unlock the app (default: "unlock")
-     - `DIRECTUS_URL`: Your Directus instance URL
-     - `DIRECTUS_STATIC_TOKEN`: Directus admin token
-     - `DIRECTUS_SCOREKEEPER_TOKEN`: Directus scorekeeper user token
-
-5. **Alternative: Use Cloudron CLI:**
-   ```bash
-   cloudron install --image your-cloudron-instance.com:5000/baseball-scorer:latest
-   ```
-
-### Environment Variables
-
-All environment variables are optional. The app will work without them, but you'll see console warnings about missing integrations:
-
-- **UNLOCK_KEY**: Password to unlock the app (defaults to "unlock")
-
-
-### Post-Deployment
-
-After installation, you can:
-- Access the app at `https://baseball-scorer.your-cloudron-domain.com`
-- Access the scoreboard overlay at `https://baseball-scorer.your-cloudron-domain.com/scoreboard`
-- Access the lower thirds overlay at `https://baseball-scorer.your-cloudron-domain.com/batter-lower-thirds`
-- Access the linescore overlay at `https://baseball-scorer.your-cloudron-domain.com/linescore`
-
-### Updating the App
-
-To update the app on Cloudron:
-
-1. Build a new Docker image with a new tag
-2. Push to the Cloudron registry
-3. Update the app in Cloudron dashboard or use CLI:
-   ```bash
-   cloudron update --app baseball-scorer --image your-cloudron-instance.com:5000/baseball-scorer:new-tag
-   ```

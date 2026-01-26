@@ -197,13 +197,12 @@ Could show hit descriptions in real-time on the scoreboard or in a play-by-play 
 
 ### 6. Data Storage
 
-#### A. Directus Integration
+#### A. External Data Store (Optional)
 
-Update `createPlateAppearance` in `services/directusService.ts`:
-
-Add new field to plate_appearances collection:
+If you persist plate appearances in an external data store, add a field such as:
 - `hit_description_json`: JSON field storing the HitDescription object
 
+Example payload:
 ```typescript
 const paData = {
   // ... existing fields ...
@@ -280,8 +279,8 @@ const description = pa.hitDescription
 6. **Create description generator** function
 7. **Update game summary** to include descriptions
 8. **Update AI recap** to include descriptions
-9. **Update Directus schema** (add `hit_description_json` field)
-10. **Update `createPlateAppearance`** to save descriptions
+9. **Update data store schema** (add `hit_description_json` field)
+10. **Update persistence layer** to save descriptions
 
 ### 11. Example Data Flow
 
@@ -354,7 +353,7 @@ When generating AI recap: "Smith hit a line drive to center field..."
 1. Game Summary modal (text format)
 2. AI-generated recaps (narrative format)
 3. Play-by-play log (if implemented)
-4. Export to Directus (JSON format)
+4. Export to external data store (JSON format)
 5. Future: Live commentary, social media posts
 
 ---
@@ -366,7 +365,7 @@ This feature requires:
 - **UI layer**: New modal component for description input
 - **Logic layer**: Description generator, integration with hit recording
 - **Display layer**: Update summary and AI recap generation
-- **Storage layer**: Add field to Directus, update save functions
+- **Storage layer**: Add field to data store, update save functions
 
 The implementation follows the existing pattern of modals (like `DefensivePlayModal`) and integrates seamlessly with the current hit recording flow.
 

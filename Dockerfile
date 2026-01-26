@@ -26,10 +26,7 @@ COPY --from=builder /app/dist ./dist
 # Copy server script
 COPY server.js ./
 
-# Copy Cloudron manifest (if it exists)
-COPY CloudronManifest.json* ./
-
-# Expose port (Cloudron will set PORT environment variable)
+# Expose port
 EXPOSE 3000
 
 # Health check

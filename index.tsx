@@ -3,8 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import AppWithAuth from './App';
 
-// Override process.env with runtime environment variables from Cloudron
-// These are injected by server.js at runtime (before this script loads)
+// Override process.env with runtime environment variables injected by server.js
 if (typeof window !== 'undefined' && (window as any).__ENV__) {
   const runtimeEnv = (window as any).__ENV__;
   // Update process.env with runtime values (for client-side code)

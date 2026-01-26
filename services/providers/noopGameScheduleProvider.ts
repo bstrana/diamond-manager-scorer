@@ -2,7 +2,7 @@ import type { GameScheduleProvider, ScheduledGameSummary } from '../gameSchedule
 import type { FetchedGameScheduleData } from '../gameScheduleProvider';
 
 const notConfigured = (): Error =>
-  new Error('Game schedule integration is disabled. Set SCHEDULE_PROVIDER to directus or pocketbase and provider credentials to enable.');
+  new Error('Game schedule integration is disabled. Set SCHEDULE_PROVIDER to pocketbase and configure provider credentials to enable.');
 
 export const noopGameScheduleProvider: GameScheduleProvider = {
   provider: 'none',

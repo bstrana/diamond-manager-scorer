@@ -9,7 +9,7 @@
   - Player number, name, and position assignment
   - Team color customization
   - Competition and location tracking
-  - Game date/time from Directus integration
+  - Game date/time from schedule import
 
 - **Game Flow Control**
   - Start/Resume/Pause game
@@ -158,16 +158,13 @@
   - Game summary modal
 
 ### Data Integration
-- **Directus CMS Integration**
-  - Game creation and updates
-  - Plate appearance recording
-  - Score synchronization
-  - Game schedule import
+- **PocketBase Integration**
+  - Schedule import
   - Team and roster import
   - Player photo integration
 
 - **Game Schedule Import**
-  - Fetch games from Directus
+  - Fetch games from PocketBase
   - Import team rosters
   - Import player data with photos
   - Automatic team logo loading
@@ -214,7 +211,6 @@
   - Multi-stage build
   - Optimized production image
   - Health checks
-  - Cloudron-ready
 
 - **OBS Integration**
   - Browser source compatibility
@@ -302,7 +298,7 @@
 
 ## 🌐 Integration Capabilities
 
-- Directus CMS
+- PocketBase
 - Keycloak authentication
 - OpenRouter AI
 - WordPress (optional)

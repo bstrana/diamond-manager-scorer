@@ -547,7 +547,7 @@ const TeamInput: React.FC<{
       setRoster(convertRosterArrayToString(players));
     };
 
-    // Sync when roster string changes externally (e.g., from file import or Directus)
+    // Sync when roster string changes externally (e.g., from file import or schedule import)
     useEffect(() => {
       const parsed = parseRosterToArray(roster);
       setRosterPlayers(parsed);
@@ -685,16 +685,12 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameSetup, onUpdateSetupData, o
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   
   const isScheduleDisabled = scheduleProvider.provider === 'none';
-  const scheduleProviderLabel = scheduleProvider.provider === 'directus'
-    ? 'Directus'
-    : scheduleProvider.provider === 'pocketbase'
-      ? 'PocketBase'
-      : 'Game schedule';
-  const scheduleConfigHint = scheduleProvider.provider === 'directus'
-    ? 'Set DIRECTUS_URL and DIRECTUS_SCOREKEEPER_TOKEN to enable.'
-    : scheduleProvider.provider === 'pocketbase'
-      ? 'Set POCKETBASE_URL and SCHEDULE_PROVIDER=pocketbase to enable.'
-      : 'Set SCHEDULE_PROVIDER to directus or pocketbase and provider credentials to enable.';
+  const scheduleProviderLabel = scheduleProvider.provider === 'pocketbase'
+    ? 'PocketBase'
+    : 'Game schedule';
+  const scheduleConfigHint = scheduleProvider.provider === 'pocketbase'
+    ? 'Set POCKETBASE_URL and SCHEDULE_PROVIDER=pocketbase to enable.'
+    : 'Set SCHEDULE_PROVIDER to pocketbase and provider credentials to enable.';
   
   // Roster modal state
   const [isRosterModalOpen, setIsRosterModalOpen] = useState(false);

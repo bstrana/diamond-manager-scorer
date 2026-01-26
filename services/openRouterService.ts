@@ -1,13 +1,6 @@
 import type { GameState } from '../types';
 import { generateHitDescriptionText } from '../components/HitDescriptionModal';
-
-// Helper function to get environment variable
-function getEnvVar(key: string): string | undefined {
-  if (typeof window !== 'undefined' && (window as any).__ENV__) {
-    return (window as any).__ENV__[key];
-  }
-  return process.env[key];
-}
+import { getEnvVar } from '../utils/env';
 
 interface OpenRouterMessage {
   role: 'system' | 'user' | 'assistant';

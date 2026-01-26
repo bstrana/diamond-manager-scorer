@@ -51,18 +51,18 @@
 ### 5. ✅ Environment Variable Exposure
 
 #### Current State
-- **Exposed**: Environment variables are injected into `window.__ENV__` for client-side access
-- **Reason**: Required for Keycloak and Directus client-side configuration
+- **Scoped**: Only non-sensitive configuration is injected into `window.__ENV__`
+- **Reason**: Required for Keycloak and provider configuration without exposing secrets
 - **Risk**: Tokens are visible in browser DevTools
 - **Mitigation**: 
   - Tokens are server-side only where possible
   - Keycloak uses OAuth flow (tokens not in env vars)
-  - Directus tokens are needed client-side for API calls
+  - Provider tokens should stay server-side when possible
 
 #### Recommendations
 - ✅ Tokens are not logged in production
 - ✅ No hardcoded secrets in code
-- ⚠️ Consider using server-side proxy for Directus API calls to avoid exposing tokens
+- ⚠️ Consider using a server-side proxy for external API calls to avoid exposing tokens
 
 ### 6. ✅ Input Validation
 
@@ -101,7 +101,7 @@
 - ✅ Graceful degradation when services unavailable
 
 ### Network Security
-- ✅ HTTPS required (via Cloudron)
+- ✅ HTTPS required
 - ✅ CORS configurable (currently permissive for OBS)
 - ✅ Request size limits
 - ⚠️ No rate limiting
@@ -125,7 +125,7 @@
    // Use DOMPurify or similar for HTML content
    ```
 
-3. **Server-Side Proxy**: Consider proxying Directus API calls through server
+3. **Server-Side Proxy**: Consider proxying external API calls through server
    - Keeps tokens server-side only
    - Adds additional security layer
 

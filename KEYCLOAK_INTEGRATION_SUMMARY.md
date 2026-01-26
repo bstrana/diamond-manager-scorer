@@ -29,8 +29,8 @@
 
 ## 📋 Configuration Required
 
-### In Cloudron Dashboard:
-Set these environment variables:
+### Environment Variables
+Set these environment variables in your runtime or build environment:
 ```
 KEYCLOAK_URL=https://usergate.bstrana.com
 KEYCLOAK_REALM=baseball-scorer
@@ -58,17 +58,9 @@ KEYCLOAK_CLIENT_ID=baseball-scorer-app
 
 ## 🚀 Deployment Steps
 
-1. **Set environment variables** in Cloudron dashboard
-2. **Build and push Docker image**:
-   ```bash
-   docker build -t 7od9/baseball-scorer:latest .
-   docker push 7od9/baseball-scorer:latest
-   ```
-3. **Update app on Cloudron**:
-   ```bash
-   cloudron update --app baseball-scorer
-   ```
-4. **Test authentication**:
+1. **Set environment variables** in your hosting platform
+2. **Build and deploy** the app using your standard pipeline
+3. **Test authentication**
    - Visit app URL
    - Should redirect to Keycloak login
    - After login, should redirect back and unlock
@@ -83,7 +75,7 @@ KEYCLOAK_CLIENT_ID=baseball-scorer-app
 
 ## 🔍 Testing Checklist
 
-- [ ] Environment variables set in Cloudron
+- [ ] Environment variables set in hosting environment
 - [ ] App restarted after setting variables
 - [ ] Keycloak client configured correctly
 - [ ] Redirect URIs match app domain
@@ -112,7 +104,6 @@ KEYCLOAK_CLIENT_ID=baseball-scorer-app
 ## 📚 Documentation
 
 - `KEYCLOAK_INTEGRATION_BRIEF.md` - Overview and benefits
-- `KEYCLOAK_CLOUDRON_SETUP.md` - Keycloak installation guide
 - `KEYCLOAK_SETUP.md` - Configuration and troubleshooting
 
 

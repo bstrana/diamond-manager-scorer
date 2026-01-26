@@ -14,6 +14,7 @@ import LowProfileScoreboardPage from './components/LowProfileScoreboardPage';
 import FieldPlayersPage from './components/FieldPlayersPage';
 import BattingOrderPage from './components/BattingOrderPage';
 import { KeycloakAuthProvider } from './components/KeycloakAuth';
+import { getEnvVar } from './utils/env';
 
 const getActiveLineup = (roster: Player[]): Player[] => {
     const hasDH = roster.some(p => p.position.toUpperCase() === 'DH');
@@ -498,14 +499,6 @@ const AppWithAuth: React.FC = () => {
   }
 
   const [isUnlocked, setIsUnlocked] = useState(false);
-
-  // Helper function to get environment variable
-  const getEnvVar = (key: string): string | undefined => {
-    if (typeof window !== 'undefined' && (window as any).__ENV__) {
-      return (window as any).__ENV__[key];
-    }
-    return process.env[key];
-  };
 
   const keycloakUrl = getEnvVar('KEYCLOAK_URL');
   const realm = getEnvVar('KEYCLOAK_REALM');

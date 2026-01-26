@@ -1,5 +1,4 @@
 import { getEnvVar } from '../utils/env';
-import { directusGameScheduleProvider } from './providers/directusGameScheduleProvider';
 import { noopGameScheduleProvider } from './providers/noopGameScheduleProvider';
 import { pocketbaseGameScheduleProvider } from './providers/pocketbaseGameScheduleProvider';
 
@@ -24,7 +23,7 @@ export interface FetchedGameScheduleData {
 }
 
 export interface GameScheduleProvider {
-  provider: 'none' | 'directus' | 'pocketbase';
+  provider: 'none' | 'pocketbase';
   isConfigured: () => boolean;
   fetchUserScheduledGames: () => Promise<ScheduledGameSummary[]>;
   fetchGameScheduleData: (gameId: number | string) => Promise<FetchedGameScheduleData>;
@@ -33,12 +32,10 @@ export interface GameScheduleProvider {
 
 const resolveProvider = (): GameScheduleProvider => {
   const configuredProvider = getEnvVar('SCHEDULE_PROVIDER')?.toLowerCase();
-  if (configuredProvider === 'directus') return directusGameScheduleProvider;
   if (configuredProvider === 'pocketbase') return pocketbaseGameScheduleProvider;
   if (configuredProvider === 'none') return noopGameScheduleProvider;
 
   if (getEnvVar('POCKETBASE_URL')) return pocketbaseGameScheduleProvider;
-  if (getEnvVar('DIRECTUS_URL')) return directusGameScheduleProvider;
 
   return noopGameScheduleProvider;
 };

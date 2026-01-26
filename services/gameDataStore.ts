@@ -1,13 +1,12 @@
 import type { GameState, PlateAppearance } from '../types';
 import { getEnvVar } from '../utils/env';
-import { directusGameDataStore } from './providers/directusGameDataStore';
 import { noopGameDataStore } from './providers/noopGameDataStore';
 import { pocketbaseGameDataStore } from './providers/pocketbaseGameDataStore';
 
 export type GameId = number | string;
 
 export interface GameDataStore {
-  provider: 'none' | 'directus' | 'pocketbase';
+  provider: 'none' | 'pocketbase';
   isConfigured: () => boolean;
   createGame: (gameState: GameState) => Promise<GameId | null>;
   updateGameScores: (gameId: GameId, homeScore: number, awayScore: number) => Promise<void>;
@@ -17,12 +16,10 @@ export interface GameDataStore {
 
 const resolveProvider = (): GameDataStore => {
   const configuredProvider = getEnvVar('DATA_PROVIDER')?.toLowerCase();
-  if (configuredProvider === 'directus') return directusGameDataStore;
   if (configuredProvider === 'pocketbase') return pocketbaseGameDataStore;
   if (configuredProvider === 'none') return noopGameDataStore;
 
   if (getEnvVar('POCKETBASE_URL')) return pocketbaseGameDataStore;
-  if (getEnvVar('DIRECTUS_URL')) return directusGameDataStore;
 
   return noopGameDataStore;
 };

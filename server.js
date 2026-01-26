@@ -9,93 +9,6 @@ const __dirname = path.dirname(__filename);
 const port = process.env.PORT || 3000;
 const distDir = path.join(__dirname, 'dist');
 
-// Load environment variables from /app/data/.env if it exists (Cloudron writable directory)
-const dataDir = '/app/data';
-const envFilePath = path.join(dataDir, '.env');
-
-// Function to parse .env file (handles symlinks and regular files)
-function loadEnvFile(filePath) {
-  const env = {};
-  try {
-    // Check if directory exists
-    const dirPath = path.dirname(filePath);
-    if (!fs.existsSync(dirPath)) {
-      console.log(`Directory ${dirPath} does not exist. Skipping .env file load.`);
-      return env;
-    }
-    
-    // Resolve symlinks to get the real path
-    let realPath = filePath;
-    try {
-      if (fs.existsSync(filePath)) {
-        const stats = fs.lstatSync(filePath);
-        if (stats.isSymbolicLink()) {
-          realPath = fs.realpathSync(filePath);
-          console.log(`.env file is a symlink, resolved to: ${realPath}`);
-        }
-      }
-    } catch (symlinkError) {
-      console.warn(`Could not resolve symlink for ${filePath}:`, symlinkError.message);
-      // Continue with original path
-    }
-    
-    if (fs.existsSync(realPath)) {
-      console.log(`Found .env file at ${realPath}${realPath !== filePath ? ` (original: ${filePath})` : ''}, loading...`);
-      const content = fs.readFileSync(realPath, 'utf8');
-      const lines = content.split('\n');
-      let loadedCount = 0;
-      
-      for (const line of lines) {
-        const trimmed = line.trim();
-        // Skip empty lines and comments
-        if (!trimmed || trimmed.startsWith('#')) continue;
-        
-        // Parse KEY=VALUE format
-        const match = trimmed.match(/^([^=]+)=(.*)$/);
-        if (match) {
-          const key = match[1].trim();
-          let value = match[2].trim();
-          // Remove quotes if present
-          if ((value.startsWith('"') && value.endsWith('"')) || 
-              (value.startsWith("'") && value.endsWith("'"))) {
-            value = value.slice(1, -1);
-          }
-          // Store the value (even if empty string - user might want empty password)
-          env[key] = value;
-          loadedCount++;
-          // Mask sensitive values
-          if (key.includes('TOKEN') || key.includes('PASS')) {
-            console.log(`  Loaded: ${key}=***`);
-          } else {
-            console.log(`  Loaded: ${key}=${value.substring(0, 20)}${value.length > 20 ? '...' : ''}`);
-          }
-        }
-      }
-      console.log(`Successfully loaded ${loadedCount} environment variables from ${realPath}`);
-    } else {
-      console.log(`No .env file found at ${filePath} (resolved: ${realPath}). Using Cloudron environment variables or defaults.`);
-    }
-  } catch (error) {
-    console.error(`Error loading .env file from ${filePath}:`, error.message);
-    console.error(error.stack);
-  }
-  return env;
-}
-
-// Load .env file and merge with process.env (file takes precedence)
-// Note: Cloudron's built-in env vars (set via dashboard/CLI) are already in process.env
-// The .env file is an alternative method that takes precedence if it exists
-console.log('Loading environment variables...');
-console.log(`Cloudron env vars (from dashboard/CLI): DIRECTUS_URL=${process.env.DIRECTUS_URL || 'not set'}, KEYCLOAK_URL=${process.env.KEYCLOAK_URL || 'not set'}`);
-const fileEnv = loadEnvFile(envFilePath);
-if (Object.keys(fileEnv).length > 0) {
-  console.log('Found .env file, merging with Cloudron environment variables (.env takes precedence)...');
-  Object.assign(process.env, fileEnv);
-  console.log(`After merge: DIRECTUS_URL=${process.env.DIRECTUS_URL || 'not set'}, KEYCLOAK_URL=${process.env.KEYCLOAK_URL || 'not set'}`);
-} else {
-  console.log('No .env file found, using Cloudron environment variables (set via dashboard/CLI) or defaults.');
-}
-
 // In-memory storage for game state (for OBS browser sources that can't access localStorage)
 let gameStateCache = null;
 
@@ -119,21 +32,22 @@ const mimeTypes = {
 // Inject environment variables into HTML for client-side access
 function injectEnvVars(html) {
   const envVars = {
-    DIRECTUS_URL: process.env.DIRECTUS_URL || '',
-    DIRECTUS_STATIC_TOKEN: process.env.DIRECTUS_STATIC_TOKEN || '',
-    DIRECTUS_SCOREKEEPER_TOKEN: process.env.DIRECTUS_SCOREKEEPER_TOKEN || '',
-    WP_SITE_URL: process.env.WP_SITE_URL || '',
-    WP_USERNAME: process.env.WP_USERNAME || '',
-    WP_APP_PASS: process.env.WP_APP_PASS || '',
-    KEYCLOAK_URL: process.env.KEYCLOAK_URL || '',
-    KEYCLOAK_REALM: process.env.KEYCLOAK_REALM || '',
-    KEYCLOAK_CLIENT_ID: process.env.KEYCLOAK_CLIENT_ID || '',
-    OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY || '',
-    OPENROUTER_MODEL: process.env.OPENROUTER_MODEL || '',
-    DATA_PROVIDER: process.env.DATA_PROVIDER || '',
-    SCHEDULE_PROVIDER: process.env.SCHEDULE_PROVIDER || '',
-    POCKETBASE_URL: process.env.POCKETBASE_URL || '',
-    ENABLE_OBS_SYNC: process.env.ENABLE_OBS_SYNC || '',
+    WP_SITE_URL: process.env.VITE_WP_SITE_URL || process.env.WP_SITE_URL || '',
+    WP_USERNAME: process.env.VITE_WP_USERNAME || process.env.WP_USERNAME || '',
+    KEYCLOAK_URL: process.env.VITE_KEYCLOAK_URL || process.env.KEYCLOAK_URL || '',
+    KEYCLOAK_REALM: process.env.VITE_KEYCLOAK_REALM || process.env.KEYCLOAK_REALM || '',
+    KEYCLOAK_CLIENT_ID: process.env.VITE_KEYCLOAK_CLIENT_ID || process.env.KEYCLOAK_CLIENT_ID || '',
+    OPENROUTER_MODEL: process.env.VITE_OPENROUTER_MODEL || process.env.OPENROUTER_MODEL || '',
+    DATA_PROVIDER: process.env.VITE_DATA_PROVIDER || process.env.DATA_PROVIDER || '',
+    SCHEDULE_PROVIDER: process.env.VITE_SCHEDULE_PROVIDER || process.env.SCHEDULE_PROVIDER || '',
+    POCKETBASE_URL: process.env.VITE_POCKETBASE_URL || process.env.POCKETBASE_URL || '',
+    ENABLE_OBS_SYNC: process.env.VITE_ENABLE_OBS_SYNC || process.env.ENABLE_OBS_SYNC || '',
+    POCKETBASE_SCHEDULE_SOURCE_COLLECTION: process.env.VITE_POCKETBASE_SCHEDULE_SOURCE_COLLECTION || process.env.POCKETBASE_SCHEDULE_SOURCE_COLLECTION || '',
+    POCKETBASE_SCHEDULE_ORG_ID: process.env.VITE_POCKETBASE_SCHEDULE_ORG_ID || process.env.POCKETBASE_SCHEDULE_ORG_ID || '',
+    POCKETBASE_SCHEDULE_USER_ID: process.env.VITE_POCKETBASE_SCHEDULE_USER_ID || process.env.POCKETBASE_SCHEDULE_USER_ID || '',
+    POCKETBASE_SCHEDULE_APP_ID: process.env.VITE_POCKETBASE_SCHEDULE_APP_ID || process.env.POCKETBASE_SCHEDULE_APP_ID || '',
+    WP_APP_PASS: process.env.VITE_WP_APP_PASS || '',
+    OPENROUTER_API_KEY: process.env.VITE_OPENROUTER_API_KEY || '',
   };
   
   // Log environment variable status (only log first time, no sensitive data)
@@ -141,9 +55,6 @@ function injectEnvVars(html) {
     const isProduction = process.env.NODE_ENV === 'production';
     if (!isProduction) {
       console.log('Injecting environment variables into HTML:');
-      console.log(`  DIRECTUS_URL: ${envVars.DIRECTUS_URL ? 'set' : 'not set'}`);
-      console.log(`  DIRECTUS_STATIC_TOKEN: ${envVars.DIRECTUS_STATIC_TOKEN ? 'set' : 'not set'}`);
-      console.log(`  DIRECTUS_SCOREKEEPER_TOKEN: ${envVars.DIRECTUS_SCOREKEEPER_TOKEN ? 'set' : 'not set'}`);
       console.log(`  KEYCLOAK_URL: ${envVars.KEYCLOAK_URL ? 'set' : 'not set'}`);
       console.log(`  KEYCLOAK_REALM: ${envVars.KEYCLOAK_REALM ? 'set' : 'not set'}`);
       console.log(`  KEYCLOAK_CLIENT_ID: ${envVars.KEYCLOAK_CLIENT_ID ? 'set' : 'not set'}`);
@@ -230,9 +141,13 @@ const server = http.createServer((req, res) => {
   
   // Handle API endpoints for game state (for OBS browser sources)
   // Security: Limit CORS to known origins (can be configured via env var)
-  const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['*'];
+  const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
   const origin = req.headers.origin;
-  const corsOrigin = allowedOrigins.includes('*') || (origin && allowedOrigins.includes(origin)) ? (origin || '*') : null;
+  const requestHost = req.headers.host;
+  const sameOrigin = origin && requestHost ? new URL(origin).host === requestHost : false;
+  const corsOrigin = allowedOrigins.includes('*') || (origin && allowedOrigins.includes(origin))
+    ? origin
+    : (!allowedOrigins.length && sameOrigin ? origin : null);
   
   if (req.method === 'GET' && req.url === '/api/gamestate') {
     if (corsOrigin) {
@@ -424,19 +339,10 @@ server.listen(port, '0.0.0.0', () => {
   
   if (!isProduction) {
     console.log(`\n=== Environment Variables Summary ===`);
-    console.log(`DIRECTUS_URL: ${process.env.DIRECTUS_URL ? 'set' : 'not set'}`);
-    console.log(`DIRECTUS_STATIC_TOKEN: ${process.env.DIRECTUS_STATIC_TOKEN ? 'set' : 'not set'}`);
     console.log(`KEYCLOAK_URL: ${process.env.KEYCLOAK_URL ? 'set' : 'not set'}`);
     console.log(`KEYCLOAK_REALM: ${process.env.KEYCLOAK_REALM ? 'set' : 'not set'}`);
     console.log(`KEYCLOAK_CLIENT_ID: ${process.env.KEYCLOAK_CLIENT_ID ? 'set' : 'not set'}`);
-    console.log(`DIRECTUS_SCOREKEEPER_TOKEN: ${process.env.DIRECTUS_SCOREKEEPER_TOKEN ? 'set' : 'not set'}`);
     console.log(`=====================================\n`);
-    
-    if (fs.existsSync(envFilePath)) {
-      console.log(`✓ .env file found at: ${envFilePath}`);
-    } else {
-      console.log(`ℹ No .env file at ${envFilePath}. Using Cloudron dashboard environment variables.`);
-    }
   }
 });
 

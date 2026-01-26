@@ -9,7 +9,7 @@ This guide will help you get up and running with the Baseball Scoreboard applica
 - Node.js 20+ (for local development)
 - Docker (for deployment)
 - Keycloak instance (for authentication)
-- Directus instance (optional, for data storage)
+- PocketBase instance (optional, for data storage)
 
 ## 📦 Installation
 
@@ -60,10 +60,8 @@ KEYCLOAK_URL=https://your-keycloak.com
 KEYCLOAK_REALM=baseball-scorer
 KEYCLOAK_CLIENT_ID=baseball-scorer-app
 
-# Directus Integration (Optional)
-DIRECTUS_URL=https://your-directus.com
-DIRECTUS_STATIC_TOKEN=your-static-token
-DIRECTUS_SCOREKEEPER_TOKEN=your-scorekeeper-token
+# PocketBase Integration (Optional)
+POCKETBASE_URL=https://pb.your-domain.com
 
 # OpenRouter AI (Optional, for AI recaps)
 OPENROUTER_API_KEY=your-api-key
@@ -101,7 +99,7 @@ OPENROUTER_MODEL=mistralai/mistral-7b-instruct:free
    - Team logos (optional)
 3. Set up rosters:
    - Enter players manually, or
-   - Click **"Fetch from Schedule"** to import from Directus
+   - Click **"Fetch from Schedule"** to import from PocketBase
 4. Click **"Start Game"**
 
 ### 2. Score a Game
@@ -235,9 +233,9 @@ Press **?** to view all keyboard shortcuts, or use:
 
 ## 🔧 Common Tasks
 
-### Import Roster from Directus
+### Import Roster from PocketBase
 
-1. Ensure Directus is configured
+1. Ensure PocketBase is configured
 2. Click **"Fetch from Schedule"** in Game Setup
 3. Select a game from the dropdown
 4. Click **"Import Game Data"**
@@ -272,13 +270,12 @@ Press **?** to view all keyboard shortcuts, or use:
   - Ensure client is public (authentication off)
   - Verify user exists in Keycloak
 
-### Directus Connection Issues
+### PocketBase Connection Issues
 
 - **Problem**: Can't fetch game data
 - **Solution**:
-  - Verify `DIRECTUS_URL` and `DIRECTUS_SCOREKEEPER_TOKEN`
-  - Check collection names are correct (case-sensitive)
-  - Verify token has read permissions
+  - Verify `POCKETBASE_URL` and schedule collection names are correct
+  - Check API rules allow public reads (or configure auth)
 
 ### OBS Not Updating
 
@@ -301,7 +298,6 @@ Press **?** to view all keyboard shortcuts, or use:
 ## 📚 Next Steps
 
 - Read [FEATURES.md](./FEATURES.md) for complete feature list
-- Check [DEPLOY_STEPS.md](./DEPLOY_STEPS.md) for Cloudron deployment
 - Review [KEYCLOAK_INTEGRATION_SUMMARY.md](./KEYCLOAK_INTEGRATION_SUMMARY.md) for auth setup
 - See [OPENROUTER_SETUP.md](./OPENROUTER_SETUP.md) for AI recap configuration
 

@@ -2,7 +2,7 @@
 
 ## Environment Variables
 
-Set these environment variables in your Cloudron app settings or via `.env` file:
+Set these environment variables in your hosting environment or `.env` file:
 
 ```env
 KEYCLOAK_URL=https://usergate.bstrana.com
@@ -38,7 +38,7 @@ If Keycloak environment variables are not set, the app will automatically fall b
 
 ## Testing
 
-1. **Set environment variables** in Cloudron dashboard or `.env` file
+1. **Set environment variables** in your hosting environment or `.env` file
 2. **Restart the app** to load new environment variables
 3. **Visit the app** - you should be redirected to Keycloak login
 4. **Login with Keycloak credentials**

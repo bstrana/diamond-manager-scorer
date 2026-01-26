@@ -1,13 +1,6 @@
 import React, { useEffect } from 'react';
 import { AuthProvider, useAuth } from 'react-oidc-context';
-
-// Helper function to get environment variable
-const getEnvVar = (key: string): string | undefined => {
-  if (typeof window !== 'undefined' && (window as any).__ENV__) {
-    return (window as any).__ENV__[key];
-  }
-  return process.env[key];
-};
+import { getEnvVar } from '../utils/env';
 
 // Component to handle authentication state
 const AuthHandler: React.FC<{ onAuthenticated: () => void; onUnauthenticated: () => void }> = ({ 

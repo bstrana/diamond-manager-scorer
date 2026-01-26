@@ -35,11 +35,11 @@ OPENROUTER_API_KEY=sk-or-v1-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 OPENROUTER_MODEL=mistralai/mistral-7b-instruct:free
 ```
 
-#### For Production (Cloudron)
+#### For Production
 
-Add the environment variables in Cloudron dashboard:
+Add the environment variables in your hosting platform:
 
-1. Go to your app settings
+1. Open your app settings
 2. Navigate to "Environment Variables"
 3. Add:
    - **Key**: `OPENROUTER_API_KEY`
@@ -61,7 +61,7 @@ OPENROUTER_MODEL=mistralai/mistral-7b-instruct:free
 After setting the environment variable, restart your application:
 
 - **Local**: Stop and restart `npm run dev`
-- **Cloudron**: Restart the app from Cloudron dashboard
+- **Production**: Restart the app from your hosting platform
 
 ## Usage
 
@@ -90,7 +90,7 @@ You can change the model via environment variable (recommended) or by editing th
 
 #### Option 1: Environment Variable (Recommended)
 
-Set `OPENROUTER_MODEL` in your `.env.local` or Cloudron environment variables:
+Set `OPENROUTER_MODEL` in your `.env.local` or hosting environment variables:
 
 ```env
 OPENROUTER_MODEL=mistralai/mistral-7b-instruct:free

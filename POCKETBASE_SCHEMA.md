@@ -1,8 +1,8 @@
 ## PocketBase Schema and Setup
 
 This document describes a suggested PocketBase schema and setup flow for the current app.
-It is designed to mirror the existing Directus-based flows while keeping things flexible
-for the upcoming PocketBase integration.
+It is designed to mirror the app's data flows while keeping things flexible
+for PocketBase integration.
 
 Note: The PocketBase integration is not implemented yet. Use this schema as the target.
 
