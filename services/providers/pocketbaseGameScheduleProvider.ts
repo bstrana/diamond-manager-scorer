@@ -410,7 +410,7 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
   fetchUserScheduledGames: async (context?: { orgId?: string; scheduleId?: string }): Promise<ScheduledGameSummary[]> => {
     const orgId = context?.orgId;
     const scheduleId = context?.scheduleId;
-    if (shouldUseScheduleSource()) {
+    if (shouldUseScheduleSource() && !scheduleId) {
       const payload = await loadSchedulePayload(orgId);
       const teams = payload.teams || [];
       const games = [...(payload.games || [])]
@@ -491,7 +491,7 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
   fetchGameScheduleData: async (gameId: number | string, context?: { orgId?: string; scheduleId?: string }): Promise<FetchedGameScheduleData> => {
     const orgId = context?.orgId;
     const scheduleId = context?.scheduleId;
-    if (shouldUseScheduleSource()) {
+    if (shouldUseScheduleSource() && !scheduleId) {
       const payload = await loadSchedulePayload(orgId);
       const teams = payload.teams || [];
       const leagues = payload.leagues || [];
