@@ -34,7 +34,7 @@ type ScheduledGameRecord = PocketBaseRecord & {
 
 type SchedulerPayload = {
   leagues?: Array<{ id: string; name: string }>;
-  teams?: Array<{ id: string; name: string; city?: string; primaryColor?: string; logoUrl?: string }>;
+  teams?: Array<{ id: string; name: string; city?: string; primaryColor?: string; logoUrl?: string; roster?: Array<{ name: string; number?: number; position?: string; photoUrl?: string }> }>;
   games?: Array<{
     id: string;
     homeTeamId: string;
@@ -353,6 +353,18 @@ const buildRosterString = (players: PlayerRecord[], playerIds?: string[]): strin
   }).join('\n');
 };
 
+const buildRosterStringFromSchedule = (roster?: Array<{ name: string; number?: number; position?: string; photoUrl?: string }>): string => {
+  if (!roster || roster.length === 0) return '';
+  return roster.map((player, index) => {
+    const battingOrder = index < 9 ? index + 1 : 0;
+    const number = player.number ?? 0;
+    const name = player.name?.trim() || 'Unknown Player';
+    const position = player.position || 'BENCH';
+    const photoUrl = player.photoUrl || PLAYER_PHOTO_PLACEHOLDER;
+    return `${battingOrder}, ${number}, ${name}, ${position}, ${photoUrl}`;
+  }).join('\n');
+};
+
 const fetchTeam = async (teamId: string, expanded?: TeamRecord): Promise<TeamRecord> => {
   if (expanded?.id) return expanded;
   return requestJson<TeamRecord>(buildUrl(`/api/collections/teams/records/${teamId}`));
@@ -513,13 +525,13 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
       return {
         homeTeam: {
           name: formatTeamName(homeTeam),
-          roster: '',
+          roster: buildRosterStringFromSchedule(homeTeam?.roster),
           logoUrl: homeTeam?.logoUrl || '',
           color: homeTeam?.primaryColor || '#ffffff',
         },
         awayTeam: {
           name: formatTeamName(awayTeam),
-          roster: '',
+          roster: buildRosterStringFromSchedule(awayTeam?.roster),
           logoUrl: awayTeam?.logoUrl || '',
           color: awayTeam?.primaryColor || '#ffffff',
         },
@@ -552,13 +564,13 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
       return {
         homeTeam: {
           name: formatTeamName(homeTeam),
-          roster: '',
+          roster: buildRosterStringFromSchedule(homeTeam?.roster),
           logoUrl: homeTeam?.logoUrl || '',
           color: homeTeam?.primaryColor || '#ffffff',
         },
         awayTeam: {
           name: formatTeamName(awayTeam),
-          roster: '',
+          roster: buildRosterStringFromSchedule(awayTeam?.roster),
           logoUrl: awayTeam?.logoUrl || '',
           color: awayTeam?.primaryColor || '#ffffff',
         },
