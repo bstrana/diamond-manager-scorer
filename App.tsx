@@ -222,10 +222,6 @@ const App: React.FC = () => {
         setTimeout(() => setCopiedBattingOrderLink(false), 2000);
     });
   };
-  const openManagerReport = () => {
-    const url = new URL('/manager-report', window.location.origin);
-    window.open(url.href, '_blank', 'noopener,noreferrer');
-  };
 
   const battingTeam = gameState.isTopInning ? gameState.awayTeam : gameState.homeTeam;
   const activeLineup = getActiveLineup(battingTeam.roster);
@@ -418,13 +414,15 @@ const App: React.FC = () => {
               >
                 {copiedBattingOrderLink ? 'Copied!' : 'Copy Batting Order Link'}
               </button>
-              <button
-                onClick={openManagerReport}
+              <a
+                href="/manager-report"
+                target="_blank"
+                rel="noreferrer"
                 className="px-6 py-2 bg-sky-600 hover:bg-sky-700 rounded-md font-bold transition-colors"
                 title="Open the manager report dashboard in a new tab"
               >
                 Open Manager Report
-              </button>
+              </a>
             </footer>
           </div>
 
