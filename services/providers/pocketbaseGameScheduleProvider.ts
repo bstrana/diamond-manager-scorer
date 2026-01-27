@@ -23,6 +23,9 @@ type ScheduledGameRecord = PocketBaseRecord & {
   status?: string;
   org_id?: string;
   orgId?: string;
+  schedule_name?: string;
+  scheduleName?: string;
+  data?: SchedulerPayload;
   home_team?: string;
   away_team?: string;
   home_roster?: string;
@@ -119,11 +122,14 @@ const buildScheduleSourceFilter = (orgIdOverride?: string): string => {
   if (resolvedOrgId) {
     filters.push(`org_id="${resolvedOrgId}"`);
   }
-  if (scheduleSourceUserId) {
-    filters.push(`user_id="${scheduleSourceUserId}"`);
-  }
-  if (scheduleSourceAppId) {
-    filters.push(`app_id="${scheduleSourceAppId}"`);
+  const enforceUserAppFilters = (getEnvVar('POCKETBASE_SCHEDULE_STRICT_FILTERS') || '').toLowerCase() === 'true';
+  if (enforceUserAppFilters) {
+    if (scheduleSourceUserId) {
+      filters.push(`user_id="${scheduleSourceUserId}"`);
+    }
+    if (scheduleSourceAppId) {
+      filters.push(`app_id="${scheduleSourceAppId}"`);
+    }
   }
   return filters.join(' && ');
 };
@@ -179,6 +185,133 @@ const loadSchedulePayload = async (orgId?: string): Promise<SchedulerPayload> =>
   cachedScheduleFetchedAt = now;
   cachedScheduleOrgId = normalizedOrgId;
   return payload;
+};
+
+type SchedulePayloadSource = {
+  payload: SchedulerPayload;
+  scheduleName?: string;
+  scheduleId?: string;
+};
+
+let cachedSchedulePayloadFromSchedules: SchedulePayloadSource | null = null;
+let cachedScheduleSourceFetchedAt = 0;
+let cachedScheduleSourceOrgId: string | null = null;
+let cachedScheduleSourceId: string | null = null;
+
+export type SchedulePayloadOption = {
+  id: string;
+  name: string;
+};
+
+export const fetchSchedulePayloadOptions = async (orgId?: string): Promise<SchedulePayloadOption[]> => {
+  const filters = ['active=true'];
+  if (orgId) {
+    filters.push(`org_id="${orgId}"`);
+  }
+  const filter = filters.join(' && ');
+  const url = buildUrl('/api/collections/schedules/records', {
+    filter,
+    perPage: '200',
+    sort: '-updated',
+  });
+  const data = await requestJson<PocketBaseListResponse<ScheduledGameRecord>>(url);
+  return (data.items || []).map((record) => ({
+    id: record.id,
+    name: record.schedule_name || record.scheduleName || record.title || `Schedule ${record.id}`,
+  }));
+};
+
+const loadSchedulePayloadFromSchedules = async (orgId?: string, scheduleId?: string): Promise<SchedulePayloadSource | null> => {
+  const normalizedOrgId = (orgId || '').trim();
+  const normalizedScheduleId = (scheduleId || '').trim();
+  const now = Date.now();
+  if (
+    cachedSchedulePayloadFromSchedules &&
+    now - cachedScheduleSourceFetchedAt < SCHEDULE_CACHE_MS &&
+    cachedScheduleSourceOrgId === normalizedOrgId &&
+    cachedScheduleSourceId === normalizedScheduleId
+  ) {
+    return cachedSchedulePayloadFromSchedules;
+  }
+
+  const baseParams: Record<string, string> = {
+    perPage: '1',
+  };
+  const filters = ['active=true'];
+  if (normalizedOrgId) {
+    filters.push(`org_id="${normalizedOrgId}"`);
+  }
+  if (normalizedScheduleId) {
+    filters.push(`id="${normalizedScheduleId}"`);
+  }
+  const filter = filters.join(' && ');
+  const sortCandidates = ['-updated', '-created', ''];
+  let lastError: unknown = null;
+
+  for (const sort of sortCandidates) {
+    try {
+      const url = buildUrl('/api/collections/schedules/records', {
+        ...baseParams,
+        filter,
+        ...(sort ? { sort } : {}),
+      });
+      const data = await requestJson<PocketBaseListResponse<ScheduledGameRecord>>(url);
+      const record = data.items?.[0];
+      if (record?.data) {
+        const scheduleName = record.schedule_name || record.scheduleName || record.title;
+        const payloadSource = { payload: record.data, scheduleName, scheduleId: record.id };
+        cachedSchedulePayloadFromSchedules = payloadSource;
+        cachedScheduleSourceFetchedAt = now;
+        cachedScheduleSourceOrgId = normalizedOrgId;
+        cachedScheduleSourceId = normalizedScheduleId;
+        return payloadSource;
+      }
+      cachedSchedulePayloadFromSchedules = null;
+      cachedScheduleSourceFetchedAt = now;
+      cachedScheduleSourceOrgId = normalizedOrgId;
+      cachedScheduleSourceId = normalizedScheduleId;
+      return null;
+    } catch (error) {
+      const status = (error as Error & { status?: number }).status;
+      if (status !== 400) {
+        lastError = error;
+        continue;
+      }
+      try {
+        const fallbackUrl = buildUrl('/api/collections/schedules/records', {
+          ...baseParams,
+          ...(sort ? { sort } : {}),
+        });
+        const data = await requestJson<PocketBaseListResponse<ScheduledGameRecord>>(fallbackUrl);
+        const record = (data.items || []).find((item) => {
+          if (!item.data) return false;
+          if (!normalizedOrgId) return true;
+          return getRecordOrgId(item) === normalizedOrgId;
+        });
+        if (record?.data) {
+          const scheduleName = record.schedule_name || record.scheduleName || record.title;
+          const payloadSource = { payload: record.data, scheduleName, scheduleId: record.id };
+          cachedSchedulePayloadFromSchedules = payloadSource;
+          cachedScheduleSourceFetchedAt = now;
+          cachedScheduleSourceOrgId = normalizedOrgId;
+          cachedScheduleSourceId = normalizedScheduleId;
+          return payloadSource;
+        }
+        cachedSchedulePayloadFromSchedules = null;
+        cachedScheduleSourceFetchedAt = now;
+        cachedScheduleSourceOrgId = normalizedOrgId;
+        cachedScheduleSourceId = normalizedScheduleId;
+        return null;
+      } catch (fallbackError) {
+        lastError = fallbackError;
+      }
+    }
+  }
+
+  if (lastError) {
+    throw lastError instanceof Error ? lastError : new Error('[PocketBase] Failed to load schedule payload.');
+  }
+  return null;
 };
 
 const formatTeamName = (team?: { name?: string; city?: string }) => {
@@ -242,8 +375,26 @@ const fetchRoster = async (rosterId: string, expanded?: RosterRecord): Promise<R
   }));
 };
 
+const extractOrgId = (value: unknown): string | undefined => {
+  if (!value) return undefined;
+  if (typeof value === 'string' || typeof value === 'number') return String(value);
+  if (typeof value === 'object') {
+    const record = value as { id?: string | number; key?: string | number };
+    if (record.id !== undefined) return String(record.id);
+    if (record.key !== undefined) return String(record.key);
+  }
+  return undefined;
+};
+
 const getRecordOrgId = (record: ScheduledGameRecord): string | undefined => {
-  return record.org_id || record.orgId;
+  const raw =
+    record.org_id ??
+    record.orgId ??
+    (record as Record<string, unknown>).organization_id ??
+    (record as Record<string, unknown>).organizationId ??
+    (record as Record<string, unknown>).org ??
+    (record as Record<string, unknown>).organization;
+  return extractOrgId(raw);
 };
 
 const matchesOrg = (record: ScheduledGameRecord, orgId?: string): boolean => {
@@ -256,8 +407,9 @@ const matchesOrg = (record: ScheduledGameRecord, orgId?: string): boolean => {
 export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
   provider: 'pocketbase',
   isConfigured: () => !!getEnvVar('POCKETBASE_URL'),
-  fetchUserScheduledGames: async (context?: { orgId?: string }): Promise<ScheduledGameSummary[]> => {
+  fetchUserScheduledGames: async (context?: { orgId?: string; scheduleId?: string }): Promise<ScheduledGameSummary[]> => {
     const orgId = context?.orgId;
+    const scheduleId = context?.scheduleId;
     if (shouldUseScheduleSource()) {
       const payload = await loadSchedulePayload(orgId);
       const teams = payload.teams || [];
@@ -280,6 +432,30 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
       });
     }
 
+    const scheduleSource = await loadSchedulePayloadFromSchedules(orgId, scheduleId);
+    if (scheduleSource) {
+      const payload = scheduleSource.payload;
+      const teams = payload.teams || [];
+      const games = [...(payload.games || [])]
+        .filter((game) => isActiveScheduleStatus((game as { status?: string }).status))
+        .sort((a, b) => {
+          const left = `${a.date || ''}T${a.time || '00:00'}`;
+          const right = `${b.date || ''}T${b.time || '00:00'}`;
+          return left.localeCompare(right);
+        });
+      const teamById = new Map(teams.map((team) => [team.id, team]));
+      return games.map((game) => {
+        const home = teamById.get(game.homeTeamId);
+        const away = teamById.get(game.awayTeamId);
+        const dateTimeLabel = formatScheduleDateTime(game.date, game.time);
+        const schedulePrefix = scheduleSource.scheduleName ? `${scheduleSource.scheduleName} - ` : '';
+        return {
+          id: game.id,
+          title: `${schedulePrefix}${formatTeamName(away)} @ ${formatTeamName(home)}${dateTimeLabel ? ` (${dateTimeLabel})` : ''}`,
+        };
+      });
+    }
+
     const urlWithSort = buildUrl('/api/collections/schedules/records', {
       sort: 'date',
       perPage: '200',
@@ -288,7 +464,7 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
     try {
       const data = await requestJson<PocketBaseListResponse<ScheduledGameRecord>>(urlWithSort);
       return (data.items || [])
-        .filter((game) => !game.status || game.status === 'scheduled' || game.status === 'in_progress')
+        .filter((game) => isActiveScheduleStatus(game.status))
         .filter((game) => matchesOrg(game, orgId))
         .map((game) => ({
           id: game.id,
@@ -304,7 +480,7 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
       });
       const data = await requestJson<PocketBaseListResponse<ScheduledGameRecord>>(urlNoSort);
       return (data.items || [])
-        .filter((game) => !game.status || game.status === 'scheduled' || game.status === 'in_progress')
+        .filter((game) => isActiveScheduleStatus(game.status))
         .filter((game) => matchesOrg(game, orgId))
         .map((game) => ({
           id: game.id,
@@ -312,10 +488,50 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
         }));
     }
   },
-  fetchGameScheduleData: async (gameId: number | string, context?: { orgId?: string }): Promise<FetchedGameScheduleData> => {
+  fetchGameScheduleData: async (gameId: number | string, context?: { orgId?: string; scheduleId?: string }): Promise<FetchedGameScheduleData> => {
     const orgId = context?.orgId;
+    const scheduleId = context?.scheduleId;
     if (shouldUseScheduleSource()) {
       const payload = await loadSchedulePayload(orgId);
+      const teams = payload.teams || [];
+      const leagues = payload.leagues || [];
+      const games = payload.games || [];
+      const teamById = new Map(teams.map((team) => [team.id, team]));
+      const leagueById = new Map(leagues.map((league) => [league.id, league]));
+
+      const game = games.find((item) => String(item.id) === String(gameId));
+      if (!game) {
+        throw new Error(`Schedule game ${gameId} was not found.`);
+      }
+
+      const homeTeam = teamById.get(game.homeTeamId);
+      const awayTeam = teamById.get(game.awayTeamId);
+
+      const leagueId = game.leagueIds?.[0] || game.leagueId;
+      const competition = leagueId ? leagueById.get(leagueId)?.name || '' : '';
+
+      return {
+        homeTeam: {
+          name: formatTeamName(homeTeam),
+          roster: '',
+          logoUrl: homeTeam?.logoUrl || '',
+          color: homeTeam?.primaryColor || '#ffffff',
+        },
+        awayTeam: {
+          name: formatTeamName(awayTeam),
+          roster: '',
+          logoUrl: awayTeam?.logoUrl || '',
+          color: awayTeam?.primaryColor || '#ffffff',
+        },
+        competition,
+        location: game.location || '',
+        gameDate: `${game.date}T${game.time || '19:00'}:00`,
+      };
+    }
+
+    const scheduleSource = await loadSchedulePayloadFromSchedules(orgId, scheduleId);
+    if (scheduleSource) {
+      const payload = scheduleSource.payload;
       const teams = payload.teams || [];
       const leagues = payload.leagues || [];
       const games = payload.games || [];

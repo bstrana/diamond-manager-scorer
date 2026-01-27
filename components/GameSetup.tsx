@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import type { TeamSetup, GameState, ScoreboardSettings } from '../types';
 import { getGameScheduleProvider } from '../services/gameScheduleProvider';
+import { fetchSchedulePayloadOptions, SchedulePayloadOption } from '../services/providers/pocketbaseGameScheduleProvider';
 import { useKeycloakAuth } from './KeycloakAuth';
 import SettingsModal from './SettingsModal';
 
@@ -659,6 +660,8 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameSetup, onUpdateSetupData, o
   const [isConnected, setIsConnected] = useState(false);
   const [gamesList, setGamesList] = useState<Array<{ id: number | string; title: string }>>([]);
   const [selectedGameId, setSelectedGameId] = useState('');
+  const [schedulePayloads, setSchedulePayloads] = useState<SchedulePayloadOption[]>([]);
+  const [selectedSchedulePayloadId, setSelectedSchedulePayloadId] = useState('');
   
   const [scheduleProvider, setScheduleProvider] = useState(() => getGameScheduleProvider());
   const auth = useKeycloakAuth();
@@ -669,7 +672,13 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameSetup, onUpdateSetupData, o
     if (Array.isArray(raw)) {
       return typeof raw[0] === 'string' ? raw[0] : undefined;
     }
-    return typeof raw === 'string' ? raw : undefined;
+    if (typeof raw === 'string') return raw;
+    const attributes = profile?.attributes as Record<string, unknown> | undefined;
+    const attrRaw = attributes?.org_id ?? attributes?.orgId;
+    if (Array.isArray(attrRaw)) {
+      return typeof attrRaw[0] === 'string' ? attrRaw[0] : undefined;
+    }
+    return typeof attrRaw === 'string' ? attrRaw : undefined;
   }, [auth?.user]);
   const profileName = useMemo(() => {
     const profile = auth?.user?.profile as Record<string, unknown> | undefined;
@@ -802,8 +811,15 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameSetup, onUpdateSetupData, o
     setScheduleError(null);
     setGamesList([]);
     try {
-      const games = await scheduleProvider.fetchUserScheduledGames({ orgId });
-      setGamesList(games);
+      if (scheduleProvider.provider === 'pocketbase') {
+        const payloadOptions = await fetchSchedulePayloadOptions(orgId);
+        setSchedulePayloads(payloadOptions);
+        setSelectedSchedulePayloadId('');
+        setSelectedGameId('');
+      } else {
+        const games = await scheduleProvider.fetchUserScheduledGames({ orgId });
+        setGamesList(games);
+      }
       setIsConnected(true);
     } catch (err) {
       if (err instanceof Error) {
@@ -824,7 +840,7 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameSetup, onUpdateSetupData, o
     setScheduleIsLoading(true);
     setScheduleError(null);
     try {
-      const data = await scheduleProvider.fetchGameScheduleData(selectedGameId, { orgId });
+      const data = await scheduleProvider.fetchGameScheduleData(selectedGameId, { orgId, scheduleId: selectedSchedulePayloadId || undefined });
       setHomeTeamName(data.homeTeam.name);
       setHomeTeamRoster(data.homeTeam.roster || ''); // May be empty if rosters not in schema
       setHomeTeamLogo(data.homeTeam.logoUrl || '');
@@ -868,6 +884,8 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameSetup, onUpdateSetupData, o
     setIsConnected(false);
     setGamesList([]);
     setSelectedGameId('');
+    setSchedulePayloads([]);
+    setSelectedSchedulePayloadId('');
     setScheduleError(null);
   };
 
@@ -969,10 +987,47 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameSetup, onUpdateSetupData, o
             ) : (
             <>
               <div className="text-center text-green-400 font-bold">Successfully connected.</div>
+              {schedulePayloads.length > 0 && (
+                <div>
+                  <label htmlFor="schedule-payload-select" className="block mb-2 text-sm font-medium text-gray-300">Select a Schedule</label>
+                  <select
+                    id="schedule-payload-select"
+                    value={selectedSchedulePayloadId}
+                    onChange={async (e) => {
+                      const nextId = e.target.value;
+                      setSelectedSchedulePayloadId(nextId);
+                      setSelectedGameId('');
+                      setGamesList([]);
+                      setScheduleIsLoading(true);
+                      setScheduleError(null);
+                      try {
+                        if (nextId) {
+                          const games = await scheduleProvider.fetchUserScheduledGames({ orgId, scheduleId: nextId });
+                          setGamesList(games);
+                        }
+                      } catch (err) {
+                        if (err instanceof Error) {
+                          setScheduleError(err.message);
+                        } else {
+                          setScheduleError('An unknown error occurred while fetching schedules.');
+                        }
+                      } finally {
+                        setScheduleIsLoading(false);
+                      }
+                    }}
+                    className="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5"
+                  >
+                    <option value="">-- Choose a Schedule --</option>
+                    {schedulePayloads.map((payload) => (
+                      <option key={payload.id} value={payload.id}>{payload.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div className="flex gap-4 items-end">
                 <div className="flex-grow">
                     <label htmlFor="schedule-game-select" className="block mb-2 text-sm font-medium text-gray-300">Select a Scheduled Game</label>
-                    <select id="schedule-game-select" value={selectedGameId} onChange={(e) => setSelectedGameId(e.target.value)} className="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5">
+                    <select id="schedule-game-select" value={selectedGameId} onChange={(e) => setSelectedGameId(e.target.value)} className="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5" disabled={schedulePayloads.length > 0 && !selectedSchedulePayloadId}>
                         <option value="">-- Choose a Game --</option>
                         {gamesList.length > 0 ? gamesList.map(game => (
                             <option key={game.id} value={game.id}>{game.title}</option>

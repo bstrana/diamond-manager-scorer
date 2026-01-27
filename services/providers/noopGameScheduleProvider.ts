@@ -7,10 +7,10 @@ const notConfigured = (): Error =>
 export const noopGameScheduleProvider: GameScheduleProvider = {
   provider: 'none',
   isConfigured: () => false,
-  fetchUserScheduledGames: async (_context?: { orgId?: string }): Promise<ScheduledGameSummary[]> => {
+  fetchUserScheduledGames: async (_context?: { orgId?: string; scheduleId?: string }): Promise<ScheduledGameSummary[]> => {
     throw notConfigured();
   },
-  fetchGameScheduleData: async (_gameId: number | string, _context?: { orgId?: string }): Promise<FetchedGameScheduleData> => {
+  fetchGameScheduleData: async (_gameId: number | string, _context?: { orgId?: string; scheduleId?: string }): Promise<FetchedGameScheduleData> => {
     throw notConfigured();
   },
   updateGameScheduleStatus: async (_gameId: number | string, _status: 'in_progress' | 'finished'): Promise<void> => {

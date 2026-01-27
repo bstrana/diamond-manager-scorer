@@ -12,8 +12,13 @@ if (typeof window !== 'undefined' && (window as any).__ENV__) {
   }
   // Also make available globally
   (window as any).process = { env: runtimeEnv };
-} else if (process.env.NODE_ENV !== 'production') {
-  console.warn('[index.tsx] window.__ENV__ not found! Environment variables may not be available.');
+} else {
+  const metaEnv = typeof import.meta !== 'undefined' ? (import.meta as any).env : undefined;
+  if (metaEnv && typeof window !== 'undefined') {
+    (window as any).process = { env: metaEnv };
+  } else if (process.env.NODE_ENV !== 'production') {
+    console.warn('[index.tsx] window.__ENV__ not found! Environment variables may not be available.');
+  }
 }
 
 const rootElement = document.getElementById('root');

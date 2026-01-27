@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useKeycloakAuth } from './KeycloakAuth';
 import {
-  fetchSchedules,
   fetchGames,
   fetchPlateAppearancesForGames,
   ScheduleRecord,
   GameRecord,
   PlateAppearanceRecord,
 } from '../services/pocketbaseReportService';
+import { getGameScheduleProvider } from '../services/gameScheduleProvider';
 
 type AggregatedPlayerStats = {
   name: string;
@@ -152,8 +152,15 @@ const ManagerReportPage: React.FC = () => {
     if (Array.isArray(raw)) {
       return typeof raw[0] === 'string' ? raw[0] : undefined;
     }
-    return typeof raw === 'string' ? raw : undefined;
+    if (typeof raw === 'string') return raw;
+    const attributes = profile?.attributes as Record<string, unknown> | undefined;
+    const attrRaw = attributes?.org_id ?? attributes?.orgId;
+    if (Array.isArray(attrRaw)) {
+      return typeof attrRaw[0] === 'string' ? attrRaw[0] : undefined;
+    }
+    return typeof attrRaw === 'string' ? attrRaw : undefined;
   }, [auth?.user]);
+  const scheduleProvider = useMemo(() => getGameScheduleProvider(), []);
 
   const searchParams = useMemo(() => new URLSearchParams(window.location.search), []);
   const initialScheduleId = searchParams.get('schedule') || 'all';
@@ -178,10 +185,13 @@ const ManagerReportPage: React.FC = () => {
 
   useEffect(() => {
     let isMounted = true;
-    fetchSchedules(orgId)
+    scheduleProvider.fetchUserScheduledGames({ orgId })
       .then((data) => {
         if (!isMounted) return;
-        setSchedules(data);
+        setSchedules(data.map((schedule) => ({
+          id: String(schedule.id),
+          title: schedule.title,
+        })));
       })
       .catch((err) => {
         if (!isMounted) return;
@@ -426,9 +436,7 @@ const ManagerReportPage: React.FC = () => {
   };
 
   const scheduleLabel = (schedule: ScheduleRecord) => {
-    const title = schedule.title || 'Schedule';
-    const dateLabel = schedule.date ? ` (${new Date(schedule.date).toLocaleDateString()})` : '';
-    return `${title}${dateLabel}`;
+    return schedule.title || `Schedule ${schedule.id}`;
   };
 
   return (

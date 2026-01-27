@@ -119,6 +119,28 @@ const tryFetchWithFilterFallback = async <T>(collection: string, params: Record<
   }
 };
 
+const extractOrgId = (value: unknown): string | undefined => {
+  if (!value) return undefined;
+  if (typeof value === 'string' || typeof value === 'number') return String(value);
+  if (typeof value === 'object') {
+    const record = value as { id?: string | number; key?: string | number };
+    if (record.id !== undefined) return String(record.id);
+    if (record.key !== undefined) return String(record.key);
+  }
+  return undefined;
+};
+
+const getRecordOrgId = (record: ScheduleRecord): string | undefined => {
+  const raw =
+    record.org_id ??
+    record.orgId ??
+    (record as Record<string, unknown>).organization_id ??
+    (record as Record<string, unknown>).organizationId ??
+    (record as Record<string, unknown>).org ??
+    (record as Record<string, unknown>).organization;
+  return extractOrgId(raw);
+};
+
 export const fetchSchedules = async (orgId?: string): Promise<ScheduleRecord[]> => {
   const schedulesFromProvider = await tryFetchWithFilterFallback<ScheduleRecord>('schedules', {
     sort: 'date',
@@ -128,7 +150,7 @@ export const fetchSchedules = async (orgId?: string): Promise<ScheduleRecord[]> 
 
   return schedulesFromProvider.filter((schedule) => {
     if (!orgId) return true;
-    const recordOrgId = schedule.org_id || schedule.orgId;
+    const recordOrgId = getRecordOrgId(schedule);
     return recordOrgId ? String(recordOrgId) === String(orgId) : false;
   });
 };

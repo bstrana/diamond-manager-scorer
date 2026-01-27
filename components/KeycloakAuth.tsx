@@ -35,6 +35,8 @@ interface KeycloakAuthProps {
   onUnauthenticated: () => void;
 }
 
+let hasLoggedRedirectUri = false;
+
 export const KeycloakAuthProvider: React.FC<KeycloakAuthProps> = ({ 
   children, 
   onAuthenticated, 
@@ -63,9 +65,12 @@ export const KeycloakAuthProvider: React.FC<KeycloakAuthProps> = ({
   const authority = `${keycloakUrl}/realms/${realm}`;
   const redirectUri = window.location.origin;
 
-  // Log redirect URI for debugging (helpful for Keycloak configuration)
-  console.log('[KeycloakAuth] Redirect URI:', redirectUri);
-  console.log('[KeycloakAuth] Make sure this URI is in Keycloak "Valid redirect URIs":', redirectUri, 'or', `${redirectUri}/*`);
+  // Log redirect URI once for debugging (helpful for Keycloak configuration)
+  if (!hasLoggedRedirectUri) {
+    console.log('[KeycloakAuth] Redirect URI:', redirectUri);
+    console.log('[KeycloakAuth] Make sure this URI is in Keycloak "Valid redirect URIs":', redirectUri, 'or', `${redirectUri}/*`);
+    hasLoggedRedirectUri = true;
+  }
 
   const oidcConfig = {
     authority,
