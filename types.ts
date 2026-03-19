@@ -93,6 +93,7 @@ export type FieldDirection = 'left' | 'left_center' | 'center' | 'right_center' 
 export type PositionGap = 'ss_3b' | '1b_2b' | '2b_ss' | '3b_ss' | 'pitcher_mound' | 'up_middle';
 export type HitDepth = 'shallow' | 'medium' | 'deep' | 'warning_track' | 'wall';
 export type InfieldPosition = 'pitcher' | 'catcher' | 'first' | 'second' | 'shortstop' | 'third';
+export type SpecialLocation = 'left_line' | 'right_line' | 'third_base_line' | 'first_base_line' | 'up_middle' | 'through_box';
 
 export interface HitDescription {
   trajectory: HitTrajectory;
@@ -118,6 +119,8 @@ export interface PlateAppearance {
   pitchSequence: string;
   result: PlateAppearanceResult;
   runnersBattedIn: number;
+  inning?: number;
+  isTopInning?: boolean;
   hitDescription?: HitDescription; // Only present when result is a hit
   defensivePlays?: {
     putoutBy?: Player;
@@ -128,7 +131,6 @@ export interface PlateAppearance {
 }
 
 export interface GameState {
-  gameId: number | null;
   gameStatus: 'setup' | 'playing' | 'final';
   competition?: string;
   location?: string;

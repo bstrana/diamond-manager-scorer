@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, type SetStateAction } from 'react';
 import type { GameState, Player, TeamSetup, PitchType, HitType, OutType, PlateAppearanceResult, PlayerStats, Team, PlateAppearance, DefensivePlays, ScoreboardSettings, HitDescription } from '../types';
 import { getGameDataStore } from '../services/gameDataStore';
 import { broadcastGameState } from '../services/broadcastService';
@@ -219,7 +219,7 @@ export const useGameState = () => {
   let localStorageWriteTimeout: NodeJS.Timeout | null = null;
   let apiSyncTimeout: NodeJS.Timeout | null = null;
   
-  const setGameState = useCallback((updater: React.SetStateAction<GameState>) => {
+  const setGameState = useCallback((updater: SetStateAction<GameState>) => {
     setGameStateInternal(prevState => {
       const newState = typeof updater === 'function' ? updater(prevState) : updater;
       
