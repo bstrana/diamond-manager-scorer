@@ -68,9 +68,11 @@ type RosterRecord = PocketBaseRecord & {
 const PLAYER_PHOTO_PLACEHOLDER = 'https://bstrana.sirv.com/ybc/player.png';
 
 const getBaseUrl = (): string => {
-  const raw = getEnvVar('POCKETBASE_URL') || '';
+  // SCHEDULER_URL points to the scheduling app's PocketBase (separate domain).
+  // Falls back to POCKETBASE_URL for backwards compatibility.
+  const raw = getEnvVar('SCHEDULER_URL') || getEnvVar('POCKETBASE_URL') || '';
   if (!raw) {
-    throw new Error('PocketBase schedule is not configured. Set POCKETBASE_URL and SCHEDULE_PROVIDER=pocketbase.');
+    throw new Error('Scheduling app is not configured. Set SCHEDULER_URL to connect to the scheduling app\'s PocketBase.');
   }
   const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
   return withProtocol.replace(/\/$/, '');
@@ -110,7 +112,8 @@ const getExpanded = <T>(record: PocketBaseRecord | undefined, key: string): T | 
 };
 
 const scheduleSourceCollection = (getEnvVar('POCKETBASE_SCHEDULE_SOURCE_COLLECTION') || '').trim();
-const scheduleSourceOrgId = getEnvVar('POCKETBASE_SCHEDULE_ORG_ID');
+// SCHEDULER_ORG_ID takes priority; POCKETBASE_SCHEDULE_ORG_ID kept for backwards compatibility
+const scheduleSourceOrgId = getEnvVar('SCHEDULER_ORG_ID') || getEnvVar('POCKETBASE_SCHEDULE_ORG_ID');
 const scheduleSourceUserId = getEnvVar('POCKETBASE_SCHEDULE_USER_ID');
 const scheduleSourceAppId = getEnvVar('POCKETBASE_SCHEDULE_APP_ID');
 
@@ -418,7 +421,7 @@ const matchesOrg = (record: ScheduledGameRecord, orgId?: string): boolean => {
 
 export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
   provider: 'pocketbase',
-  isConfigured: () => !!getEnvVar('POCKETBASE_URL'),
+  isConfigured: () => !!(getEnvVar('SCHEDULER_URL') || getEnvVar('POCKETBASE_URL')),
   fetchUserScheduledGames: async (context?: { orgId?: string; scheduleId?: string }): Promise<ScheduledGameSummary[]> => {
     const orgId = context?.orgId;
     const scheduleId = context?.scheduleId;

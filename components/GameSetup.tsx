@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import type { TeamSetup, GameState, ScoreboardSettings } from '../types';
 import { getGameScheduleProvider } from '../services/gameScheduleProvider';
+import { getEnvVar } from '../utils/env';
 import { fetchSchedulePayloadOptions, SchedulePayloadOption } from '../services/providers/pocketbaseGameScheduleProvider';
 import { useKeycloakAuth } from './KeycloakAuth';
 import SettingsModal from './SettingsModal';
@@ -678,7 +679,9 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameSetup, onUpdateSetupData, o
     if (Array.isArray(attrRaw)) {
       return typeof attrRaw[0] === 'string' ? attrRaw[0] : undefined;
     }
-    return typeof attrRaw === 'string' ? attrRaw : undefined;
+    if (typeof attrRaw === 'string') return attrRaw;
+    // Fall back to env-configured org ID when Keycloak token does not carry one
+    return getEnvVar('SCHEDULER_ORG_ID') || getEnvVar('POCKETBASE_SCHEDULE_ORG_ID') || undefined;
   }, [auth?.user]);
   const profileName = useMemo(() => {
     const profile = auth?.user?.profile as Record<string, unknown> | undefined;
@@ -724,8 +727,8 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameSetup, onUpdateSetupData, o
     ? 'PocketBase'
     : 'Game schedule';
   const scheduleConfigHint = scheduleProvider.provider === 'pocketbase'
-    ? 'Set POCKETBASE_URL and SCHEDULE_PROVIDER=pocketbase to enable.'
-    : 'Set SCHEDULE_PROVIDER to pocketbase and provider credentials to enable.';
+    ? 'Set SCHEDULER_URL (or POCKETBASE_URL) to connect to the scheduling app.'
+    : 'Set SCHEDULER_URL to connect to the scheduling app\'s PocketBase.';
   
   // Roster modal state
   const [isRosterModalOpen, setIsRosterModalOpen] = useState(false);
