@@ -4,7 +4,7 @@
   "author": "bstrana",
   "description": "Live baseball scoring app with real-time scoreboard overlay for streaming. Tracks teams, rosters, score, counts, and game progress, and logs each plate appearance.",
   "tagline": "Live baseball scoring and streaming overlay",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "manifestVersion": 2,
 
   "image": {
@@ -58,6 +58,7 @@
   ],
 
   "changelog": {
+    "1.0.7": "Remove sort param from schedule fetch; uppercase org_id filter to match DB casing.",
     "1.0.6": "Filter schedule list by logged-in user's org_id; client-side fallback handles alternate field names.",
     "1.0.5": "Remove sort=-updated from schedule list query; fixes 400 Bad Request from external scheduler collections.",
     "1.0.4": "Fix scheduler proxy: re-append /_pb path segment so PocketBase API requests route correctly.",
