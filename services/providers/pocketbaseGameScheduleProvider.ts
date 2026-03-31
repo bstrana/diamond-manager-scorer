@@ -68,16 +68,19 @@ type RosterRecord = PocketBaseRecord & {
 const PLAYER_PHOTO_PLACEHOLDER = 'https://bstrana.sirv.com/ybc/player.png';
 
 const getBaseUrl = (): string => {
-  // Prefer SCHEDULER_URL (dedicated scheduling app on a separate domain).
-  // Fall back to POCKETBASE_URL for legacy setups where schedules live in the
-  // same PocketBase as game data (only reached when SCHEDULE_PROVIDER=pocketbase
-  // is explicitly set; auto-activation never uses POCKETBASE_URL alone).
-  const raw = getEnvVar('SCHEDULER_URL') || getEnvVar('POCKETBASE_URL') || '';
+  // When SCHEDULER_URL is set (scheduling app on a separate domain), route all
+  // requests through the server-side proxy to avoid CORS. The proxy path is
+  // relative so the browser resolves it against its current origin.
+  if (getEnvVar('SCHEDULER_URL')) {
+    return '/api/scheduler-proxy';
+  }
+
+  // Legacy: schedules live in the same PocketBase as game data.
+  const raw = getEnvVar('POCKETBASE_URL') || '';
   if (!raw) {
     throw new Error('Scheduling app is not configured. Set SCHEDULER_URL to connect to the scheduling app\'s PocketBase.');
   }
-  // Preserve relative paths (e.g. /_pb on Cloudron) so the browser resolves
-  // them against the current origin instead of prepending https://.
+  // Preserve relative paths (e.g. /_pb on Cloudron).
   if (raw.startsWith('/')) {
     return raw.replace(/\/$/, '');
   }
