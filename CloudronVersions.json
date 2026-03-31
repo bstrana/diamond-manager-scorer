@@ -18,7 +18,9 @@
         "addons": { "localstorage": {} },
         "iconUrl": "https://bstrana.sirv.com/ybc/ybc-logo.png",
         "tags": ["sports", "baseball", "scoring", "obs", "streaming"],
-        "mediaLinks": [],
+        "mediaLinks": [
+          "https://raw.githubusercontent.com/bstrana/diamond-scheduler/main/public/logo.png"
+        ],
         "changelog": "Initial Cloudron release with embedded PocketBase backend.",
         "packagerName": "bstrana",
         "packagerUrl": "https://github.com/bstrana"
