@@ -50,7 +50,9 @@
 
   "tags": ["sports", "baseball", "scoring", "obs", "streaming"],
 
-  "mediaLinks": [],
+  "mediaLinks": [
+    "https://bstrana.sirv.com/ybc/ybc-logo.png"
+  ],
 
   "changelog": {
     "1.0.0": "Initial Cloudron release with embedded PocketBase backend for persistent game states, scores, and plate appearances."
