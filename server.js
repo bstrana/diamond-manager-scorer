@@ -304,9 +304,11 @@ const server = http.createServer((req, res) => {
       return;
     }
 
-    const targetBase = schedulerUrl.replace(/\/$/, '');
+    // Strip any trailing /_pb the user may have included in SCHEDULER_URL,
+    // then re-append it so the path is always …/_pb/api/collections/…
+    const targetBase = schedulerUrl.replace(/\/_pb\/?$/, '').replace(/\/$/, '');
     const forwardPath = req.url.slice(SCHEDULER_PROXY_PREFIX.length) || '/';
-    const targetUrl = `${targetBase}${forwardPath}`;
+    const targetUrl = `${targetBase}/_pb${forwardPath}`;
 
     let parsed;
     try { parsed = new URL(targetUrl); } catch {

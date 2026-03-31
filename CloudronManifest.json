@@ -4,7 +4,7 @@
   "author": "bstrana",
   "description": "Live baseball scoring app with real-time scoreboard overlay for streaming. Tracks teams, rosters, score, counts, and game progress, and logs each plate appearance.",
   "tagline": "Live baseball scoring and streaming overlay",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "manifestVersion": 2,
 
   "image": {
@@ -58,6 +58,7 @@
   ],
 
   "changelog": {
+    "1.0.4": "Fix scheduler proxy: re-append /_pb path segment so PocketBase API requests route correctly.",
     "1.0.3": "Fix CORS/ERR_NAME_NOT_RESOLVED on schedule fetch; add SCHEDULER_COLLECTION env var (default: published_schedules).",
     "1.0.2": "Patch release: version bump.",
     "1.0.1": "Add SCHEDULER_URL and SCHEDULER_ORG_ID env vars to connect to a separate Diamond Manager Scheduler app.",
