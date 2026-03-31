@@ -10,6 +10,7 @@
         "tagline": "Live baseball scoring and streaming overlay",
         "version": "1.0.0",
         "manifestVersion": 2,
+        "minBoxVersion": "9.1.0",
         "website": "https://github.com/bstrana/diamond-manager-scorer",
         "contactEmail": "support@example.com",
         "healthCheckPath": "/health",
