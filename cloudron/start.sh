@@ -67,8 +67,14 @@ done < "${CONFIG_FILE}"
 
 # ── Fixed internal URLs (embedded PocketBase) ─────────────────────────────────
 # POCKETBASE_URL is what the browser uses (nginx proxies /_pb/ → PocketBase).
-# PB_URL is the direct internal URL used by server.js for server-side calls.
-export POCKETBASE_URL="/_pb"
+# APP_ORIGIN is always set by Cloudron (e.g. https://scorer.myserver.com).
+# A full URL is required so getBaseUrl() helpers in service files don't
+# accidentally prepend https:// to a bare path like /_pb.
+if [ -n "${APP_ORIGIN:-}" ]; then
+    export POCKETBASE_URL="${APP_ORIGIN}/_pb"
+else
+    export POCKETBASE_URL="/_pb"
+fi
 export PB_URL="http://127.0.0.1:8090"
 export DATA_PROVIDER="pocketbase"
 

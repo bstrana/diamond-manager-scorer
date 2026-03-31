@@ -1,16 +1,33 @@
-import PocketBase from 'pocketbase';
 import type { GameState, PlateAppearance } from '../../types';
 import type { GameDataStore, GameId } from '../gameDataStore';
 import { getEnvVar } from '../../utils/env';
 
-let _pb: PocketBase | null = null;
+const getBaseUrl = (): string => (getEnvVar('POCKETBASE_URL') || '').replace(/\/$/, '');
 
-const getPbClient = (): PocketBase => {
-  const url = getEnvVar('POCKETBASE_URL') || '';
-  if (!_pb || _pb.baseURL !== url) {
-    _pb = new PocketBase(url);
-  }
-  return _pb;
+const pbCreate = async (
+  collection: string,
+  data: Record<string, unknown>
+): Promise<Record<string, unknown>> => {
+  const res = await fetch(`${getBaseUrl()}/api/collections/${collection}/records`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error(`[PocketBase] POST ${collection} failed (${res.status})`);
+  return res.json() as Promise<Record<string, unknown>>;
+};
+
+const pbUpdate = async (
+  collection: string,
+  id: string,
+  data: Record<string, unknown>
+): Promise<void> => {
+  const res = await fetch(`${getBaseUrl()}/api/collections/${collection}/records/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error(`[PocketBase] PATCH ${collection}/${id} failed (${res.status})`);
 };
 
 export const pocketbaseGameDataStore: GameDataStore = {
@@ -19,20 +36,19 @@ export const pocketbaseGameDataStore: GameDataStore = {
 
   createGame: async (gameState: GameState): Promise<GameId | null> => {
     try {
-      const pb = getPbClient();
-      const record = await pb.collection('games').create({
-        status:                 gameState.gameStatus,
-        competition:            gameState.competition ?? '',
-        location:               gameState.location ?? '',
-        game_date:              gameState.gameDate ? String(gameState.gameDate) : '',
-        game_start_time:        gameState.gameStartTime ? String(gameState.gameStartTime) : '',
-        home_team:              gameState.homeTeam.name,
-        away_team:              gameState.awayTeam.name,
-        home_score:             gameState.homeTeam.score,
-        away_score:             gameState.awayTeam.score,
-        home_team_roster_text:  gameState.homeRosterString ?? '',
-        away_team_roster_text:  gameState.awayRosterString ?? '',
-        game_state_json:        gameState,
+      const record = await pbCreate('games', {
+        status:                gameState.gameStatus,
+        competition:           gameState.competition ?? '',
+        location:              gameState.location ?? '',
+        game_date:             gameState.gameDate ? String(gameState.gameDate) : '',
+        game_start_time:       gameState.gameStartTime ? String(gameState.gameStartTime) : '',
+        home_team:             gameState.homeTeam.name,
+        away_team:             gameState.awayTeam.name,
+        home_score:            gameState.homeTeam.score,
+        away_score:            gameState.awayTeam.score,
+        home_team_roster_text: gameState.homeRosterString ?? '',
+        away_team_roster_text: gameState.awayRosterString ?? '',
+        game_state_json:       gameState,
       });
       return record.id as GameId;
     } catch (err) {
@@ -43,11 +59,7 @@ export const pocketbaseGameDataStore: GameDataStore = {
 
   updateGameScores: async (gameId: GameId, homeScore: number, awayScore: number): Promise<void> => {
     try {
-      const pb = getPbClient();
-      await pb.collection('games').update(String(gameId), {
-        home_score: homeScore,
-        away_score: awayScore,
-      });
+      await pbUpdate('games', String(gameId), { home_score: homeScore, away_score: awayScore });
     } catch (err) {
       console.error('[PocketBase] updateGameScores failed:', err);
     }
@@ -59,8 +71,7 @@ export const pocketbaseGameDataStore: GameDataStore = {
     endTime?: number
   ): Promise<void> => {
     try {
-      const pb = getPbClient();
-      await pb.collection('games').update(String(gameId), {
+      await pbUpdate('games', String(gameId), {
         status,
         ...(endTime ? { game_end_time: String(endTime) } : {}),
       });
@@ -76,8 +87,7 @@ export const pocketbaseGameDataStore: GameDataStore = {
     isTopInning: boolean
   ): Promise<void> => {
     try {
-      const pb = getPbClient();
-      await pb.collection('plate_appearances').create({
+      await pbCreate('plate_appearances', {
         game:                  String(gameId),
         inning,
         is_top_inning:         isTopInning,
