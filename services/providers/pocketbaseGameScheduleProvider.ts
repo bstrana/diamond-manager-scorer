@@ -232,6 +232,7 @@ export const fetchSchedulePayloadOptions = async (orgId?: string): Promise<Sched
       name: record.schedule_name || record.scheduleName || record.title || `Schedule ${record.id}`,
     }));
 
+  // Try server-side org_id filter first
   if (orgId) {
     const params: Record<string, string> = { perPage: '200', filter: `org_id="${orgId}"` };
     const url = buildUrl(`/api/collections/${collection}/records`, params);
@@ -239,14 +240,22 @@ export const fetchSchedulePayloadOptions = async (orgId?: string): Promise<Sched
       const data = await requestJson<PocketBaseListResponse<ScheduledGameRecord>>(url);
       if ((data.items || []).length > 0) return toOptions(data.items);
     } catch {
-      // fall through to unfiltered query
+      // fall through to unfiltered query + client-side filter
     }
   }
 
-  // Fallback: fetch all records (collection may not have org_id field)
+  // Fetch all and filter client-side (handles collections with different field names
+  // like orgId, organization_id, organizationId, etc.)
   const url = buildUrl(`/api/collections/${collection}/records`, { perPage: '200' });
   const data = await requestJson<PocketBaseListResponse<ScheduledGameRecord>>(url);
-  return toOptions(data.items || []);
+  const items = data.items || [];
+
+  if (orgId) {
+    const filtered = items.filter((r) => getRecordOrgId(r) === orgId);
+    if (filtered.length > 0) return toOptions(filtered);
+  }
+
+  return toOptions(items);
 };
 
 const loadSchedulePayloadFromSchedules = async (orgId?: string, scheduleId?: string): Promise<SchedulePayloadSource | null> => {
