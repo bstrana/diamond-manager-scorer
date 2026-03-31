@@ -35,7 +35,8 @@ const resolveProvider = (): GameScheduleProvider => {
   if (configuredProvider === 'pocketbase') return pocketbaseGameScheduleProvider;
   if (configuredProvider === 'none') return noopGameScheduleProvider;
 
-  if (getEnvVar('POCKETBASE_URL')) return pocketbaseGameScheduleProvider;
+  // Auto-activate when either the dedicated scheduler URL or the shared PocketBase URL is set
+  if (getEnvVar('SCHEDULER_URL') || getEnvVar('POCKETBASE_URL')) return pocketbaseGameScheduleProvider;
 
   return noopGameScheduleProvider;
 };
