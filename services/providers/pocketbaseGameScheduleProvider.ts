@@ -34,7 +34,19 @@ type ScheduledGameRecord = PocketBaseRecord & {
 
 type SchedulerPayload = {
   leagues?: Array<{ id: string; name: string }>;
-  teams?: Array<{ id: string; name: string; city?: string; primaryColor?: string; logoUrl?: string; roster?: Array<{ name: string; number?: number; position?: string; photoUrl?: string }> }>;
+  teams?: Array<{
+    id: string;
+    name: string;
+    city?: string;
+    primaryColor?: string;
+    color?: string;
+    primary_color?: string;
+    team_color?: string;
+    logoUrl?: string;
+    logo_url?: string;
+    logo?: string;
+    roster?: Array<{ name: string; number?: number; position?: string; photoUrl?: string }>;
+  }>;
   games?: Array<{
     id: string;
     homeTeamId: string;
@@ -50,7 +62,22 @@ type SchedulerPayload = {
 type TeamRecord = PocketBaseRecord & {
   name?: string;
   logo_url?: string;
+  logoUrl?: string;
+  logo?: string;
   color?: string;
+  primary_color?: string;
+  primaryColor?: string;
+  team_color?: string;
+};
+
+const resolveTeamLogo = (team: Record<string, unknown> | null | undefined): string => {
+  if (!team) return '';
+  return String(team.logoUrl || team.logo_url || team.logo || '');
+};
+
+const resolveTeamColor = (team: Record<string, unknown> | null | undefined): string => {
+  if (!team) return '#ffffff';
+  return String(team.primaryColor || team.primary_color || team.color || team.team_color || '#ffffff');
 };
 
 type PlayerRecord = PocketBaseRecord & {
@@ -562,14 +589,14 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
         homeTeam: {
           name: formatTeamName(homeTeam),
           roster: buildRosterStringFromSchedule(homeTeam?.roster),
-          logoUrl: homeTeam?.logoUrl || '',
-          color: homeTeam?.primaryColor || '#ffffff',
+          logoUrl: resolveTeamLogo(homeTeam as Record<string, unknown>),
+          color: resolveTeamColor(homeTeam as Record<string, unknown>),
         },
         awayTeam: {
           name: formatTeamName(awayTeam),
           roster: buildRosterStringFromSchedule(awayTeam?.roster),
-          logoUrl: awayTeam?.logoUrl || '',
-          color: awayTeam?.primaryColor || '#ffffff',
+          logoUrl: resolveTeamLogo(awayTeam as Record<string, unknown>),
+          color: resolveTeamColor(awayTeam as Record<string, unknown>),
         },
         competition,
         location: game.location || '',
@@ -601,14 +628,14 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
         homeTeam: {
           name: formatTeamName(homeTeam),
           roster: buildRosterStringFromSchedule(homeTeam?.roster),
-          logoUrl: homeTeam?.logoUrl || '',
-          color: homeTeam?.primaryColor || '#ffffff',
+          logoUrl: resolveTeamLogo(homeTeam as Record<string, unknown>),
+          color: resolveTeamColor(homeTeam as Record<string, unknown>),
         },
         awayTeam: {
           name: formatTeamName(awayTeam),
           roster: buildRosterStringFromSchedule(awayTeam?.roster),
-          logoUrl: awayTeam?.logoUrl || '',
-          color: awayTeam?.primaryColor || '#ffffff',
+          logoUrl: resolveTeamLogo(awayTeam as Record<string, unknown>),
+          color: resolveTeamColor(awayTeam as Record<string, unknown>),
         },
         competition,
         location: game.location || '',
@@ -707,14 +734,14 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
         homeTeam: {
           name: homeTeamRecord?.name || `Team ${finalHomeId}`,
           roster: homeRosterString,
-          logoUrl: homeTeamRecord?.logo_url || '',
-          color: homeTeamRecord?.color || '#ffffff',
+          logoUrl: resolveTeamLogo(homeTeamRecord as Record<string, unknown>),
+          color: resolveTeamColor(homeTeamRecord as Record<string, unknown>),
         },
         awayTeam: {
           name: awayTeamRecord?.name || `Team ${finalAwayId}`,
           roster: awayRosterString,
-          logoUrl: awayTeamRecord?.logo_url || '',
-          color: awayTeamRecord?.color || '#ffffff',
+          logoUrl: resolveTeamLogo(awayTeamRecord as Record<string, unknown>),
+          color: resolveTeamColor(awayTeamRecord as Record<string, unknown>),
         },
         competition: game.competition || '',
         location: game.location || '',
@@ -747,14 +774,14 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
       homeTeam: {
         name: homeTeamRecord.name || `Team ${homeTeamId}`,
         roster: homeRosterString,
-        logoUrl: homeTeamRecord.logo_url || '',
-        color: homeTeamRecord.color || '#ffffff',
+        logoUrl: resolveTeamLogo(homeTeamRecord as Record<string, unknown>),
+        color: resolveTeamColor(homeTeamRecord as Record<string, unknown>),
       },
       awayTeam: {
         name: awayTeamRecord.name || `Team ${awayTeamId}`,
         roster: awayRosterString,
-        logoUrl: awayTeamRecord.logo_url || '',
-        color: awayTeamRecord.color || '#ffffff',
+        logoUrl: resolveTeamLogo(awayTeamRecord as Record<string, unknown>),
+        color: resolveTeamColor(awayTeamRecord as Record<string, unknown>),
       },
       competition: game.competition || '',
       location: game.location || '',
