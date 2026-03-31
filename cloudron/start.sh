@@ -27,9 +27,15 @@ KEYCLOAK_URL=https://keycloak.example.com
 KEYCLOAK_REALM=diamond
 KEYCLOAK_CLIENT_ID=diamond-manager-scorer
 
-# ── Schedule source from diamond-scheduler (optional) ────────────────────────
-# Set SCHEDULE_PROVIDER=pocketbase and configure the collection details to
-# pull game schedules from a running diamond-scheduler PocketBase instance.
+# ── Diamond Manager Scheduler connection (optional) ──────────────────────────
+# Point SCHEDULER_URL at the PocketBase of a separately hosted Diamond Manager
+# Scheduler app (can be on a different domain). SCHEDULER_ORG_ID filters the
+# schedule data to your organisation. No need to set SCHEDULE_PROVIDER when
+# SCHEDULER_URL is present – it is detected automatically.
+# SCHEDULER_URL=https://scheduler.yourdomain.com
+# SCHEDULER_ORG_ID=your-org-id
+
+# ── Legacy schedule source (optional, kept for backwards compatibility) ────────
 # SCHEDULE_PROVIDER=pocketbase
 # POCKETBASE_SCHEDULE_SOURCE_COLLECTION=published_schedules
 # POCKETBASE_SCHEDULE_ORG_ID=
@@ -79,6 +85,8 @@ export PB_URL="http://127.0.0.1:8090"
 export DATA_PROVIDER="pocketbase"
 
 # ── Defaults for optional vars ────────────────────────────────────────────────
+export SCHEDULER_URL="${SCHEDULER_URL:-}"
+export SCHEDULER_ORG_ID="${SCHEDULER_ORG_ID:-}"
 export SCHEDULE_PROVIDER="${SCHEDULE_PROVIDER:-}"
 export ENABLE_OBS_SYNC="${ENABLE_OBS_SYNC:-true}"
 export ALLOWED_ORIGINS="${ALLOWED_ORIGINS:-}"
