@@ -30,6 +30,66 @@
       "creationDate": "Mon, 30 Mar 2026 00:00:00 GMT",
       "ts": "Mon, 30 Mar 2026 00:00:00 GMT",
       "publishState": "published"
+    },
+    "1.0.1": {
+      "manifest": {
+        "id": "io.github.bstrana.diamond-manager-scorer",
+        "title": "Diamond Manager Scorer",
+        "author": "bstrana",
+        "description": "Live baseball scoring app with real-time scoreboard overlay for streaming. Tracks teams, rosters, score, counts, and game progress, and logs each plate appearance.",
+        "tagline": "Live baseball scoring and streaming overlay",
+        "version": "1.0.1",
+        "manifestVersion": 2,
+        "minBoxVersion": "9.1.0",
+        "website": "https://github.com/bstrana/diamond-manager-scorer",
+        "contactEmail": "support@example.com",
+        "healthCheckPath": "/health",
+        "httpPort": 8000,
+        "dockerImage": "ghcr.io/bstrana/diamond-manager-scorer:1.0.1",
+        "addons": { "localstorage": {} },
+        "icon": "file://appicon.png",
+        "iconUrl": "https://bstrana.sirv.com/ybc/ybc-logo.png",
+        "tags": ["sports", "baseball", "scoring", "obs", "streaming"],
+        "mediaLinks": [
+          "https://raw.githubusercontent.com/bstrana/diamond-scheduler/main/public/logo.png"
+        ],
+        "changelog": "Add SCHEDULER_URL and SCHEDULER_ORG_ID env vars to connect to a separate Diamond Manager Scheduler app.",
+        "packagerName": "bstrana",
+        "packagerUrl": "https://github.com/bstrana"
+      },
+      "creationDate": "Mon, 31 Mar 2026 00:00:00 GMT",
+      "ts": "Mon, 31 Mar 2026 00:00:00 GMT",
+      "publishState": "published"
+    },
+    "1.0.2": {
+      "manifest": {
+        "id": "io.github.bstrana.diamond-manager-scorer",
+        "title": "Diamond Manager Scorer",
+        "author": "bstrana",
+        "description": "Live baseball scoring app with real-time scoreboard overlay for streaming. Tracks teams, rosters, score, counts, and game progress, and logs each plate appearance.",
+        "tagline": "Live baseball scoring and streaming overlay",
+        "version": "1.0.2",
+        "manifestVersion": 2,
+        "minBoxVersion": "9.1.0",
+        "website": "https://github.com/bstrana/diamond-manager-scorer",
+        "contactEmail": "support@example.com",
+        "healthCheckPath": "/health",
+        "httpPort": 8000,
+        "dockerImage": "ghcr.io/bstrana/diamond-manager-scorer:1.0.2",
+        "addons": { "localstorage": {} },
+        "icon": "file://appicon.png",
+        "iconUrl": "https://bstrana.sirv.com/ybc/ybc-logo.png",
+        "tags": ["sports", "baseball", "scoring", "obs", "streaming"],
+        "mediaLinks": [
+          "https://raw.githubusercontent.com/bstrana/diamond-scheduler/main/public/logo.png"
+        ],
+        "changelog": "Patch release: version bump.",
+        "packagerName": "bstrana",
+        "packagerUrl": "https://github.com/bstrana"
+      },
+      "creationDate": "Mon, 31 Mar 2026 00:00:00 GMT",
+      "ts": "Mon, 31 Mar 2026 00:00:00 GMT",
+      "publishState": "published"
     }
   }
 }
