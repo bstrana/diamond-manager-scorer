@@ -34,6 +34,7 @@ KEYCLOAK_CLIENT_ID=diamond-manager-scorer
 # SCHEDULER_URL is present – it is detected automatically.
 # SCHEDULER_URL=https://scheduler.yourdomain.com
 # SCHEDULER_ORG_ID=your-org-id
+# SCHEDULER_COLLECTION=published_schedules
 
 # ── Legacy schedule source (optional, kept for backwards compatibility) ────────
 # SCHEDULE_PROVIDER=pocketbase
@@ -87,6 +88,7 @@ export DATA_PROVIDER="pocketbase"
 # ── Defaults for optional vars ────────────────────────────────────────────────
 export SCHEDULER_URL="${SCHEDULER_URL:-}"
 export SCHEDULER_ORG_ID="${SCHEDULER_ORG_ID:-}"
+export SCHEDULER_COLLECTION="${SCHEDULER_COLLECTION:-}"
 export SCHEDULE_PROVIDER="${SCHEDULE_PROVIDER:-}"
 export ENABLE_OBS_SYNC="${ENABLE_OBS_SYNC:-true}"
 export ALLOWED_ORIGINS="${ALLOWED_ORIGINS:-}"

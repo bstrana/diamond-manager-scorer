@@ -1,4 +1,5 @@
 import http from 'http';
+import https from 'https';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -101,6 +102,7 @@ function injectEnvVars(html) {
     POCKETBASE_SCHEDULE_APP_ID: process.env.VITE_POCKETBASE_SCHEDULE_APP_ID || process.env.POCKETBASE_SCHEDULE_APP_ID || '',
     SCHEDULER_URL: process.env.VITE_SCHEDULER_URL || process.env.SCHEDULER_URL || '',
     SCHEDULER_ORG_ID: process.env.VITE_SCHEDULER_ORG_ID || process.env.SCHEDULER_ORG_ID || '',
+    SCHEDULER_COLLECTION: process.env.VITE_SCHEDULER_COLLECTION || process.env.SCHEDULER_COLLECTION || '',
     WP_APP_PASS: process.env.VITE_WP_APP_PASS || '',
     OPENROUTER_API_KEY: process.env.VITE_OPENROUTER_API_KEY || '',
   };
@@ -290,6 +292,63 @@ const server = http.createServer((req, res) => {
     return;
   }
   
+  // ── Scheduler proxy ──────────────────────────────────────────────────────────
+  // Forward /api/scheduler-proxy/* to SCHEDULER_URL/* server-side so the
+  // browser never makes a cross-origin request (avoids CORS entirely).
+  const SCHEDULER_PROXY_PREFIX = '/api/scheduler-proxy';
+  if (req.url.startsWith(SCHEDULER_PROXY_PREFIX)) {
+    const schedulerUrl = process.env.SCHEDULER_URL || '';
+    if (!schedulerUrl) {
+      res.writeHead(503, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'SCHEDULER_URL is not configured.' }));
+      return;
+    }
+
+    const targetBase = schedulerUrl.replace(/\/$/, '');
+    const forwardPath = req.url.slice(SCHEDULER_PROXY_PREFIX.length) || '/';
+    const targetUrl = `${targetBase}${forwardPath}`;
+
+    let parsed;
+    try { parsed = new URL(targetUrl); } catch {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Invalid scheduler URL.' }));
+      return;
+    }
+
+    const transport = parsed.protocol === 'https:' ? https : http;
+    const proxyReq = transport.request(
+      {
+        hostname: parsed.hostname,
+        port: parsed.port || (parsed.protocol === 'https:' ? 443 : 80),
+        path: parsed.pathname + parsed.search,
+        method: req.method,
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      },
+      (proxyRes) => {
+        res.writeHead(proxyRes.statusCode || 502, {
+          'Content-Type': proxyRes.headers['content-type'] || 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        });
+        proxyRes.pipe(res);
+      }
+    );
+
+    proxyReq.on('error', (err) => {
+      console.error('[scheduler-proxy] upstream error:', err.message);
+      if (!res.headersSent) {
+        res.writeHead(502, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Failed to reach scheduler.' }));
+      }
+    });
+
+    if (req.method === 'POST' || req.method === 'PATCH' || req.method === 'PUT') {
+      req.pipe(proxyReq);
+    } else {
+      proxyReq.end();
+    }
+    return;
+  }
+
   if (req.method === 'OPTIONS' && req.url === '/api/gamestate') {
     // Handle CORS preflight
     if (corsOrigin) {
