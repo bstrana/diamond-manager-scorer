@@ -17,6 +17,7 @@
         "httpPort": 8000,
         "dockerImage": "ghcr.io/bstrana/diamond-manager-scorer:1.0.0",
         "addons": { "localstorage": {} },
+        "icon": "file://appicon.png",
         "iconUrl": "https://bstrana.sirv.com/ybc/ybc-logo.png",
         "tags": ["sports", "baseball", "scoring", "obs", "streaming"],
         "mediaLinks": [
