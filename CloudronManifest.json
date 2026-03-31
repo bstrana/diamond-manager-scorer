@@ -4,7 +4,7 @@
   "author": "bstrana",
   "description": "Live baseball scoring app with real-time scoreboard overlay for streaming. Tracks teams, rosters, score, counts, and game progress, and logs each plate appearance.",
   "tagline": "Live baseball scoring and streaming overlay",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "manifestVersion": 2,
 
   "image": {
@@ -57,6 +57,7 @@
   ],
 
   "changelog": {
+    "1.0.2": "Patch release: version bump.",
     "1.0.1": "Add SCHEDULER_URL and SCHEDULER_ORG_ID env vars to connect to a separate Diamond Manager Scheduler app.",
     "1.0.0": "Initial Cloudron release with embedded PocketBase backend for persistent game states, scores, and plate appearances."
   }
