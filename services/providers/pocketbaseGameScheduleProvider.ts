@@ -232,9 +232,11 @@ export const fetchSchedulePayloadOptions = async (orgId?: string): Promise<Sched
       name: record.schedule_name || record.scheduleName || record.title || `Schedule ${record.id}`,
     }));
 
-  // Try server-side org_id filter first
-  if (orgId) {
-    const params: Record<string, string> = { perPage: '200', filter: `org_id="${orgId}"` };
+  const upperOrgId = orgId?.toUpperCase();
+
+  // Try server-side org_id filter first (DB stores org_id in uppercase)
+  if (upperOrgId) {
+    const params: Record<string, string> = { perPage: '200', filter: `org_id="${upperOrgId}"` };
     const url = buildUrl(`/api/collections/${collection}/records`, params);
     try {
       const data = await requestJson<PocketBaseListResponse<ScheduledGameRecord>>(url);
@@ -250,8 +252,8 @@ export const fetchSchedulePayloadOptions = async (orgId?: string): Promise<Sched
   const data = await requestJson<PocketBaseListResponse<ScheduledGameRecord>>(url);
   const items = data.items || [];
 
-  if (orgId) {
-    const filtered = items.filter((r) => getRecordOrgId(r) === orgId);
+  if (upperOrgId) {
+    const filtered = items.filter((r) => getRecordOrgId(r)?.toUpperCase() === upperOrgId);
     if (filtered.length > 0) return toOptions(filtered);
   }
 
@@ -276,54 +278,47 @@ const loadSchedulePayloadFromSchedules = async (orgId?: string, scheduleId?: str
   };
   const filters: string[] = [];
   if (normalizedOrgId) {
-    filters.push(`org_id="${normalizedOrgId}"`);
+    filters.push(`org_id="${normalizedOrgId.toUpperCase()}"`);
   }
   if (normalizedScheduleId) {
     filters.push(`id="${normalizedScheduleId}"`);
   }
   const filter = filters.join(' && ');
-  const sortCandidates = ['-updated', '-created', ''];
   let lastError: unknown = null;
 
-  for (const sort of sortCandidates) {
-    try {
-      const url = buildUrl(`/api/collections/${getSchedulesCollection()}/records`, {
-        ...baseParams,
-        filter,
-        ...(sort ? { sort } : {}),
-      });
-      const data = await requestJson<PocketBaseListResponse<ScheduledGameRecord>>(url);
-      const record = data.items?.[0];
-      if (record?.data) {
-        const scheduleName = record.schedule_name || record.scheduleName || record.title;
-        const payloadSource = { payload: record.data, scheduleName, scheduleId: record.id };
-        cachedSchedulePayloadFromSchedules = payloadSource;
-        cachedScheduleSourceFetchedAt = now;
-        cachedScheduleSourceOrgId = normalizedOrgId;
-        cachedScheduleSourceId = normalizedScheduleId;
-        return payloadSource;
-      }
-      cachedSchedulePayloadFromSchedules = null;
+  try {
+    const url = buildUrl(`/api/collections/${getSchedulesCollection()}/records`, {
+      ...baseParams,
+      filter,
+    });
+    const data = await requestJson<PocketBaseListResponse<ScheduledGameRecord>>(url);
+    const record = data.items?.[0];
+    if (record?.data) {
+      const scheduleName = record.schedule_name || record.scheduleName || record.title;
+      const payloadSource = { payload: record.data, scheduleName, scheduleId: record.id };
+      cachedSchedulePayloadFromSchedules = payloadSource;
       cachedScheduleSourceFetchedAt = now;
       cachedScheduleSourceOrgId = normalizedOrgId;
       cachedScheduleSourceId = normalizedScheduleId;
-      return null;
-    } catch (error) {
-      const status = (error as Error & { status?: number }).status;
-      if (status !== 400) {
-        lastError = error;
-        continue;
-      }
+      return payloadSource;
+    }
+    cachedSchedulePayloadFromSchedules = null;
+    cachedScheduleSourceFetchedAt = now;
+    cachedScheduleSourceOrgId = normalizedOrgId;
+    cachedScheduleSourceId = normalizedScheduleId;
+    return null;
+  } catch (error) {
+    const status = (error as Error & { status?: number }).status;
+    if (status === 400) {
+      // Filter not supported — fall back to unfiltered + client-side match
       try {
-        const fallbackUrl = buildUrl(`/api/collections/${getSchedulesCollection()}/records`, {
-          ...baseParams,
-          ...(sort ? { sort } : {}),
-        });
+        const fallbackUrl = buildUrl(`/api/collections/${getSchedulesCollection()}/records`, baseParams);
         const data = await requestJson<PocketBaseListResponse<ScheduledGameRecord>>(fallbackUrl);
         const record = (data.items || []).find((item) => {
           if (!item.data) return false;
           if (!normalizedOrgId) return true;
-          return getRecordOrgId(item) === normalizedOrgId;
+          const recOrgId = getRecordOrgId(item);
+          return recOrgId?.toUpperCase() === normalizedOrgId.toUpperCase();
         });
         if (record?.data) {
           const scheduleName = record.schedule_name || record.scheduleName || record.title;
@@ -342,6 +337,8 @@ const loadSchedulePayloadFromSchedules = async (orgId?: string, scheduleId?: str
       } catch (fallbackError) {
         lastError = fallbackError;
       }
+    } else {
+      lastError = error;
     }
   }
 
