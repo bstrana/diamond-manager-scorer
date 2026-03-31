@@ -102,6 +102,7 @@ function injectEnvVars(html) {
     POCKETBASE_SCHEDULE_APP_ID: process.env.VITE_POCKETBASE_SCHEDULE_APP_ID || process.env.POCKETBASE_SCHEDULE_APP_ID || '',
     SCHEDULER_URL: process.env.VITE_SCHEDULER_URL || process.env.SCHEDULER_URL || '',
     SCHEDULER_ORG_ID: process.env.VITE_SCHEDULER_ORG_ID || process.env.SCHEDULER_ORG_ID || '',
+    SCHEDULER_COLLECTION: process.env.VITE_SCHEDULER_COLLECTION || process.env.SCHEDULER_COLLECTION || '',
     WP_APP_PASS: process.env.VITE_WP_APP_PASS || '',
     OPENROUTER_API_KEY: process.env.VITE_OPENROUTER_API_KEY || '',
   };

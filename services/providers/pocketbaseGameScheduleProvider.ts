@@ -124,6 +124,14 @@ const getExpanded = <T>(record: PocketBaseRecord | undefined, key: string): T | 
 const scheduleSourceCollection = (getEnvVar('POCKETBASE_SCHEDULE_SOURCE_COLLECTION') || '').trim();
 // SCHEDULER_ORG_ID takes priority; POCKETBASE_SCHEDULE_ORG_ID kept for backwards compatibility
 const scheduleSourceOrgId = getEnvVar('SCHEDULER_ORG_ID') || getEnvVar('POCKETBASE_SCHEDULE_ORG_ID');
+
+// Returns the PocketBase collection used to fetch published schedules.
+// When SCHEDULER_URL is set (dedicated scheduling app) the default is
+// "published_schedules"; override with SCHEDULER_COLLECTION env var.
+// Falls back to "schedules" for legacy same-instance setups.
+const getSchedulesCollection = (): string =>
+  getEnvVar('SCHEDULER_COLLECTION') ||
+  (getEnvVar('SCHEDULER_URL') ? 'published_schedules' : 'schedules');
 const scheduleSourceUserId = getEnvVar('POCKETBASE_SCHEDULE_USER_ID');
 const scheduleSourceAppId = getEnvVar('POCKETBASE_SCHEDULE_APP_ID');
 
@@ -225,7 +233,7 @@ export const fetchSchedulePayloadOptions = async (orgId?: string): Promise<Sched
   if (filters.length > 0) {
     params.filter = filters.join(' && ');
   }
-  const url = buildUrl('/api/collections/schedules/records', params);
+  const url = buildUrl(`/api/collections/${getSchedulesCollection()}/records`, params);
   const data = await requestJson<PocketBaseListResponse<ScheduledGameRecord>>(url);
   return (data.items || []).map((record) => ({
     id: record.id,
@@ -262,7 +270,7 @@ const loadSchedulePayloadFromSchedules = async (orgId?: string, scheduleId?: str
 
   for (const sort of sortCandidates) {
     try {
-      const url = buildUrl('/api/collections/schedules/records', {
+      const url = buildUrl(`/api/collections/${getSchedulesCollection()}/records`, {
         ...baseParams,
         filter,
         ...(sort ? { sort } : {}),
@@ -290,7 +298,7 @@ const loadSchedulePayloadFromSchedules = async (orgId?: string, scheduleId?: str
         continue;
       }
       try {
-        const fallbackUrl = buildUrl('/api/collections/schedules/records', {
+        const fallbackUrl = buildUrl(`/api/collections/${getSchedulesCollection()}/records`, {
           ...baseParams,
           ...(sort ? { sort } : {}),
         });
@@ -482,7 +490,7 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
       });
     }
 
-    const urlWithSort = buildUrl('/api/collections/schedules/records', {
+    const urlWithSort = buildUrl(`/api/collections/${getSchedulesCollection()}/records`, {
       sort: 'date',
       perPage: '200',
     });
@@ -501,7 +509,7 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
       if (status !== 400) {
         throw error;
       }
-      const urlNoSort = buildUrl('/api/collections/schedules/records', {
+      const urlNoSort = buildUrl(`/api/collections/${getSchedulesCollection()}/records`, {
         perPage: '200',
       });
       const data = await requestJson<PocketBaseListResponse<ScheduledGameRecord>>(urlNoSort);
@@ -594,7 +602,7 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
       };
     }
 
-    const url = buildUrl(`/api/collections/schedules/records/${gameId}`, {
+    const url = buildUrl(`/api/collections/${getSchedulesCollection()}/records/${gameId}`, {
       expand: 'home_team,away_team,home_roster,away_roster,home_roster.players,away_roster.players',
     });
 
@@ -745,7 +753,7 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
       return;
     }
     try {
-      await requestJson<unknown>(buildUrl(`/api/collections/schedules/records/${gameId}`), {
+      await requestJson<unknown>(buildUrl(`/api/collections/${getSchedulesCollection()}/records/${gameId}`), {
         method: 'PATCH',
         body: JSON.stringify({ status }),
       });
