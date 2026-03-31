@@ -1,5 +1,5 @@
 
-import { useState, useCallback, type SetStateAction } from 'react';
+import { useState, useCallback, useRef, type SetStateAction } from 'react';
 import type { GameState, Player, TeamSetup, PitchType, HitType, OutType, PlateAppearanceResult, PlayerStats, Team, PlateAppearance, DefensivePlays, ScoreboardSettings, HitDescription } from '../types';
 import { getGameDataStore } from '../services/gameDataStore';
 import { broadcastGameState } from '../services/broadcastService';
@@ -14,7 +14,7 @@ const initialPlayerStats: PlayerStats = {
     ballsThrown: 0,
     AVG: 0, OBP: 0, SLG: 0,
     A: 0, PO: 0, E: 0,
-    IP: 0, R: 0, ER: 0, ERA: 0, H_allowed: 0, BB_allowed: 0, SO_pitched: 0,
+    IP: 0, IPOuts: 0, R: 0, ER: 0, ERA: 0, H_allowed: 0, BB_allowed: 0, SO_pitched: 0,
 };
 
 const parseRoster = (rosterString: string): Player[] => {
@@ -111,7 +111,8 @@ const updateBatterStats = (player: Player, result: PlateAppearanceResult, rbis: 
     }
 
     newStats.AVG = newStats.AB > 0 ? newStats.H / newStats.AB : 0;
-    const obpDenominator = newStats.AB + newStats.BB + newStats.SF + newStats.SH;
+    // Standard OBP: (H + BB) / (AB + BB + SF)  — BB includes HBP and IBB; SH excluded per official formula
+    const obpDenominator = newStats.AB + newStats.BB + newStats.SF;
     newStats.OBP = obpDenominator > 0 ? (newStats.H + newStats.BB) / obpDenominator : 0;
     const totalBases = (newStats.singles) + (newStats.doubles * 2) + (newStats.triples * 3) + (newStats.HR * 4);
     newStats.SLG = newStats.AB > 0 ? totalBases / newStats.AB : 0;
@@ -123,19 +124,19 @@ const updatePitcherStats = (pitcher: Player, result: PlateAppearanceResult, runs
     const newStats = { ...pitcher.stats };
 
     if (isOut) {
-        // Roughly add 1/3 inning. Note: repeated addition of floating points can cause precision errors
-        // but for simple scoreboard display logic, this is acceptable.
-        newStats.IP = parseFloat((newStats.IP + 1/3).toFixed(2));
+        // Track outs as an integer to avoid floating-point drift, derive IP from it.
+        newStats.IPOuts = (newStats.IPOuts ?? 0) + 1;
+        const fullInnings = Math.floor(newStats.IPOuts / 3);
+        const remainder = newStats.IPOuts % 3; // 0, 1, or 2
+        // Store in baseball notation: 1.2 = 1 full inning + 2 outs (not 1.667 innings)
+        newStats.IP = parseFloat((fullInnings + remainder * 0.1).toFixed(1));
     }
     newStats.R += runsScored;
     newStats.ER += runsScored; // Simplified: Assuming all runs are earned for now.
 
-    // Calculate ERA: (Earned Runs * 9) / Innings Pitched
-    if (newStats.IP > 0) {
-      newStats.ERA = (newStats.ER * 9) / newStats.IP;
-    } else {
-      newStats.ERA = 0; // Default if no outs recorded yet.
-    }
+    // Calculate ERA: (Earned Runs * 9) / true decimal innings (IPOuts / 3)
+    const trueInnings = (newStats.IPOuts ?? 0) / 3;
+    newStats.ERA = trueInnings > 0 ? (newStats.ER * 9) / trueInnings : 0;
 
     switch (result) {
         case 'single':
@@ -216,36 +217,36 @@ export const useGameState = () => {
   });
 
   // Debounce localStorage writes and API sync separately to improve performance
-  let localStorageWriteTimeout: NodeJS.Timeout | null = null;
-  let apiSyncTimeout: NodeJS.Timeout | null = null;
-  
+  const localStorageWriteTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const apiSyncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const setGameState = useCallback((updater: SetStateAction<GameState>) => {
     setGameStateInternal(prevState => {
       const newState = typeof updater === 'function' ? updater(prevState) : updater;
-      
+
       // Clear any pending localStorage write
-      if (localStorageWriteTimeout) {
-        clearTimeout(localStorageWriteTimeout);
+      if (localStorageWriteTimeoutRef.current) {
+        clearTimeout(localStorageWriteTimeoutRef.current);
       }
-      
+
       // Debounce localStorage write (100ms) to avoid excessive writes
-      localStorageWriteTimeout = setTimeout(() => {
+      localStorageWriteTimeoutRef.current = setTimeout(() => {
         try {
           localStorage.setItem('gameState', JSON.stringify(newState));
         } catch (error) {
           console.error("Error saving game state to localStorage:", error);
         }
       }, 100);
-      
+
       // Broadcast immediately (no debounce needed for real-time updates)
       try {
         broadcastGameState(newState);
-        
+
         // Also POST to server API for OBS browser sources (debounced)
-        if (apiSyncTimeout) {
-          clearTimeout(apiSyncTimeout);
+        if (apiSyncTimeoutRef.current) {
+          clearTimeout(apiSyncTimeoutRef.current);
         }
-        apiSyncTimeout = setTimeout(() => {
+        apiSyncTimeoutRef.current = setTimeout(() => {
           const obsSyncEnabled = (process.env.ENABLE_OBS_SYNC || '').toString().toLowerCase() === 'true';
           const shouldSyncToApi = process.env.NODE_ENV === 'production' || obsSyncEnabled;
           if (!shouldSyncToApi) {
@@ -682,8 +683,8 @@ export const useGameState = () => {
       
       // Update pitch sequence - for strikeouts, add 'K' for looking or 'K' for swinging
       if (type === 'strike' && prevState.strikes === 2) {
-        // This is the third strike - add strikeout type to sequence
-        newState = { ...newState, pitchSequence: newState.pitchSequence + (strikeoutType === 'looking' ? 'K' : 'K') };
+        // This is the third strike - 'K' = swinging, 'k' = looking (called third strike)
+        newState = { ...newState, pitchSequence: newState.pitchSequence + (strikeoutType === 'looking' ? 'k' : 'K') };
       } else {
         newState = { ...newState, pitchSequence: newState.pitchSequence + type.charAt(0) };
       }
@@ -795,19 +796,23 @@ export const useGameState = () => {
         newState = applyDefensiveStats(newState, defensivePlays);
         newState = { ...newState, outs: newState.outs + 1 };
 
-        // A sac bunt advances runners one base if successful
+        // A sac bunt advances all runners one base; runner on third scores
         const { bases } = newState;
-        const newBases = { first: null, second: null, third: null };
-        if (bases.third) { newBases.third = bases.third; /* Stays, or could be complex */ }
+        const newBases = { first: null as typeof bases.first, second: null as typeof bases.second, third: null as typeof bases.third };
+        let runsScored = 0;
+        if (bases.third) {
+            newState = scoreRun(bases.third, newState);
+            runsScored++;
+        }
         if (bases.second) newBases.third = bases.second;
         if (bases.first) newBases.second = bases.first;
-        newState.bases = newBases;
+        newState = { ...newState, bases: newBases };
 
         if (newState.outs >= 3) {
-            const stateAfterPA = startNewPlateAppearance(newState, 'sac_bunt', 0, defensivePlays);
+            const stateAfterPA = startNewPlateAppearance(newState, 'sac_bunt', runsScored, defensivePlays);
             return advanceInning(stateAfterPA);
         } else {
-            return startNewPlateAppearance(newState, 'sac_bunt', 0, defensivePlays);
+            return startNewPlateAppearance(newState, 'sac_bunt', runsScored, defensivePlays);
         }
     });
   }, [setGameState, startNewPlateAppearance, advanceInning, incrementPitchCount]);

@@ -39,7 +39,8 @@ export interface PlayerStats {
   PO: number; // Putouts
   E: number; // Errors
   // Pitching Stats
-  IP: number; // Innings Pitched
+  IP: number; // Innings Pitched (baseball notation: 1.2 = 1 inning + 2 outs)
+  IPOuts: number; // Outs recorded as integer (source of truth; IP derived from this)
   R: number; // Runs Allowed
   ER: number; // Earned Runs
   ERA: number; // Earned Run Average
