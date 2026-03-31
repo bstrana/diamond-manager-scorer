@@ -35,8 +35,10 @@ const resolveProvider = (): GameScheduleProvider => {
   if (configuredProvider === 'pocketbase') return pocketbaseGameScheduleProvider;
   if (configuredProvider === 'none') return noopGameScheduleProvider;
 
-  // Auto-activate when either the dedicated scheduler URL or the shared PocketBase URL is set
-  if (getEnvVar('SCHEDULER_URL') || getEnvVar('POCKETBASE_URL')) return pocketbaseGameScheduleProvider;
+  // Auto-activate only when the dedicated scheduler URL is explicitly set.
+  // POCKETBASE_URL alone must not trigger schedule fetching — on Cloudron it is
+  // always set to the embedded local PocketBase (/_pb) which has no schedules.
+  if (getEnvVar('SCHEDULER_URL')) return pocketbaseGameScheduleProvider;
 
   return noopGameScheduleProvider;
 };

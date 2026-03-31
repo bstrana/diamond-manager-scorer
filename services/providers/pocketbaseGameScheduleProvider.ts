@@ -68,11 +68,18 @@ type RosterRecord = PocketBaseRecord & {
 const PLAYER_PHOTO_PLACEHOLDER = 'https://bstrana.sirv.com/ybc/player.png';
 
 const getBaseUrl = (): string => {
-  // SCHEDULER_URL points to the scheduling app's PocketBase (separate domain).
-  // Falls back to POCKETBASE_URL for backwards compatibility.
+  // Prefer SCHEDULER_URL (dedicated scheduling app on a separate domain).
+  // Fall back to POCKETBASE_URL for legacy setups where schedules live in the
+  // same PocketBase as game data (only reached when SCHEDULE_PROVIDER=pocketbase
+  // is explicitly set; auto-activation never uses POCKETBASE_URL alone).
   const raw = getEnvVar('SCHEDULER_URL') || getEnvVar('POCKETBASE_URL') || '';
   if (!raw) {
     throw new Error('Scheduling app is not configured. Set SCHEDULER_URL to connect to the scheduling app\'s PocketBase.');
+  }
+  // Preserve relative paths (e.g. /_pb on Cloudron) so the browser resolves
+  // them against the current origin instead of prepending https://.
+  if (raw.startsWith('/')) {
+    return raw.replace(/\/$/, '');
   }
   const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
   return withProtocol.replace(/\/$/, '');
@@ -207,16 +214,15 @@ export type SchedulePayloadOption = {
 };
 
 export const fetchSchedulePayloadOptions = async (orgId?: string): Promise<SchedulePayloadOption[]> => {
-  const filters = ['active=true'];
+  const filters: string[] = [];
   if (orgId) {
     filters.push(`org_id="${orgId}"`);
   }
-  const filter = filters.join(' && ');
-  const url = buildUrl('/api/collections/schedules/records', {
-    filter,
-    perPage: '200',
-    sort: '-updated',
-  });
+  const params: Record<string, string> = { perPage: '200', sort: '-updated' };
+  if (filters.length > 0) {
+    params.filter = filters.join(' && ');
+  }
+  const url = buildUrl('/api/collections/schedules/records', params);
   const data = await requestJson<PocketBaseListResponse<ScheduledGameRecord>>(url);
   return (data.items || []).map((record) => ({
     id: record.id,
@@ -421,7 +427,9 @@ const matchesOrg = (record: ScheduledGameRecord, orgId?: string): boolean => {
 
 export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
   provider: 'pocketbase',
-  isConfigured: () => !!(getEnvVar('SCHEDULER_URL') || getEnvVar('POCKETBASE_URL')),
+  // Configured when the dedicated scheduler URL is present, or when the legacy
+  // schedule collection is explicitly pointed at the shared PocketBase instance.
+  isConfigured: () => !!(getEnvVar('SCHEDULER_URL') || getEnvVar('POCKETBASE_SCHEDULE_SOURCE_COLLECTION')),
   fetchUserScheduledGames: async (context?: { orgId?: string; scheduleId?: string }): Promise<ScheduledGameSummary[]> => {
     const orgId = context?.orgId;
     const scheduleId = context?.scheduleId;
