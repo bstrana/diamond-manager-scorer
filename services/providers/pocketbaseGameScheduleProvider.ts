@@ -225,20 +225,28 @@ export type SchedulePayloadOption = {
 };
 
 export const fetchSchedulePayloadOptions = async (orgId?: string): Promise<SchedulePayloadOption[]> => {
-  const filters: string[] = [];
+  const collection = getSchedulesCollection();
+  const toOptions = (items: ScheduledGameRecord[]) =>
+    items.map((record) => ({
+      id: record.id,
+      name: record.schedule_name || record.scheduleName || record.title || `Schedule ${record.id}`,
+    }));
+
   if (orgId) {
-    filters.push(`org_id="${orgId}"`);
+    const params: Record<string, string> = { perPage: '200', filter: `org_id="${orgId}"` };
+    const url = buildUrl(`/api/collections/${collection}/records`, params);
+    try {
+      const data = await requestJson<PocketBaseListResponse<ScheduledGameRecord>>(url);
+      if ((data.items || []).length > 0) return toOptions(data.items);
+    } catch {
+      // fall through to unfiltered query
+    }
   }
-  const params: Record<string, string> = { perPage: '200' };
-  if (filters.length > 0) {
-    params.filter = filters.join(' && ');
-  }
-  const url = buildUrl(`/api/collections/${getSchedulesCollection()}/records`, params);
+
+  // Fallback: fetch all records (collection may not have org_id field)
+  const url = buildUrl(`/api/collections/${collection}/records`, { perPage: '200' });
   const data = await requestJson<PocketBaseListResponse<ScheduledGameRecord>>(url);
-  return (data.items || []).map((record) => ({
-    id: record.id,
-    name: record.schedule_name || record.scheduleName || record.title || `Schedule ${record.id}`,
-  }));
+  return toOptions(data.items || []);
 };
 
 const loadSchedulePayloadFromSchedules = async (orgId?: string, scheduleId?: string): Promise<SchedulePayloadSource | null> => {
@@ -257,7 +265,7 @@ const loadSchedulePayloadFromSchedules = async (orgId?: string, scheduleId?: str
   const baseParams: Record<string, string> = {
     perPage: '1',
   };
-  const filters = ['active=true'];
+  const filters: string[] = [];
   if (normalizedOrgId) {
     filters.push(`org_id="${normalizedOrgId}"`);
   }
