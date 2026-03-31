@@ -229,7 +229,7 @@ export const fetchSchedulePayloadOptions = async (orgId?: string): Promise<Sched
   if (orgId) {
     filters.push(`org_id="${orgId}"`);
   }
-  const params: Record<string, string> = { perPage: '200', sort: '-updated' };
+  const params: Record<string, string> = { perPage: '200' };
   if (filters.length > 0) {
     params.filter = filters.join(' && ');
   }
