@@ -1,0 +1,60 @@
+{
+  "id": "io.github.bstrana.diamond-manager-scorer",
+  "title": "Diamond Manager Scorer",
+  "author": "bstrana",
+  "description": "Live baseball scoring app with real-time scoreboard overlay for streaming. Tracks teams, rosters, score, counts, and game progress, and logs each plate appearance.",
+  "tagline": "Live baseball scoring and streaming overlay",
+  "version": "1.0.0",
+  "manifestVersion": 2,
+
+  "image": {
+    "url": "ghcr.io/bstrana/diamond-manager-scorer"
+  },
+
+  "httpPort": 8000,
+  "healthCheckPath": "/health",
+  "maxBoxSize": "small",
+
+  "addons": {
+    "localstorage": {}
+  },
+
+  "tcpPorts": {},
+
+  "environmentVariables": {
+    "KEYCLOAK_URL":       "https://keycloak.example.com",
+    "KEYCLOAK_REALM":     "diamond",
+    "KEYCLOAK_CLIENT_ID": "diamond-manager-scorer",
+
+    "SCHEDULE_PROVIDER": "",
+    "POCKETBASE_SCHEDULE_SOURCE_COLLECTION": "",
+    "POCKETBASE_SCHEDULE_ORG_ID":            "",
+    "POCKETBASE_SCHEDULE_USER_ID":           "",
+    "POCKETBASE_SCHEDULE_APP_ID":            "scheduler",
+
+    "OPENROUTER_API_KEY": "",
+    "OPENROUTER_MODEL":   "",
+
+    "ENABLE_OBS_SYNC": "true",
+    "ALLOWED_ORIGINS":  "",
+    "UNLOCK_KEY":       "unlock"
+  },
+
+  "updateUrl":    "https://raw.githubusercontent.com/bstrana/diamond-manager-scorer/main/CloudronVersions.json",
+
+  "website":      "https://github.com/bstrana/diamond-manager-scorer",
+  "contactEmail": "support@example.com",
+  "packagerName": "bstrana",
+  "packagerUrl":  "https://github.com/bstrana",
+  "iconUrl":      "https://bstrana.sirv.com/ybc/ybc-logo.png",
+
+  "tags": ["sports", "baseball", "scoring", "obs", "streaming"],
+
+  "mediaLinks": [
+    "https://bstrana.sirv.com/ybc/ybc-logo.png"
+  ],
+
+  "changelog": {
+    "1.0.0": "Initial Cloudron release with embedded PocketBase backend for persistent game states, scores, and plate appearances."
+  }
+}

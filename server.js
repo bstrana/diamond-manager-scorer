@@ -9,8 +9,13 @@ const __dirname = path.dirname(__filename);
 const port = process.env.PORT || 3000;
 const distDir = path.join(__dirname, 'dist');
 
+// Internal PocketBase URL for server-side calls (set by cloudron/start.sh).
+// When running outside Cloudron this is empty and PB persistence is skipped.
+const PB_URL = process.env.PB_URL || '';
+
 // In-memory storage for game state (for OBS browser sources that can't access localStorage)
 let gameStateCache = null;
+let gameStatePbId = null; // PocketBase record ID for game_states upsert
 
 // MIME types
 const mimeTypes = {
@@ -28,6 +33,54 @@ const mimeTypes = {
   '.ttf': 'font/ttf',
   '.eot': 'application/vnd.ms-fontobject'
 };
+
+// Load the last saved game state from PocketBase on startup so that the OBS
+// sync cache survives server restarts (e.g. after a Cloudron app update).
+async function loadGameStateFromPB() {
+  if (!PB_URL) return;
+  try {
+    const res = await fetch(`${PB_URL}/api/collections/game_states/records?sort=-updated&perPage=1`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.items && data.items.length > 0) {
+        gameStateCache = data.items[0].state_json;
+        gameStatePbId = data.items[0].id;
+        console.log('Restored game state from PocketBase');
+      }
+    }
+  } catch (_) {
+    // PocketBase may not be ready yet on first startup; ignore and proceed.
+  }
+}
+
+// Persist the current game state snapshot to PocketBase (upsert).
+// Non-fatal: if PocketBase is unavailable the in-memory cache still serves OBS.
+async function persistGameStateToPB(state) {
+  if (!PB_URL) return;
+  const body = JSON.stringify({ state_json: state });
+  const headers = { 'Content-Type': 'application/json' };
+  try {
+    if (gameStatePbId) {
+      await fetch(`${PB_URL}/api/collections/game_states/records/${gameStatePbId}`, {
+        method: 'PATCH',
+        headers,
+        body,
+      });
+    } else {
+      const res = await fetch(`${PB_URL}/api/collections/game_states/records`, {
+        method: 'POST',
+        headers,
+        body,
+      });
+      if (res.ok) {
+        const d = await res.json();
+        gameStatePbId = d.id;
+      }
+    }
+  } catch (_) {
+    // Non-fatal: OBS sync still works via in-memory cache.
+  }
+}
 
 // Inject environment variables into HTML for client-side access
 function injectEnvVars(html) {
@@ -129,16 +182,6 @@ const checkRateLimit = (clientId) => {
 };
 
 const server = http.createServer((req, res) => {
-  // Security: Debug endpoint removed in production
-  // If needed for debugging, uncomment and add authentication
-  // if (req.method === 'GET' && req.url === '/api/env-check') {
-  //   // Add authentication check here
-  //   res.setHeader('Content-Type', 'application/json');
-  //   res.writeHead(200);
-  //   res.end(JSON.stringify({ message: 'Debug endpoint disabled in production' }));
-  //   return;
-  // }
-  
   // Handle API endpoints for game state (for OBS browser sources)
   // Security: Limit CORS to known origins (can be configured via env var)
   const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
@@ -222,6 +265,10 @@ const server = http.createServer((req, res) => {
         }
         
         gameStateCache = parsed;
+        // Persist to PocketBase asynchronously so it survives server restarts.
+        // Non-fatal: OBS sync continues working via in-memory cache even if this fails.
+        persistGameStateToPB(gameStateCache).catch(() => {});
+
         if (corsOrigin) {
           res.setHeader('Access-Control-Allow-Origin', corsOrigin);
           res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -344,5 +391,8 @@ server.listen(port, '0.0.0.0', () => {
     console.log(`KEYCLOAK_CLIENT_ID: ${process.env.KEYCLOAK_CLIENT_ID ? 'set' : 'not set'}`);
     console.log(`=====================================\n`);
   }
-});
 
+  // Restore the last game state from PocketBase so OBS overlays keep working
+  // across server restarts. Non-fatal if PocketBase is not yet available.
+  loadGameStateFromPB().catch(() => {});
+});
