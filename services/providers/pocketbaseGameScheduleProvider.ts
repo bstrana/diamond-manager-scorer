@@ -89,10 +89,10 @@ const getTeamId = (team: Record<string, unknown>): string =>
   String(team.id || team.key || '');
 
 const resolveTeamName = (team: Record<string, unknown>): string =>
-  String(team.name || team.team_name || '');
+  String(team.name || team.team_name || team.teamName || team.fullName || team.full_name || team.shortName || team.short_name || '');
 
 const resolveTeamCity = (team: Record<string, unknown>): string =>
-  String(team.city || team.city_name || '');
+  String(team.city || team.city_name || team.cityName || team.location || '');
 
 const resolveGameHomeTeamId = (game: Record<string, unknown>): string =>
   String(game.homeTeamId || game.home_team_id || game.homeTeam || game.home_team || '');
@@ -399,7 +399,7 @@ const formatTeamName = (team?: Record<string, unknown> | null) => {
   if (!team) return 'Unknown';
   const city = resolveTeamCity(team);
   const name = resolveTeamName(team);
-  return `${city} ${name}`.trim() || 'Unknown';
+  return `${city} ${name}`.trim() || getTeamId(team) || 'Unknown';
 };
 
 const formatScheduleDateTime = (date?: string, time?: string): string => {

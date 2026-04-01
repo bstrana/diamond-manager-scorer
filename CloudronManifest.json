@@ -4,7 +4,7 @@
   "author": "bstrana",
   "description": "Live baseball scoring app with real-time scoreboard overlay for streaming. Tracks teams, rosters, score, counts, and game progress, and logs each plate appearance.",
   "tagline": "Live baseball scoring and streaming overlay",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "manifestVersion": 2,
 
   "image": {
@@ -58,6 +58,7 @@
   ],
 
   "changelog": {
+    "1.0.10": "Expand team name/city field variants; fall back to team id instead of Unknown.",
     "1.0.9": "Fix Unknown team names: resolve homeTeamId/home_team_id, name/team_name, city/city_name field variants from scheduler payload.",
     "1.0.8": "Resolve team logo and color from multiple field name variants (logoUrl/logo_url/logo, primaryColor/color/team_color).",
     "1.0.7": "Remove sort param from schedule fetch; uppercase org_id filter to match DB casing.",
