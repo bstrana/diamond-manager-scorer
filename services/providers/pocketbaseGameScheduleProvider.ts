@@ -35,9 +35,12 @@ type ScheduledGameRecord = PocketBaseRecord & {
 type SchedulerPayload = {
   leagues?: Array<{ id: string; name: string }>;
   teams?: Array<{
-    id: string;
-    name: string;
+    id?: string;
+    key?: string;
+    name?: string;
+    team_name?: string;
     city?: string;
+    city_name?: string;
     primaryColor?: string;
     color?: string;
     primary_color?: string;
@@ -49,8 +52,10 @@ type SchedulerPayload = {
   }>;
   games?: Array<{
     id: string;
-    homeTeamId: string;
-    awayTeamId: string;
+    homeTeamId?: string;
+    home_team_id?: string;
+    awayTeamId?: string;
+    away_team_id?: string;
     date: string;
     time: string;
     location: string;
@@ -79,6 +84,21 @@ const resolveTeamColor = (team: Record<string, unknown> | null | undefined): str
   if (!team) return '#ffffff';
   return String(team.primaryColor || team.primary_color || team.color || team.team_color || '#ffffff');
 };
+
+const getTeamId = (team: Record<string, unknown>): string =>
+  String(team.id || team.key || '');
+
+const resolveTeamName = (team: Record<string, unknown>): string =>
+  String(team.name || team.team_name || '');
+
+const resolveTeamCity = (team: Record<string, unknown>): string =>
+  String(team.city || team.city_name || '');
+
+const resolveGameHomeTeamId = (game: Record<string, unknown>): string =>
+  String(game.homeTeamId || game.home_team_id || game.homeTeam || game.home_team || '');
+
+const resolveGameAwayTeamId = (game: Record<string, unknown>): string =>
+  String(game.awayTeamId || game.away_team_id || game.awayTeam || game.away_team || '');
 
 type PlayerRecord = PocketBaseRecord & {
   first_name?: string;
@@ -375,9 +395,11 @@ const loadSchedulePayloadFromSchedules = async (orgId?: string, scheduleId?: str
   return null;
 };
 
-const formatTeamName = (team?: { name?: string; city?: string }) => {
+const formatTeamName = (team?: Record<string, unknown> | null) => {
   if (!team) return 'Unknown';
-  return `${team.city || ''} ${team.name || ''}`.trim() || 'Unknown';
+  const city = resolveTeamCity(team);
+  const name = resolveTeamName(team);
+  return `${city} ${name}`.trim() || 'Unknown';
 };
 
 const formatScheduleDateTime = (date?: string, time?: string): string => {
@@ -495,10 +517,11 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
         const right = `${b.date || ''}T${b.time || '00:00'}`;
         return left.localeCompare(right);
       });
-      const teamById = new Map(teams.map((team) => [team.id, team]));
+      const teamById = new Map(teams.map((team) => [getTeamId(team as Record<string, unknown>), team]));
       return games.map((game) => {
-        const home = teamById.get(game.homeTeamId);
-        const away = teamById.get(game.awayTeamId);
+        const g = game as Record<string, unknown>;
+        const home = teamById.get(resolveGameHomeTeamId(g));
+        const away = teamById.get(resolveGameAwayTeamId(g));
         const dateTimeLabel = formatScheduleDateTime(game.date, game.time);
         return {
           id: game.id,
@@ -518,10 +541,11 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
           const right = `${b.date || ''}T${b.time || '00:00'}`;
           return left.localeCompare(right);
         });
-      const teamById = new Map(teams.map((team) => [team.id, team]));
+      const teamById = new Map(teams.map((team) => [getTeamId(team as Record<string, unknown>), team]));
       return games.map((game) => {
-        const home = teamById.get(game.homeTeamId);
-        const away = teamById.get(game.awayTeamId);
+        const g = game as Record<string, unknown>;
+        const home = teamById.get(resolveGameHomeTeamId(g));
+        const away = teamById.get(resolveGameAwayTeamId(g));
         const dateTimeLabel = formatScheduleDateTime(game.date, game.time);
         const schedulePrefix = scheduleSource.scheduleName ? `${scheduleSource.scheduleName} - ` : '';
         return {
@@ -571,16 +595,16 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
       const teams = payload.teams || [];
       const leagues = payload.leagues || [];
       const games = payload.games || [];
-      const teamById = new Map(teams.map((team) => [team.id, team]));
+      const teamById = new Map(teams.map((team) => [getTeamId(team as Record<string, unknown>), team]));
       const leagueById = new Map(leagues.map((league) => [league.id, league]));
 
       const game = games.find((item) => String(item.id) === String(gameId));
       if (!game) {
         throw new Error(`Schedule game ${gameId} was not found.`);
       }
-
-      const homeTeam = teamById.get(game.homeTeamId);
-      const awayTeam = teamById.get(game.awayTeamId);
+      const gameRaw = game as Record<string, unknown>;
+      const homeTeam = teamById.get(resolveGameHomeTeamId(gameRaw));
+      const awayTeam = teamById.get(resolveGameAwayTeamId(gameRaw));
 
       const leagueId = game.leagueIds?.[0] || game.leagueId;
       const competition = leagueId ? leagueById.get(leagueId)?.name || '' : '';
@@ -610,16 +634,16 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
       const teams = payload.teams || [];
       const leagues = payload.leagues || [];
       const games = payload.games || [];
-      const teamById = new Map(teams.map((team) => [team.id, team]));
+      const teamById = new Map(teams.map((team) => [getTeamId(team as Record<string, unknown>), team]));
       const leagueById = new Map(leagues.map((league) => [league.id, league]));
 
       const game = games.find((item) => String(item.id) === String(gameId));
       if (!game) {
         throw new Error(`Schedule game ${gameId} was not found.`);
       }
-
-      const homeTeam = teamById.get(game.homeTeamId);
-      const awayTeam = teamById.get(game.awayTeamId);
+      const gameRaw = game as Record<string, unknown>;
+      const homeTeam = teamById.get(resolveGameHomeTeamId(gameRaw));
+      const awayTeam = teamById.get(resolveGameAwayTeamId(gameRaw));
 
       const leagueId = game.leagueIds?.[0] || game.leagueId;
       const competition = leagueId ? leagueById.get(leagueId)?.name || '' : '';
