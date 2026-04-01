@@ -104,7 +104,10 @@ const resolveGameHomeTeamId = (game: Record<string, unknown>): string =>
 const resolveGameAwayTeamId = (game: Record<string, unknown>): string =>
   String(game.awayTeamId || game.away_team_id || game.awayTeam || game.away_team || '');
 
-const collectAllTeams = (payload: SchedulerPayload): Record<string, unknown>[] => {
+const isPlaceholderId = (id: string): boolean =>
+  id.startsWith('__') || id.startsWith('tbd') || id === '' || id.toLowerCase().includes('tbd');
+
+
   const byId = new Map<string, Record<string, unknown>>();
   const add = (team: Record<string, unknown>) => {
     const id = getTeamId(team);
@@ -540,8 +543,8 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
         const g = game as Record<string, unknown>;
         const hId = resolveGameHomeTeamId(g);
         const aId = resolveGameAwayTeamId(g);
-        if (hId && !teamById.has(hId)) missingIds2.add(hId);
-        if (aId && !teamById.has(aId)) missingIds2.add(aId);
+        if (hId && !teamById.has(hId) && !isPlaceholderId(hId)) missingIds2.add(hId);
+        if (aId && !teamById.has(aId) && !isPlaceholderId(aId)) missingIds2.add(aId);
       }
       if (missingIds2.size > 0) {
         const fetched = await Promise.allSettled([...missingIds2].map((id) => fetchTeam(id)));
@@ -580,8 +583,8 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
         const g = game as Record<string, unknown>;
         const hId = resolveGameHomeTeamId(g);
         const aId = resolveGameAwayTeamId(g);
-        if (hId && !teamById.has(hId)) missingIds.add(hId);
-        if (aId && !teamById.has(aId)) missingIds.add(aId);
+        if (hId && !teamById.has(hId) && !isPlaceholderId(hId)) missingIds.add(hId);
+        if (aId && !teamById.has(aId) && !isPlaceholderId(aId)) missingIds.add(aId);
       }
       if (missingIds.size > 0) {
         const fetched = await Promise.allSettled(
