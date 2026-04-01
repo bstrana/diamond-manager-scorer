@@ -33,7 +33,11 @@ type ScheduledGameRecord = PocketBaseRecord & {
 };
 
 type SchedulerPayload = {
-  leagues?: Array<{ id: string; name: string }>;
+  leagues?: Array<{
+    id: string;
+    name: string;
+    teams?: Array<Record<string, unknown>>;
+  }>;
   teams?: Array<{
     id?: string;
     key?: string;
@@ -99,6 +103,19 @@ const resolveGameHomeTeamId = (game: Record<string, unknown>): string =>
 
 const resolveGameAwayTeamId = (game: Record<string, unknown>): string =>
   String(game.awayTeamId || game.away_team_id || game.awayTeam || game.away_team || '');
+
+const collectAllTeams = (payload: SchedulerPayload): Record<string, unknown>[] => {
+  const byId = new Map<string, Record<string, unknown>>();
+  const add = (team: Record<string, unknown>) => {
+    const id = getTeamId(team);
+    if (id && !byId.has(id)) byId.set(id, team);
+  };
+  for (const team of (payload.teams || [])) add(team as Record<string, unknown>);
+  for (const league of (payload.leagues || [])) {
+    for (const team of (league.teams || [])) add(team as Record<string, unknown>);
+  }
+  return [...byId.values()];
+};
 
 type PlayerRecord = PocketBaseRecord & {
   first_name?: string;
@@ -509,7 +526,7 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
     const scheduleId = context?.scheduleId;
     if (shouldUseScheduleSource() && !scheduleId) {
       const payload = await loadSchedulePayload(orgId);
-      const teams = payload.teams || [];
+      const teams = collectAllTeams(payload);
       const games = [...(payload.games || [])]
         .filter((game) => isActiveScheduleStatus((game as { status?: string }).status))
         .sort((a, b) => {
@@ -547,7 +564,7 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
     const scheduleSource = await loadSchedulePayloadFromSchedules(orgId, scheduleId);
     if (scheduleSource) {
       const payload = scheduleSource.payload;
-      const teams = payload.teams || [];
+      const teams = collectAllTeams(payload);
       const games = [...(payload.games || [])]
         .filter((game) => isActiveScheduleStatus((game as { status?: string }).status))
         .sort((a, b) => {
@@ -628,7 +645,7 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
     const scheduleId = context?.scheduleId;
     if (shouldUseScheduleSource() && !scheduleId) {
       const payload = await loadSchedulePayload(orgId);
-      const teams = payload.teams || [];
+      const teams = collectAllTeams(payload);
       const leagues = payload.leagues || [];
       const games = payload.games || [];
       const teamById = new Map(teams.map((team) => [getTeamId(team as Record<string, unknown>), team]));
@@ -648,13 +665,13 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
       return {
         homeTeam: {
           name: formatTeamName(homeTeam),
-          roster: buildRosterStringFromSchedule(homeTeam?.roster),
+          roster: buildRosterStringFromSchedule(homeTeam?.roster as { name: string; number?: number; position?: string; photoUrl?: string }[] | undefined),
           logoUrl: resolveTeamLogo(homeTeam as Record<string, unknown>),
           color: resolveTeamColor(homeTeam as Record<string, unknown>),
         },
         awayTeam: {
           name: formatTeamName(awayTeam),
-          roster: buildRosterStringFromSchedule(awayTeam?.roster),
+          roster: buildRosterStringFromSchedule(awayTeam?.roster as { name: string; number?: number; position?: string; photoUrl?: string }[] | undefined),
           logoUrl: resolveTeamLogo(awayTeam as Record<string, unknown>),
           color: resolveTeamColor(awayTeam as Record<string, unknown>),
         },
@@ -667,7 +684,7 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
     const scheduleSource = await loadSchedulePayloadFromSchedules(orgId, scheduleId);
     if (scheduleSource) {
       const payload = scheduleSource.payload;
-      const teams = payload.teams || [];
+      const teams = collectAllTeams(payload);
       const leagues = payload.leagues || [];
       const games = payload.games || [];
       const teamById = new Map(teams.map((team) => [getTeamId(team as Record<string, unknown>), team]));
@@ -687,13 +704,13 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
       return {
         homeTeam: {
           name: formatTeamName(homeTeam),
-          roster: buildRosterStringFromSchedule(homeTeam?.roster),
+          roster: buildRosterStringFromSchedule(homeTeam?.roster as { name: string; number?: number; position?: string; photoUrl?: string }[] | undefined),
           logoUrl: resolveTeamLogo(homeTeam as Record<string, unknown>),
           color: resolveTeamColor(homeTeam as Record<string, unknown>),
         },
         awayTeam: {
           name: formatTeamName(awayTeam),
-          roster: buildRosterStringFromSchedule(awayTeam?.roster),
+          roster: buildRosterStringFromSchedule(awayTeam?.roster as { name: string; number?: number; position?: string; photoUrl?: string }[] | undefined),
           logoUrl: resolveTeamLogo(awayTeam as Record<string, unknown>),
           color: resolveTeamColor(awayTeam as Record<string, unknown>),
         },
