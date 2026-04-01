@@ -107,7 +107,7 @@ const resolveGameAwayTeamId = (game: Record<string, unknown>): string =>
 const isPlaceholderId = (id: string): boolean =>
   id.startsWith('__') || id.startsWith('tbd') || id === '' || id.toLowerCase().includes('tbd');
 
-
+const collectAllTeams = (payload: SchedulerPayload): Record<string, unknown>[] => {
   const byId = new Map<string, Record<string, unknown>>();
   const add = (team: Record<string, unknown>) => {
     const id = getTeamId(team);
