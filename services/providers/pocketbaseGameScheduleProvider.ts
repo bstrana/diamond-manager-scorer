@@ -517,7 +517,21 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
         const right = `${b.date || ''}T${b.time || '00:00'}`;
         return left.localeCompare(right);
       });
-      const teamById = new Map(teams.map((team) => [getTeamId(team as Record<string, unknown>), team]));
+      const teamById = new Map(teams.map((team) => [getTeamId(team as Record<string, unknown>), team as Record<string, unknown>]));
+      const missingIds2 = new Set<string>();
+      for (const game of games) {
+        const g = game as Record<string, unknown>;
+        const hId = resolveGameHomeTeamId(g);
+        const aId = resolveGameAwayTeamId(g);
+        if (hId && !teamById.has(hId)) missingIds2.add(hId);
+        if (aId && !teamById.has(aId)) missingIds2.add(aId);
+      }
+      if (missingIds2.size > 0) {
+        const fetched = await Promise.allSettled([...missingIds2].map((id) => fetchTeam(id)));
+        fetched.forEach((result, i) => {
+          if (result.status === 'fulfilled') teamById.set([...missingIds2][i], result.value as Record<string, unknown>);
+        });
+      }
       return games.map((game) => {
         const g = game as Record<string, unknown>;
         const home = teamById.get(resolveGameHomeTeamId(g));
@@ -541,13 +555,35 @@ export const pocketbaseGameScheduleProvider: GameScheduleProvider = {
           const right = `${b.date || ''}T${b.time || '00:00'}`;
           return left.localeCompare(right);
         });
-      const teamById = new Map(teams.map((team) => [getTeamId(team as Record<string, unknown>), team]));
+      const teamById = new Map(teams.map((team) => [getTeamId(team as Record<string, unknown>), team as Record<string, unknown>]));
+
+      // Fetch any team IDs referenced in games but missing from the payload
+      const missingIds = new Set<string>();
+      for (const game of games) {
+        const g = game as Record<string, unknown>;
+        const hId = resolveGameHomeTeamId(g);
+        const aId = resolveGameAwayTeamId(g);
+        if (hId && !teamById.has(hId)) missingIds.add(hId);
+        if (aId && !teamById.has(aId)) missingIds.add(aId);
+      }
+      if (missingIds.size > 0) {
+        const fetched = await Promise.allSettled(
+          [...missingIds].map((id) => fetchTeam(id))
+        );
+        fetched.forEach((result, i) => {
+          if (result.status === 'fulfilled') {
+            const id = [...missingIds][i];
+            teamById.set(id, result.value as Record<string, unknown>);
+          }
+        });
+      }
+
+      const schedulePrefix = scheduleSource.scheduleName ? `${scheduleSource.scheduleName} - ` : '';
       return games.map((game) => {
         const g = game as Record<string, unknown>;
         const home = teamById.get(resolveGameHomeTeamId(g));
         const away = teamById.get(resolveGameAwayTeamId(g));
         const dateTimeLabel = formatScheduleDateTime(game.date, game.time);
-        const schedulePrefix = scheduleSource.scheduleName ? `${scheduleSource.scheduleName} - ` : '';
         return {
           id: game.id,
           title: `${schedulePrefix}${formatTeamName(away)} @ ${formatTeamName(home)}${dateTimeLabel ? ` (${dateTimeLabel})` : ''}`,
