@@ -185,11 +185,14 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ gameState }) => {
         {/* At-Bat Info */}
         <div className="col-span-2 sm:col-span-1 flex flex-col justify-center text-center">
           {scoreboardSettings.showCurrentPitcher && currentPitcher && (
-             <div className="mb-2 text-sm sm:text-base flex items-center justify-center gap-x-2">
+             <div className="mb-2 flex items-center justify-center gap-x-2">
                 <div className="text-gray-400 uppercase text-xs">
-                  <span className="border border-gray-500 rounded px-2 py-0.5">PITCHER</span>
+                  <span className="border border-gray-500 rounded px-2 py-0.5">
+                    <span className="sm:hidden">P</span>
+                    <span className="hidden sm:inline">PITCHER</span>
+                  </span>
                 </div>
-                <div className="font-bold text-lg">{`#${currentPitcher.number} ${currentPitcher.name} - P: ${currentPitcher.stats.pitchCount}`}</div>
+                <div className="font-bold text-sm sm:text-lg">{`#${currentPitcher.number} ${currentPitcher.name} - P: ${currentPitcher.stats.pitchCount}`}</div>
             </div>
           )}
           
@@ -210,11 +213,14 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ gameState }) => {
           </div>
 
           {scoreboardSettings.showCurrentBatter && currentBatter && (
-            <div className="mt-2 text-sm sm:text-base flex items-center justify-center gap-x-2">
+            <div className="mt-2 flex items-center justify-center gap-x-2">
                 <div className="text-gray-400 uppercase text-xs">
-                  <span className="border border-gray-500 rounded px-2 py-0.5">BATTER</span>
+                  <span className="border border-gray-500 rounded px-2 py-0.5">
+                    <span className="sm:hidden">B</span>
+                    <span className="hidden sm:inline">BATTER</span>
+                  </span>
                 </div>
-                <div className="font-bold text-lg">{`#${currentBatter.number} ${currentBatter.name} - ${getBatterStatline()}`}</div>
+                <div className="font-bold text-sm sm:text-lg">{`#${currentBatter.number} ${currentBatter.name} - ${getBatterStatline()}`}</div>
             </div>
           )}
         </div>
