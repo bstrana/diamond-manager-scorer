@@ -100,14 +100,15 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ gameState }) => {
         <div className="w-10 h-10 shrink-0">
           {team.logoUrl && <img src={team.logoUrl} alt={`${team.name} logo`} className="h-10 w-10 object-contain"/>}
         </div>
-        <span 
+        <span
           className="font-bold tracking-wider uppercase w-28 sm:w-40 truncate text-2xl sm:text-3xl"
           style={{
             borderLeft: `${isBatting ? '5px' : '3px'} solid ${team.color || '#ffffff'}`,
             paddingLeft: isBatting ? '12px' : '14px',
           }}
         >
-          {team.name}
+          <span className="sm:hidden">{(team.name || '').slice(0, 3).toUpperCase()}</span>
+          <span className="hidden sm:inline">{team.name}</span>
         </span>
         
         <div className="flex items-baseline gap-x-2 sm:gap-x-4">
@@ -184,11 +185,14 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ gameState }) => {
         {/* At-Bat Info */}
         <div className="col-span-2 sm:col-span-1 flex flex-col justify-center text-center">
           {scoreboardSettings.showCurrentPitcher && currentPitcher && (
-             <div className="mb-2 text-sm sm:text-base flex items-center justify-center gap-x-2">
+             <div className="mb-2 flex items-center justify-center gap-x-2">
                 <div className="text-gray-400 uppercase text-xs">
-                  <span className="border border-gray-500 rounded px-2 py-0.5">PITCHER</span>
+                  <span className="border border-gray-500 rounded px-2 py-0.5">
+                    <span className="sm:hidden">P</span>
+                    <span className="hidden sm:inline">PITCHER</span>
+                  </span>
                 </div>
-                <div className="font-bold text-lg">{`#${currentPitcher.number} ${currentPitcher.name} - P: ${currentPitcher.stats.pitchCount}`}</div>
+                <div className="font-bold text-sm sm:text-lg">{`#${currentPitcher.number} ${currentPitcher.name} - P: ${currentPitcher.stats.pitchCount}`}</div>
             </div>
           )}
           
@@ -209,11 +213,14 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ gameState }) => {
           </div>
 
           {scoreboardSettings.showCurrentBatter && currentBatter && (
-            <div className="mt-2 text-sm sm:text-base flex items-center justify-center gap-x-2">
+            <div className="mt-2 flex items-center justify-center gap-x-2">
                 <div className="text-gray-400 uppercase text-xs">
-                  <span className="border border-gray-500 rounded px-2 py-0.5">BATTER</span>
+                  <span className="border border-gray-500 rounded px-2 py-0.5">
+                    <span className="sm:hidden">B</span>
+                    <span className="hidden sm:inline">BATTER</span>
+                  </span>
                 </div>
-                <div className="font-bold text-lg">{`#${currentBatter.number} ${currentBatter.name} - ${getBatterStatline()}`}</div>
+                <div className="font-bold text-sm sm:text-lg">{`#${currentBatter.number} ${currentBatter.name} - ${getBatterStatline()}`}</div>
             </div>
           )}
         </div>

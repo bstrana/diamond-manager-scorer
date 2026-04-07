@@ -302,8 +302,7 @@ const App: React.FC = () => {
         <>
           <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-5 gap-8">
             <main className="lg:col-span-5 flex flex-col items-center">
-              <h2 className="text-2xl font-bold mb-4">Scoreboard Preview</h2>
-              <div className="w-full p-4 bg-black/50 rounded-lg border border-gray-700">
+<div className="w-full p-4 bg-black/50 rounded-lg border border-gray-700">
                   <Scoreboard gameState={gameState} />
               </div>
             </main>
@@ -519,7 +518,7 @@ const App: React.FC = () => {
 // Wrapper component that handles Keycloak authentication
 const AppWithAuth: React.FC = () => {
   // Overlay pages are public - bypass authentication
-  const overlayPages = ['/scoreboard', '/batter-lower-thirds', '/linescore', '/low-profile-scoreboard', '/field-players', '/batting-order'];
+  const overlayPages = ['/scoreboard', '/batter-lower-thirds', '/linescore', '/low-profile-scoreboard', '/field-players', '/batting-order', '/manager-report'];
   const currentPath = window.location.pathname.toLowerCase();
   const isOverlayPage = overlayPages.some(page => currentPath === page);
   
