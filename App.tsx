@@ -427,54 +427,71 @@ const App: React.FC = () => {
           </div>
 
           {/* Mobile Control Panel FAB */}
-          <div className="lg:hidden fixed bottom-6 right-6 z-40">
-            <button
-              onClick={() => setIsControlPanelOpen(true)}
-              className="bg-yellow-400 text-gray-900 rounded-full p-4 shadow-lg hover:bg-yellow-500 transition-colors flex items-center justify-center"
-              aria-label="Open Scoring Controls"
-              title="Open Scoring Controls"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-            </button>
-          </div>
+          {!isControlPanelOpen && (
+            <div className="lg:hidden fixed bottom-6 right-6 z-40">
+              <button
+                onClick={() => setIsControlPanelOpen(true)}
+                className="bg-yellow-400 text-gray-900 rounded-full p-4 shadow-lg hover:bg-yellow-500 transition-colors flex items-center justify-center"
+                aria-label="Open Scoring Controls"
+                title="Open Scoring Controls"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+            </div>
+          )}
 
-          {/* Mobile Control Panel Modal */}
-          <div className={`fixed inset-0 bg-gray-900 z-50 transition-transform duration-300 ease-in-out transform ${isControlPanelOpen ? 'translate-x-0' : 'translate-x-full'} lg:hidden`}>
-            <div className="p-4 h-full overflow-y-auto">
-              <div className="flex justify-between items-center mb-4 sticky top-0 bg-gray-900 py-2 -mx-4 px-4 z-10 border-b border-gray-700">
-                  <h2 className="text-xl font-bold text-yellow-300">Scoring Controls</h2>
-                  <button onClick={() => setIsControlPanelOpen(false)} className="p-2 text-gray-400 hover:text-white" aria-label="Close Scoring Controls" title="Close">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                  </button>
-              </div>
-              <ControlPanel 
-                  onPitch={handlePitch}
-                  onHit={handleHit}
-                  onOut={handleOut}
-                  onSacFly={handleSacFly}
-                  onSacBunt={handleSacBunt}
-                  onFieldersChoice={handleFieldersChoice}
-                  onReachedOnError={handleReachedOnError}
-                  onHBP={handleHBP}
-                  onIntentionalWalk={handleIntentionalWalk}
-                  onRunnerOut={handleRunnerOut}
-                  onRunnerAdvanceOnError={handleRunnerAdvanceOnError}
-                  onManualRunnerAdvance={handleManualRunnerAdvance}
-                  onCountCorrection={handleCountCorrection}
-                  onInningCorrection={handleInningCorrection}
-                  onPitchCountCorrection={handlePitchCountCorrection}
-                  onBaseRunnerCorrection={handleBaseRunnerCorrection}
-                  onErrorCorrection={handleErrorCorrection}
-                  onStolenBase={handleStolenBase}
-                  onCaughtStealing={handleCaughtStealing}
-                  onBalk={handleBalk}
-                  onPinchRun={handlePinchRunner}
-                  gameState={gameState}
+          {/* Mobile Control Panel — bottom sheet (bottom 50% of screen) */}
+          <div
+            className={`fixed bottom-0 left-0 right-0 z-50 transition-transform duration-300 ease-in-out lg:hidden`}
+            style={{ height: '50vh', transform: isControlPanelOpen ? 'translateY(0)' : 'translateY(100%)' }}
+          >
+            {/* drag handle / header */}
+            <div className="bg-gray-800 border-t-2 border-yellow-400 rounded-t-2xl flex flex-col h-full">
+              <div className="flex items-center justify-between px-4 py-2 border-b border-gray-700 flex-shrink-0">
+                <button
+                  onClick={() => setIsControlPanelOpen(false)}
+                  className="w-10 h-1.5 bg-gray-500 rounded-full mx-auto absolute left-1/2 -translate-x-1/2 top-2"
+                  aria-label="Close"
                 />
+                <h2 className="text-base font-bold text-yellow-300 pt-3">Scoring Controls</h2>
+                <button
+                  onClick={() => setIsControlPanelOpen(false)}
+                  className="p-1 text-gray-400 hover:text-white pt-3"
+                  aria-label="Close Scoring Controls"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div className="overflow-y-auto flex-1 p-3">
+                <ControlPanel
+                    onPitch={handlePitch}
+                    onHit={handleHit}
+                    onOut={handleOut}
+                    onSacFly={handleSacFly}
+                    onSacBunt={handleSacBunt}
+                    onFieldersChoice={handleFieldersChoice}
+                    onReachedOnError={handleReachedOnError}
+                    onHBP={handleHBP}
+                    onIntentionalWalk={handleIntentionalWalk}
+                    onRunnerOut={handleRunnerOut}
+                    onRunnerAdvanceOnError={handleRunnerAdvanceOnError}
+                    onManualRunnerAdvance={handleManualRunnerAdvance}
+                    onCountCorrection={handleCountCorrection}
+                    onInningCorrection={handleInningCorrection}
+                    onPitchCountCorrection={handlePitchCountCorrection}
+                    onBaseRunnerCorrection={handleBaseRunnerCorrection}
+                    onErrorCorrection={handleErrorCorrection}
+                    onStolenBase={handleStolenBase}
+                    onCaughtStealing={handleCaughtStealing}
+                    onBalk={handleBalk}
+                    onPinchRun={handlePinchRunner}
+                    gameState={gameState}
+                  />
+              </div>
             </div>
           </div>
           
