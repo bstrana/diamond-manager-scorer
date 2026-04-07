@@ -302,8 +302,7 @@ const App: React.FC = () => {
         <>
           <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-5 gap-8">
             <main className="lg:col-span-5 flex flex-col items-center">
-              <h2 className="text-2xl font-bold mb-4">Scoreboard Preview</h2>
-              <div className="w-full p-4 bg-black/50 rounded-lg border border-gray-700">
+<div className="w-full p-4 bg-black/50 rounded-lg border border-gray-700">
                   <Scoreboard gameState={gameState} />
               </div>
             </main>

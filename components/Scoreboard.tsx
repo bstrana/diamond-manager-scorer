@@ -100,14 +100,15 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ gameState }) => {
         <div className="w-10 h-10 shrink-0">
           {team.logoUrl && <img src={team.logoUrl} alt={`${team.name} logo`} className="h-10 w-10 object-contain"/>}
         </div>
-        <span 
+        <span
           className="font-bold tracking-wider uppercase w-28 sm:w-40 truncate text-2xl sm:text-3xl"
           style={{
             borderLeft: `${isBatting ? '5px' : '3px'} solid ${team.color || '#ffffff'}`,
             paddingLeft: isBatting ? '12px' : '14px',
           }}
         >
-          {team.name}
+          <span className="sm:hidden">{(team.name || '').slice(0, 3).toUpperCase()}</span>
+          <span className="hidden sm:inline">{team.name}</span>
         </span>
         
         <div className="flex items-baseline gap-x-2 sm:gap-x-4">
