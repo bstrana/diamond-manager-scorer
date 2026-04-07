@@ -518,7 +518,7 @@ const App: React.FC = () => {
 // Wrapper component that handles Keycloak authentication
 const AppWithAuth: React.FC = () => {
   // Overlay pages are public - bypass authentication
-  const overlayPages = ['/scoreboard', '/batter-lower-thirds', '/linescore', '/low-profile-scoreboard', '/field-players', '/batting-order'];
+  const overlayPages = ['/scoreboard', '/batter-lower-thirds', '/linescore', '/low-profile-scoreboard', '/field-players', '/batting-order', '/manager-report'];
   const currentPath = window.location.pathname.toLowerCase();
   const isOverlayPage = overlayPages.some(page => currentPath === page);
   
