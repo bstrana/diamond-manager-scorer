@@ -23,6 +23,7 @@ interface ControlPanelProps {
   onPitchCountCorrection: (delta: 1 | -1) => void;
   onBaseRunnerCorrection: (base: 'first' | 'second' | 'third', playerId: string | null) => void;
   onErrorCorrection: (teamKey: 'homeTeam' | 'awayTeam', delta: 1 | -1) => void;
+  onScoreCorrection: (teamKey: 'homeTeam' | 'awayTeam', delta: 1 | -1) => void;
   onStolenBase: (runnerId: string, base: 'second' | 'third' | 'home') => void;
   onCaughtStealing: (runnerId: string, base: 'second' | 'third' | 'home', defensivePlays?: DefensivePlays) => void;
   onPinchRun: (runnerId: string, substituteId: string) => void;
@@ -140,7 +141,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   onPitch, onHit, onOut, onSacFly, onSacBunt, onFieldersChoice, onReachedOnError, 
   onHBP, onIntentionalWalk, onBalk, onRunnerOut, onRunnerAdvanceOnError, onManualRunnerAdvance,
   onCountCorrection, onInningCorrection, onPitchCountCorrection, onBaseRunnerCorrection,
-  onErrorCorrection, onStolenBase, onCaughtStealing, onPinchRun,
+  onErrorCorrection, onScoreCorrection, onStolenBase, onCaughtStealing, onPinchRun,
   gameState 
 }) => {
   const isGameOver = gameState.gameStatus === 'final';
@@ -548,6 +549,8 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             <CorrectionControl label="Outs" value={gameState.outs} onDecrement={() => onCountCorrection('out', -1)} onIncrement={() => onCountCorrection('out', 1)} />
             <CorrectionControl label="Inning" value={gameState.inning} onDecrement={() => onInningCorrection(-1)} onIncrement={() => onInningCorrection(1)} />
             <CorrectionControl label="Pitches" value={currentPitcher?.stats.pitchCount || 0} onDecrement={() => onPitchCountCorrection(-1)} onIncrement={() => onPitchCountCorrection(1)} />
+            <CorrectionControl label="Away Score" value={gameState.awayTeam.score} onDecrement={() => onScoreCorrection('awayTeam', -1)} onIncrement={() => onScoreCorrection('awayTeam', 1)} />
+            <CorrectionControl label="Home Score" value={gameState.homeTeam.score} onDecrement={() => onScoreCorrection('homeTeam', -1)} onIncrement={() => onScoreCorrection('homeTeam', 1)} />
             <CorrectionControl label="Away Errors" value={gameState.awayTeam.errors} onDecrement={() => onErrorCorrection('awayTeam', -1)} onIncrement={() => onErrorCorrection('awayTeam', 1)} />
             <CorrectionControl label="Home Errors" value={gameState.homeTeam.errors} onDecrement={() => onErrorCorrection('homeTeam', -1)} onIncrement={() => onErrorCorrection('homeTeam', 1)} />
             

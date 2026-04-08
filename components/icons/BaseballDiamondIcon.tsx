@@ -24,12 +24,12 @@ export const BaseballDiamondIcon: React.FC<BaseballDiamondProps> = ({
   const viewBoxSize = 100 + (padding * 2);
 
   // Compact mode uses tighter base positions (less spread)
-  const firstX  = compact ? 74 : isLarge ? 70 : 82;
-  const firstY  = compact ? 38 : isLarge ? 30 : 42;
-  const secondX = compact ? 38 : isLarge ? 30 : 42;
-  const secondY = compact ?  2 : isLarge ? -10 : 2;
-  const thirdX  = compact ?  2 : isLarge ? -10 : 2;
-  const thirdY  = compact ? 38 : isLarge ? 30 : 42;
+  const firstX  = compact ? 68 : isLarge ? 70 : 82;
+  const firstY  = compact ? 34 : isLarge ? 30 : 42;
+  const secondX = compact ? 34 : isLarge ? 30 : 42;
+  const secondY = compact ?  0 : isLarge ? -10 : 2;
+  const thirdX  = compact ?  0 : isLarge ? -10 : 2;
+  const thirdY  = compact ? 34 : isLarge ? 30 : 42;
 
   return (
     <svg 
