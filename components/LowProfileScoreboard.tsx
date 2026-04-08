@@ -59,7 +59,7 @@ const TeamRow: React.FC<TeamRowProps> = ({ logoUrl, shortName, score, color }) =
     <span className="text-sm font-extrabold tracking-wider uppercase w-10 leading-none text-white">
       {shortName}
     </span>
-    <span className="text-3xl font-black tabular-nums leading-none w-7 text-right text-white">
+    <span className="text-3xl font-black tabular-nums leading-none w-12 text-right text-white shrink-0">
       {score}
     </span>
   </div>
@@ -171,15 +171,15 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
         ) : (
           <>
             {/* Inning */}
-            <div className="flex flex-col items-center justify-center px-3 gap-0">
+            <div className="flex flex-col items-center justify-center px-3 gap-0 w-10 shrink-0">
               <span className="text-yellow-400 font-black leading-none" style={{ fontSize: 11 }}>
                 {isTopInning ? '▲' : '▼'}
               </span>
-              <span className="text-white text-2xl font-black tabular-nums leading-tight">{inning}</span>
+              <span className="text-white text-2xl font-black tabular-nums leading-tight w-full text-center">{inning}</span>
             </div>
 
             {/* Count: B-S numbers + O dots (no divider — flows directly from inning) */}
-            <div className="flex flex-col justify-center items-center gap-1.5 px-3 py-2">
+            <div className="flex flex-col justify-center items-center gap-1.5 px-3 py-2 w-16 shrink-0">
               <div className="flex items-center gap-1 leading-none">
                 <span className="text-[10px] text-white/30 font-bold">B</span>
                 <span className="text-xl font-black tabular-nums leading-none" style={{ color: '#4ade80' }}>{balls}</span>
