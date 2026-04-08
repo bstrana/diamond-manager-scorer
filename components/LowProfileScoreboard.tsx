@@ -46,17 +46,17 @@ interface TeamRowProps {
 
 const TeamRow: React.FC<TeamRowProps> = ({ logoUrl, shortName, score, color }) => (
   <div
-    className="flex items-center gap-2 px-3 py-2"
+    className="flex items-center gap-3 px-3 py-2"
     style={{ background: `linear-gradient(to right, ${color}44 0%, rgba(8,10,18,0) 70%)` }}
   >
-    <div className="w-9 h-9 shrink-0 rounded-sm overflow-hidden flex items-center justify-center"
+    <div className="w-12 h-12 shrink-0 rounded overflow-hidden flex items-center justify-center"
          style={{ background: 'rgba(255,255,255,0.08)' }}>
       {logoUrl
         ? <img src={logoUrl} alt="" className="w-full h-full object-contain" />
-        : <span className="text-base font-black text-white/60">{shortName[0]}</span>
+        : <span className="text-xl font-black text-white/60">{shortName[0]}</span>
       }
     </div>
-    <span className="text-sm font-extrabold tracking-wider uppercase w-10 leading-none text-white">
+    <span className="text-lg font-extrabold tracking-wider uppercase w-14 leading-none text-white">
       {shortName}
     </span>
     <span className="text-3xl font-black tabular-nums leading-none w-12 text-right text-white shrink-0">
