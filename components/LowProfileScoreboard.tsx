@@ -1,160 +1,155 @@
 import React from 'react';
-import type { GameState, Team } from '../types';
+import type { GameState } from '../types';
 import { BaseballDiamondIcon } from './icons/BaseballDiamondIcon';
 
 interface LowProfileScoreboardProps {
   gameState: GameState;
 }
 
-// Helper to get shortened team name (first 3-4 letters or abbreviation)
-const getShortTeamName = (teamName: string): string => {
-  if (!teamName) return '';
-  
-  // If name is already short (3 chars or less), return as-is
-  if (teamName.length <= 3) return teamName.toUpperCase();
-  
-  // Try to extract abbreviation (e.g., "Chicago Cubs" -> "CHC")
-  const words = teamName.split(' ');
-  if (words.length > 1) {
-    // Take first letter of each word, max 3 letters
+const getShortName = (name: string): string => {
+  if (!name) return '---';
+  if (name.length <= 3) return name.toUpperCase();
+  const words = name.trim().split(/\s+/);
+  if (words.length >= 2) {
     const abbrev = words.map(w => w[0]?.toUpperCase() || '').join('').slice(0, 3);
     if (abbrev.length >= 2) return abbrev;
   }
-  
-  // Otherwise, take first 3-4 characters
-  return teamName.substring(0, 4).toUpperCase();
+  return name.substring(0, 3).toUpperCase();
 };
 
+interface TeamRowProps {
+  logoUrl?: string;
+  shortName: string;
+  score: number;
+  color: string;
+  isBatting: boolean;
+}
+
+const TeamRow: React.FC<TeamRowProps> = ({ logoUrl, shortName, score, color, isBatting }) => (
+  <div
+    className="flex items-center gap-2 px-3 py-2"
+    style={{ borderLeft: `4px solid ${color || '#ffffff'}` }}
+  >
+    {/* Logo */}
+    <div className="w-7 h-7 shrink-0 rounded-sm overflow-hidden flex items-center justify-center"
+         style={{ background: 'rgba(255,255,255,0.08)' }}>
+      {logoUrl ? (
+        <img src={logoUrl} alt="" className="w-full h-full object-contain" />
+      ) : (
+        <span className="text-sm font-black text-white/60">{shortName[0]}</span>
+      )}
+    </div>
+
+    {/* Team abbreviation */}
+    <span
+      className="text-xs font-extrabold tracking-widest uppercase w-9 leading-none"
+      style={{ color: isBatting ? '#ffffff' : 'rgba(255,255,255,0.55)' }}
+    >
+      {shortName}
+    </span>
+
+    {/* Score */}
+    <span
+      className="text-3xl font-black tabular-nums leading-none w-7 text-right"
+      style={{ color: isBatting ? '#facc15' : '#ffffff' }}
+    >
+      {score}
+    </span>
+  </div>
+);
+
+const Dot: React.FC<{ filled: boolean; filledColor: string }> = ({ filled, filledColor }) => (
+  <div
+    className="w-2 h-2 rounded-full"
+    style={{ background: filled ? filledColor : 'rgba(255,255,255,0.15)' }}
+  />
+);
+
 const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }) => {
-  const { 
-    homeTeam, 
-    awayTeam, 
-    inning, 
-    isTopInning, 
-    outs, 
-    strikes, 
-    balls, 
-    bases,
-    gameStatus,
-  } = gameState;
+  const { homeTeam, awayTeam, inning, isTopInning, outs, strikes, balls, bases, gameStatus } = gameState;
 
-  const awayShortName = getShortTeamName(awayTeam.name);
-  const homeShortName = getShortTeamName(homeTeam.name);
+  const awayShortName = getShortName(awayTeam.name);
+  const homeShortName = getShortName(homeTeam.name);
 
-  // Format count as "B-S" (e.g., "0-0", "2-1")
-  const count = `${balls}-${strikes}`;
+  const Divider = () => <div className="w-px self-stretch bg-white/10" />;
 
   return (
-    <div className="bg-transparent text-white font-sans max-w-[320px]">
-      <div className="flex items-center gap-2">
-        {/* Teams Stacked Vertically - Left aligned */}
-        <div className="flex flex-col gap-1.5">
-          {/* Away Team */}
-          <div className="flex items-center gap-1.5">
-            {/* Logo - square with white background */}
-            <div className="w-8 h-8 shrink-0 bg-white rounded flex items-center justify-center overflow-hidden border border-gray-200">
-              {awayTeam.logoUrl ? (
-                <>
-                  <img 
-                    src={awayTeam.logoUrl} 
-                    alt={`${awayTeam.name} logo`} 
-                    className="w-full h-full object-contain"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const fallback = target.nextElementSibling as HTMLElement;
-                      if (fallback) fallback.style.display = 'block';
-                    }}
-                  />
-                  <span className="text-lg font-extrabold text-gray-800 hidden">
-                    {awayShortName.slice(0, 1)}
-                  </span>
-                </>
-              ) : (
-                <span className="text-lg font-extrabold text-gray-800">
-                  {awayShortName.slice(0, 1)}
-                </span>
-              )}
-            </div>
-            
-            {/* Score - large black number */}
-            <span className="text-4xl font-bold text-black leading-none">
-              {awayTeam.score}
-            </span>
-          </div>
-
-          {/* Home Team */}
-          <div className="flex items-center gap-1.5">
-            {/* Logo - square with white background */}
-            <div className="w-8 h-8 shrink-0 bg-white rounded flex items-center justify-center overflow-hidden border border-gray-200">
-              {homeTeam.logoUrl ? (
-                <>
-                  <img 
-                    src={homeTeam.logoUrl} 
-                    alt={`${homeTeam.name} logo`} 
-                    className="w-full h-full object-contain"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const fallback = target.nextElementSibling as HTMLElement;
-                      if (fallback) fallback.style.display = 'block';
-                    }}
-                  />
-                  <span className="text-lg font-extrabold text-gray-800 hidden">
-                    {homeShortName.slice(0, 1)}
-                  </span>
-                </>
-              ) : (
-                <span className="text-lg font-extrabold text-gray-800">
-                  {homeShortName.slice(0, 1)}
-                </span>
-              )}
-            </div>
-            
-            {/* Score - large black number */}
-            <span className="text-4xl font-bold text-black leading-none">
-              {homeTeam.score}
-            </span>
-          </div>
-        </div>
-
-        {/* Game State Section - Left aligned next to scores */}
-        <div className="flex items-center gap-2">
-          {/* Count, Outs, and Inning */}
-          <div className="flex flex-col items-start gap-0.5">
-            {/* Balls-Strikes Count - shown as "B-S" */}
-            <div className="text-white text-base font-semibold">
-              {count}
-            </div>
-            {/* Outs */}
-            <div className="text-white text-xs font-bold">
-              {outs} OUT{outs !== 1 ? 'S' : ''}
-            </div>
-            {/* Inning indicator - under outs */}
-            <div className="flex items-center gap-0.5">
-              <span className="text-sm font-bold text-white">
-                {isTopInning ? '▲' : '▼'}
-              </span>
-              <span className="text-base font-bold text-white">
-                {inning}
-              </span>
-            </div>
-          </div>
-
-          {/* Bases - next to count/outs/inning */}
-          <div className="relative w-20 h-20">
-            <BaseballDiamondIcon
-              isFirstOccupied={!!bases.first}
-              isSecondOccupied={!!bases.second}
-              isThirdOccupied={!!bases.third}
-              baseSize={40}
-            />
-          </div>
-        </div>
+    <div
+      className="inline-flex items-stretch overflow-hidden rounded font-sans shadow-2xl"
+      style={{ background: 'rgba(8, 10, 18, 0.96)', border: '1px solid rgba(255,255,255,0.08)' }}
+    >
+      {/* ── Teams & scores ─────────────────────────────── */}
+      <div className="flex flex-col divide-y" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+        <TeamRow
+          logoUrl={awayTeam.logoUrl}
+          shortName={awayShortName}
+          score={awayTeam.score}
+          color={awayTeam.color || '#888'}
+          isBatting={isTopInning && gameStatus === 'playing'}
+        />
+        <TeamRow
+          logoUrl={homeTeam.logoUrl}
+          shortName={homeShortName}
+          score={homeTeam.score}
+          color={homeTeam.color || '#888'}
+          isBatting={!isTopInning && gameStatus === 'playing'}
+        />
       </div>
+
+      <Divider />
+
+      {gameStatus === 'final' ? (
+        /* ── Final state ──────────────────────────────── */
+        <div className="flex items-center justify-center px-5">
+          <span className="text-yellow-300 font-black text-sm tracking-widest uppercase">Final</span>
+        </div>
+      ) : (
+        <>
+          {/* ── Inning ─────────────────────────────────── */}
+          <div className="flex flex-col items-center justify-center px-3 gap-0">
+            <span className="text-yellow-400 text-xs font-black leading-none" style={{ fontSize: 11 }}>
+              {isTopInning ? '▲' : '▼'}
+            </span>
+            <span className="text-white text-2xl font-black tabular-nums leading-tight">{inning}</span>
+          </div>
+
+          <Divider />
+
+          {/* ── Count dots (B / S / O) ─────────────────── */}
+          <div className="flex flex-col justify-center gap-1.5 px-3 py-2">
+            {/* Balls — green */}
+            <div className="flex items-center gap-1">
+              {[0, 1, 2, 3].map(i => <Dot key={i} filled={i < balls} filledColor="#4ade80" />)}
+              <span className="text-[9px] text-white/30 ml-0.5 font-bold">B</span>
+            </div>
+            {/* Strikes — red */}
+            <div className="flex items-center gap-1">
+              {[0, 1, 2].map(i => <Dot key={i} filled={i < strikes} filledColor="#f87171" />)}
+              <span className="text-[9px] text-white/30 ml-0.5 font-bold">S</span>
+            </div>
+            {/* Outs — amber */}
+            <div className="flex items-center gap-1">
+              {[0, 1, 2].map(i => <Dot key={i} filled={i < outs} filledColor="#fbbf24" />)}
+              <span className="text-[9px] text-white/30 ml-0.5 font-bold">O</span>
+            </div>
+          </div>
+
+          <Divider />
+
+          {/* ── Base diamond ───────────────────────────── */}
+          <div className="flex items-center justify-center px-3">
+            <div className="w-12 h-12">
+              <BaseballDiamondIcon
+                isFirstOccupied={!!bases.first}
+                isSecondOccupied={!!bases.second}
+                isThirdOccupied={!!bases.third}
+              />
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
 
 export default LowProfileScoreboard;
-

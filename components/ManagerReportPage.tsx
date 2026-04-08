@@ -64,6 +64,9 @@ const normalizeName = (value?: string) => value?.trim().toLowerCase() || '';
 const getTeamName = (game: GameRecord, side: 'home' | 'away'): string | undefined => {
   const expanded = (game.expand || {})[`${side}_team`] as { name?: string } | undefined;
   if (expanded?.name) return expanded.name;
+  const directKey = side === 'home' ? 'home_team' : 'away_team';
+  const direct = (game as Record<string, unknown>)[directKey];
+  if (typeof direct === 'string' && direct.trim()) return direct.trim();
   const fallbackKey = side === 'home' ? 'home_team_name' : 'away_team_name';
   const fallback = (game as Record<string, unknown>)[fallbackKey];
   return typeof fallback === 'string' ? fallback : undefined;
@@ -203,12 +206,26 @@ const ManagerReportPage: React.FC = () => {
   }, [orgId]);
 
   useEffect(() => {
-    if (selectedScheduleId === 'all') {
-      setGames([]);
-      setSelectedGameId('all');
-      return;
-    }
     let isMounted = true;
+    if (selectedScheduleId === 'all') {
+      // No schedule filter: load all games so custom (non-scheduled) games are reachable
+      setIsGamesLoading(true);
+      fetchGames([])
+        .then((data) => {
+          if (!isMounted) return;
+          setGames(data);
+          setSelectedGameId('all');
+        })
+        .catch(() => {
+          if (!isMounted) return;
+          setGames([]);
+        })
+        .finally(() => {
+          if (!isMounted) return;
+          setIsGamesLoading(false);
+        });
+      return () => { isMounted = false; };
+    }
     setIsGamesLoading(true);
     fetchGames([selectedScheduleId])
       .then((data) => {
@@ -238,14 +255,8 @@ const ManagerReportPage: React.FC = () => {
           ? schedules.map((schedule) => schedule.id)
           : [selectedScheduleId];
 
-      if (scheduleIds.length === 0) {
-        setReportStats([]);
-        setTeamOptions([]);
-        setPlayerOptions([]);
-        setIsLoading(false);
-        return;
-      }
-
+      // When scheduleIds is empty (no schedules / custom games only), fetchGames([])
+      // falls through to the fetch-all-records path and returns all PocketBase games.
       const allGames = await fetchGames(scheduleIds);
       const playedGames = allGames.filter((game) => {
         const status = (game.status || '').toLowerCase();
@@ -343,7 +354,7 @@ const ManagerReportPage: React.FC = () => {
           }
         }
 
-        const defensive = parseDefensivePlays(pa.defensive_plays);
+        const defensive = parseDefensivePlays(pa.defensive_plays_json);
         if (defensive.putoutBy) {
           const stats = getStats(defensive.putoutBy, rosterMap.get(normalizeName(defensive.putoutBy)));
           if (stats) stats.PO += 1;
@@ -474,9 +485,8 @@ const ManagerReportPage: React.FC = () => {
                   className="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5"
                   value={selectedGameId}
                   onChange={(e) => setSelectedGameId(e.target.value)}
-                  disabled={selectedScheduleId === 'all'}
                 >
-                  <option value="all">{selectedScheduleId === 'all' ? 'Select a schedule first' : 'All games'}</option>
+                  <option value="all">All games</option>
                   {games.map((game) => (
                     <option key={game.id} value={game.id}>
                       {`${game.competition || game.location || `Game ${game.id}`}${game.game_date ? ` (${new Date(game.game_date).toLocaleDateString()})` : ''}`}
