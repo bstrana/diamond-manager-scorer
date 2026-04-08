@@ -39,13 +39,12 @@ interface TeamRowProps {
   shortName: string;
   score: number;
   color: string;
-  isBatting: boolean;
 }
 
-const TeamRow: React.FC<TeamRowProps> = ({ logoUrl, shortName, score, color, isBatting }) => (
+const TeamRow: React.FC<TeamRowProps> = ({ logoUrl, shortName, score, color }) => (
   <div
     className="flex items-center gap-2 px-3 py-2"
-    style={{ borderLeft: `4px solid ${color || '#ffffff'}` }}
+    style={{ background: `linear-gradient(to right, ${color}44 0%, rgba(8,10,18,0) 70%)` }}
   >
     <div className="w-7 h-7 shrink-0 rounded-sm overflow-hidden flex items-center justify-center"
          style={{ background: 'rgba(255,255,255,0.08)' }}>
@@ -54,16 +53,10 @@ const TeamRow: React.FC<TeamRowProps> = ({ logoUrl, shortName, score, color, isB
         : <span className="text-sm font-black text-white/60">{shortName[0]}</span>
       }
     </div>
-    <span
-      className="text-xs font-extrabold tracking-wider uppercase w-8 leading-none"
-      style={{ color: isBatting ? '#ffffff' : 'rgba(255,255,255,0.55)' }}
-    >
+    <span className="text-xs font-extrabold tracking-wider uppercase w-8 leading-none text-white">
       {shortName}
     </span>
-    <span
-      className="text-3xl font-black tabular-nums leading-none w-7 text-right"
-      style={{ color: isBatting ? '#facc15' : '#ffffff' }}
-    >
+    <span className="text-3xl font-black tabular-nums leading-none w-7 text-right text-white">
       {score}
     </span>
   </div>
@@ -124,10 +117,6 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
           className="flex items-center gap-2 px-3 py-1"
           style={{ background: BAR_BG, borderBottom: `1px solid ${PANEL_BORDER}` }}
         >
-          <span
-            className="text-[9px] font-black px-1.5 py-0.5 rounded-sm border leading-none"
-            style={{ color: pitchingTeam.color || '#888', borderColor: pitchingTeam.color || '#888' }}
-          >P</span>
           <span className="text-sm font-bold text-white/90 leading-none ml-auto text-right">
             #{currentPitcher.number} {getLastName(currentPitcher.name)}
           </span>
@@ -140,20 +129,18 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
       {/* ── Main scorebug row ──────────────────────────── */}
       <div className="flex items-stretch">
         {/* Teams & scores */}
-        <div className="flex flex-col divide-y" style={{ borderColor: PANEL_BORDER }}>
+        <div className="flex flex-col">
           <TeamRow
             logoUrl={awayTeam.logoUrl}
             shortName={getShortName(awayTeam.name)}
             score={awayTeam.score}
             color={awayTeam.color || '#888'}
-            isBatting={isTopInning && isPlaying}
           />
           <TeamRow
             logoUrl={homeTeam.logoUrl}
             shortName={getShortName(homeTeam.name)}
             score={homeTeam.score}
             color={homeTeam.color || '#888'}
-            isBatting={!isTopInning && isPlaying}
           />
         </div>
 
@@ -212,10 +199,6 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
           className="flex items-center gap-2 px-3 py-1"
           style={{ background: BAR_BG, borderTop: `1px solid ${PANEL_BORDER}` }}
         >
-          <span
-            className="text-[9px] font-black px-1.5 py-0.5 rounded-sm border leading-none"
-            style={{ color: battingTeam.color || '#888', borderColor: battingTeam.color || '#888' }}
-          >B</span>
           <span className="text-sm font-bold text-white/90 leading-none ml-auto text-right">
             #{currentBatter.number} {getLastName(currentBatter.name)}
           </span>
