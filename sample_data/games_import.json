@@ -1,0 +1,351 @@
+[
+  {
+    "id": "simgame9inning1",
+    "external_game_id": "sim-2024-hbs-001",
+    "status": "final",
+    "competition": "Slovenian Baseball League",
+    "location": "Stožice, Ljubljana",
+    "game_date": "2024-07-15",
+    "game_start_time": "1721052000000",
+    "game_end_time": "1721062800000",
+    "home_team": "NK Olimpija",
+    "away_team": "BK Zagreb",
+    "home_score": 5,
+    "away_score": 3,
+    "home_team_roster_text": "1,7,Marko Novak,CF\n2,4,Luka Horvat,2B\n3,15,Andrej Kos,SS\n4,22,Matej Bernik,1B\n5,8,Rok Vidic,LF\n6,11,Jure Zagar,RF\n7,3,Tomaz Kranjc,3B\n8,14,Bostjan Zupan,C\n9,29,Ales Kern,P",
+    "away_team_roster_text": "1,5,Ivan Petrovic,CF\n2,12,Josip Maric,2B\n3,17,Domagoj Horvat,SS\n4,24,Tomislav Knez,1B\n5,9,Marko Babic,LF\n6,33,Krunoslav Vuk,RF\n7,2,Antonio Saric,3B\n8,6,Nikola Jeric,C\n9,21,Luka Majic,P",
+    "game_state_json": {
+      "gameStatus": "final",
+      "competition": "Slovenian Baseball League",
+      "location": "Stožice, Ljubljana",
+      "gameDate": "2024-07-15",
+      "scorekeeperName": "Sim Scorer",
+      "inning": 9,
+      "isTopInning": true,
+      "outs": 3,
+      "strikes": 0,
+      "balls": 0,
+      "bases": { "first": null, "second": null, "third": null },
+      "pitchSequence": "",
+      "currentBatterIndex": { "home": 3, "away": 0 },
+      "gameStartTime": 1721052000000,
+      "gameEndTime": 1721062800000,
+      "homeRosterString": "1,7,Marko Novak,CF\n2,4,Luka Horvat,2B\n3,15,Andrej Kos,SS\n4,22,Matej Bernik,1B\n5,8,Rok Vidic,LF\n6,11,Jure Zagar,RF\n7,3,Tomaz Kranjc,3B\n8,14,Bostjan Zupan,C\n9,29,Ales Kern,P",
+      "awayRosterString": "1,5,Ivan Petrovic,CF\n2,12,Josip Maric,2B\n3,17,Domagoj Horvat,SS\n4,24,Tomislav Knez,1B\n5,9,Marko Babic,LF\n6,33,Krunoslav Vuk,RF\n7,2,Antonio Saric,3B\n8,6,Nikola Jeric,C\n9,21,Luka Majic,P",
+      "gameId": "simgame9inning1",
+      "plateAppearances": [],
+      "scoreboardSettings": {
+        "showHits": true,
+        "showErrors": true,
+        "showLOB": false,
+        "showCurrentPitcher": true,
+        "showCurrentBatter": true,
+        "showOnDeck": false
+      },
+      "homeTeam": {
+        "name": "NK Olimpija",
+        "score": 5,
+        "hits": 6,
+        "errors": 0,
+        "LOB": 2,
+        "color": "#00A651",
+        "runsByInning": [0, 0, 2, 0, 1, 0, 0, 2, 0],
+        "roster": [
+          {
+            "id": "olk_p01", "name": "Marko Novak", "number": 7, "position": "CF", "battingOrder": 1,
+            "photoUrl": "https://bstrana.sirv.com/ybc/player.png",
+            "stats": {
+              "PA": 4, "AB": 3, "H": 1, "BB": 0, "SO": 1, "RBI": 3, "HR": 0,
+              "SF": 1, "SH": 0, "runsScored": 0, "SB": 0, "CS": 0,
+              "singles": 1, "doubles": 0, "triples": 0,
+              "pitchCount": 0, "strikesThrown": 0, "ballsThrown": 0,
+              "AVG": 0.333, "OBP": 0.25, "SLG": 0.333,
+              "A": 0, "PO": 0, "E": 0,
+              "IP": 0, "IPOuts": 0, "R": 0, "ER": 0, "ERA": 0,
+              "H_allowed": 0, "BB_allowed": 0, "SO_pitched": 0
+            }
+          },
+          {
+            "id": "olk_p02", "name": "Luka Horvat", "number": 4, "position": "2B", "battingOrder": 2,
+            "photoUrl": "https://bstrana.sirv.com/ybc/player.png",
+            "stats": {
+              "PA": 4, "AB": 4, "H": 0, "BB": 0, "SO": 1, "RBI": 0, "HR": 0,
+              "SF": 0, "SH": 0, "runsScored": 0, "SB": 0, "CS": 0,
+              "singles": 0, "doubles": 0, "triples": 0,
+              "pitchCount": 0, "strikesThrown": 0, "ballsThrown": 0,
+              "AVG": 0, "OBP": 0, "SLG": 0,
+              "A": 0, "PO": 0, "E": 0,
+              "IP": 0, "IPOuts": 0, "R": 0, "ER": 0, "ERA": 0,
+              "H_allowed": 0, "BB_allowed": 0, "SO_pitched": 0
+            }
+          },
+          {
+            "id": "olk_p03", "name": "Andrej Kos", "number": 15, "position": "SS", "battingOrder": 3,
+            "photoUrl": "https://bstrana.sirv.com/ybc/player.png",
+            "stats": {
+              "PA": 4, "AB": 4, "H": 0, "BB": 0, "SO": 1, "RBI": 0, "HR": 0,
+              "SF": 0, "SH": 0, "runsScored": 0, "SB": 0, "CS": 0,
+              "singles": 0, "doubles": 0, "triples": 0,
+              "pitchCount": 0, "strikesThrown": 0, "ballsThrown": 0,
+              "AVG": 0, "OBP": 0, "SLG": 0,
+              "A": 0, "PO": 0, "E": 0,
+              "IP": 0, "IPOuts": 0, "R": 0, "ER": 0, "ERA": 0,
+              "H_allowed": 0, "BB_allowed": 0, "SO_pitched": 0
+            }
+          },
+          {
+            "id": "olk_p04", "name": "Matej Bernik", "number": 22, "position": "1B", "battingOrder": 4,
+            "photoUrl": "https://bstrana.sirv.com/ybc/player.png",
+            "stats": {
+              "PA": 3, "AB": 3, "H": 0, "BB": 0, "SO": 1, "RBI": 0, "HR": 0,
+              "SF": 0, "SH": 0, "runsScored": 0, "SB": 0, "CS": 0,
+              "singles": 0, "doubles": 0, "triples": 0,
+              "pitchCount": 0, "strikesThrown": 0, "ballsThrown": 0,
+              "AVG": 0, "OBP": 0, "SLG": 0,
+              "A": 0, "PO": 0, "E": 0,
+              "IP": 0, "IPOuts": 0, "R": 0, "ER": 0, "ERA": 0,
+              "H_allowed": 0, "BB_allowed": 0, "SO_pitched": 0
+            }
+          },
+          {
+            "id": "olk_p05", "name": "Rok Vidic", "number": 8, "position": "LF", "battingOrder": 5,
+            "photoUrl": "https://bstrana.sirv.com/ybc/player.png",
+            "stats": {
+              "PA": 3, "AB": 3, "H": 0, "BB": 0, "SO": 1, "RBI": 0, "HR": 0,
+              "SF": 0, "SH": 0, "runsScored": 0, "SB": 0, "CS": 0,
+              "singles": 0, "doubles": 0, "triples": 0,
+              "pitchCount": 0, "strikesThrown": 0, "ballsThrown": 0,
+              "AVG": 0, "OBP": 0, "SLG": 0,
+              "A": 0, "PO": 0, "E": 0,
+              "IP": 0, "IPOuts": 0, "R": 0, "ER": 0, "ERA": 0,
+              "H_allowed": 0, "BB_allowed": 0, "SO_pitched": 0
+            }
+          },
+          {
+            "id": "olk_p06", "name": "Jure Zagar", "number": 11, "position": "RF", "battingOrder": 6,
+            "photoUrl": "https://bstrana.sirv.com/ybc/player.png",
+            "stats": {
+              "PA": 3, "AB": 3, "H": 1, "BB": 0, "SO": 1, "RBI": 1, "HR": 1,
+              "SF": 0, "SH": 0, "runsScored": 1, "SB": 0, "CS": 0,
+              "singles": 0, "doubles": 0, "triples": 0,
+              "pitchCount": 0, "strikesThrown": 0, "ballsThrown": 0,
+              "AVG": 0.333, "OBP": 0.333, "SLG": 1.333,
+              "A": 0, "PO": 0, "E": 0,
+              "IP": 0, "IPOuts": 0, "R": 0, "ER": 0, "ERA": 0,
+              "H_allowed": 0, "BB_allowed": 0, "SO_pitched": 0
+            }
+          },
+          {
+            "id": "olk_p07", "name": "Tomaz Kranjc", "number": 3, "position": "3B", "battingOrder": 7,
+            "photoUrl": "https://bstrana.sirv.com/ybc/player.png",
+            "stats": {
+              "PA": 3, "AB": 2, "H": 1, "BB": 1, "SO": 1, "RBI": 0, "HR": 0,
+              "SF": 0, "SH": 0, "runsScored": 2, "SB": 0, "CS": 0,
+              "singles": 1, "doubles": 0, "triples": 0,
+              "pitchCount": 0, "strikesThrown": 0, "ballsThrown": 0,
+              "AVG": 0.5, "OBP": 0.667, "SLG": 0.5,
+              "A": 0, "PO": 0, "E": 0,
+              "IP": 0, "IPOuts": 0, "R": 0, "ER": 0, "ERA": 0,
+              "H_allowed": 0, "BB_allowed": 0, "SO_pitched": 0
+            }
+          },
+          {
+            "id": "olk_p08", "name": "Bostjan Zupan", "number": 14, "position": "C", "battingOrder": 8,
+            "photoUrl": "https://bstrana.sirv.com/ybc/player.png",
+            "stats": {
+              "PA": 3, "AB": 3, "H": 2, "BB": 0, "SO": 0, "RBI": 0, "HR": 0,
+              "SF": 0, "SH": 0, "runsScored": 2, "SB": 0, "CS": 0,
+              "singles": 1, "doubles": 1, "triples": 0,
+              "pitchCount": 0, "strikesThrown": 0, "ballsThrown": 0,
+              "AVG": 0.667, "OBP": 0.667, "SLG": 1.0,
+              "A": 0, "PO": 0, "E": 0,
+              "IP": 0, "IPOuts": 0, "R": 0, "ER": 0, "ERA": 0,
+              "H_allowed": 0, "BB_allowed": 0, "SO_pitched": 0
+            }
+          },
+          {
+            "id": "olk_p09", "name": "Ales Kern", "number": 29, "position": "P", "battingOrder": 9,
+            "photoUrl": "https://bstrana.sirv.com/ybc/player.png",
+            "stats": {
+              "PA": 3, "AB": 2, "H": 1, "BB": 0, "SO": 0, "RBI": 1, "HR": 0,
+              "SF": 0, "SH": 1, "runsScored": 0, "SB": 0, "CS": 0,
+              "singles": 1, "doubles": 0, "triples": 0,
+              "pitchCount": 93, "strikesThrown": 73, "ballsThrown": 20,
+              "AVG": 0.5, "OBP": 0.5, "SLG": 0.5,
+              "A": 0, "PO": 0, "E": 0,
+              "IP": 9.0, "IPOuts": 27, "R": 3, "ER": 3, "ERA": 3.0,
+              "H_allowed": 8, "BB_allowed": 0, "SO_pitched": 8
+            }
+          }
+        ]
+      },
+      "awayTeam": {
+        "name": "BK Zagreb",
+        "score": 3,
+        "hits": 8,
+        "errors": 0,
+        "LOB": 5,
+        "color": "#1E3A8A",
+        "runsByInning": [1, 0, 1, 0, 0, 0, 1, 0, 0],
+        "roster": [
+          {
+            "id": "zkv_p01", "name": "Ivan Petrovic", "number": 5, "position": "CF", "battingOrder": 1,
+            "photoUrl": "https://bstrana.sirv.com/ybc/player.png",
+            "stats": {
+              "PA": 4, "AB": 4, "H": 2, "BB": 0, "SO": 0, "RBI": 0, "HR": 0,
+              "SF": 0, "SH": 0, "runsScored": 2, "SB": 0, "CS": 0,
+              "singles": 1, "doubles": 1, "triples": 0,
+              "pitchCount": 0, "strikesThrown": 0, "ballsThrown": 0,
+              "AVG": 0.5, "OBP": 0.5, "SLG": 0.75,
+              "A": 0, "PO": 0, "E": 0,
+              "IP": 0, "IPOuts": 0, "R": 0, "ER": 0, "ERA": 0,
+              "H_allowed": 0, "BB_allowed": 0, "SO_pitched": 0
+            }
+          },
+          {
+            "id": "zkv_p02", "name": "Josip Maric", "number": 12, "position": "2B", "battingOrder": 2,
+            "photoUrl": "https://bstrana.sirv.com/ybc/player.png",
+            "stats": {
+              "PA": 5, "AB": 5, "H": 0, "BB": 0, "SO": 0, "RBI": 0, "HR": 0,
+              "SF": 0, "SH": 0, "runsScored": 0, "SB": 0, "CS": 0,
+              "singles": 0, "doubles": 0, "triples": 0,
+              "pitchCount": 0, "strikesThrown": 0, "ballsThrown": 0,
+              "AVG": 0, "OBP": 0, "SLG": 0,
+              "A": 0, "PO": 0, "E": 0,
+              "IP": 0, "IPOuts": 0, "R": 0, "ER": 0, "ERA": 0,
+              "H_allowed": 0, "BB_allowed": 0, "SO_pitched": 0
+            }
+          },
+          {
+            "id": "zkv_p03", "name": "Domagoj Horvat", "number": 17, "position": "SS", "battingOrder": 3,
+            "photoUrl": "https://bstrana.sirv.com/ybc/player.png",
+            "stats": {
+              "PA": 4, "AB": 4, "H": 3, "BB": 0, "SO": 0, "RBI": 2, "HR": 0,
+              "SF": 0, "SH": 0, "runsScored": 0, "SB": 0, "CS": 0,
+              "singles": 3, "doubles": 0, "triples": 0,
+              "pitchCount": 0, "strikesThrown": 0, "ballsThrown": 0,
+              "AVG": 0.75, "OBP": 0.75, "SLG": 0.75,
+              "A": 0, "PO": 0, "E": 0,
+              "IP": 0, "IPOuts": 0, "R": 0, "ER": 0, "ERA": 0,
+              "H_allowed": 0, "BB_allowed": 0, "SO_pitched": 0
+            }
+          },
+          {
+            "id": "zkv_p04", "name": "Tomislav Knez", "number": 24, "position": "1B", "battingOrder": 4,
+            "photoUrl": "https://bstrana.sirv.com/ybc/player.png",
+            "stats": {
+              "PA": 4, "AB": 4, "H": 0, "BB": 0, "SO": 2, "RBI": 0, "HR": 0,
+              "SF": 0, "SH": 0, "runsScored": 0, "SB": 0, "CS": 0,
+              "singles": 0, "doubles": 0, "triples": 0,
+              "pitchCount": 0, "strikesThrown": 0, "ballsThrown": 0,
+              "AVG": 0, "OBP": 0, "SLG": 0,
+              "A": 0, "PO": 0, "E": 0,
+              "IP": 0, "IPOuts": 0, "R": 0, "ER": 0, "ERA": 0,
+              "H_allowed": 0, "BB_allowed": 0, "SO_pitched": 0
+            }
+          },
+          {
+            "id": "zkv_p05", "name": "Marko Babic", "number": 9, "position": "LF", "battingOrder": 5,
+            "photoUrl": "https://bstrana.sirv.com/ybc/player.png",
+            "stats": {
+              "PA": 4, "AB": 4, "H": 0, "BB": 0, "SO": 2, "RBI": 0, "HR": 0,
+              "SF": 0, "SH": 0, "runsScored": 0, "SB": 0, "CS": 0,
+              "singles": 0, "doubles": 0, "triples": 0,
+              "pitchCount": 0, "strikesThrown": 0, "ballsThrown": 0,
+              "AVG": 0, "OBP": 0, "SLG": 0,
+              "A": 0, "PO": 0, "E": 0,
+              "IP": 0, "IPOuts": 0, "R": 0, "ER": 0, "ERA": 0,
+              "H_allowed": 0, "BB_allowed": 0, "SO_pitched": 0
+            }
+          },
+          {
+            "id": "zkv_p06", "name": "Krunoslav Vuk", "number": 33, "position": "RF", "battingOrder": 6,
+            "photoUrl": "https://bstrana.sirv.com/ybc/player.png",
+            "stats": {
+              "PA": 4, "AB": 4, "H": 1, "BB": 0, "SO": 1, "RBI": 0, "HR": 0,
+              "SF": 0, "SH": 0, "runsScored": 1, "SB": 0, "CS": 0,
+              "singles": 0, "doubles": 1, "triples": 0,
+              "pitchCount": 0, "strikesThrown": 0, "ballsThrown": 0,
+              "AVG": 0.25, "OBP": 0.25, "SLG": 0.5,
+              "A": 0, "PO": 0, "E": 0,
+              "IP": 0, "IPOuts": 0, "R": 0, "ER": 0, "ERA": 0,
+              "H_allowed": 0, "BB_allowed": 0, "SO_pitched": 0
+            }
+          },
+          {
+            "id": "zkv_p07", "name": "Antonio Saric", "number": 2, "position": "3B", "battingOrder": 7,
+            "photoUrl": "https://bstrana.sirv.com/ybc/player.png",
+            "stats": {
+              "PA": 4, "AB": 4, "H": 0, "BB": 0, "SO": 1, "RBI": 0, "HR": 0,
+              "SF": 0, "SH": 0, "runsScored": 0, "SB": 0, "CS": 0,
+              "singles": 0, "doubles": 0, "triples": 0,
+              "pitchCount": 0, "strikesThrown": 0, "ballsThrown": 0,
+              "AVG": 0, "OBP": 0, "SLG": 0,
+              "A": 0, "PO": 0, "E": 0,
+              "IP": 0, "IPOuts": 0, "R": 0, "ER": 0, "ERA": 0,
+              "H_allowed": 0, "BB_allowed": 0, "SO_pitched": 0
+            }
+          },
+          {
+            "id": "zkv_p08", "name": "Nikola Jeric", "number": 6, "position": "C", "battingOrder": 8,
+            "photoUrl": "https://bstrana.sirv.com/ybc/player.png",
+            "stats": {
+              "PA": 4, "AB": 4, "H": 2, "BB": 0, "SO": 1, "RBI": 1, "HR": 0,
+              "SF": 0, "SH": 0, "runsScored": 0, "SB": 0, "CS": 0,
+              "singles": 2, "doubles": 0, "triples": 0,
+              "pitchCount": 0, "strikesThrown": 0, "ballsThrown": 0,
+              "AVG": 0.5, "OBP": 0.5, "SLG": 0.5,
+              "A": 0, "PO": 0, "E": 0,
+              "IP": 0, "IPOuts": 0, "R": 0, "ER": 0, "ERA": 0,
+              "H_allowed": 0, "BB_allowed": 0, "SO_pitched": 0
+            }
+          },
+          {
+            "id": "zkv_p09", "name": "Luka Majic", "number": 21, "position": "P", "battingOrder": 9,
+            "photoUrl": "https://bstrana.sirv.com/ybc/player.png",
+            "stats": {
+              "PA": 3, "AB": 3, "H": 0, "BB": 0, "SO": 1, "RBI": 0, "HR": 0,
+              "SF": 0, "SH": 0, "runsScored": 0, "SB": 0, "CS": 0,
+              "singles": 0, "doubles": 0, "triples": 0,
+              "pitchCount": 78, "strikesThrown": 54, "ballsThrown": 24,
+              "AVG": 0, "OBP": 0, "SLG": 0,
+              "A": 0, "PO": 0, "E": 0,
+              "IP": 8.0, "IPOuts": 24, "R": 5, "ER": 5, "ERA": 5.625,
+              "H_allowed": 6, "BB_allowed": 1, "SO_pitched": 7
+            }
+          }
+        ]
+      },
+      "currentPitcher": {
+        "home": {
+          "id": "olk_p09", "name": "Ales Kern", "number": 29, "position": "P", "battingOrder": 9,
+          "photoUrl": "https://bstrana.sirv.com/ybc/player.png",
+          "stats": {
+            "PA": 3, "AB": 2, "H": 1, "BB": 0, "SO": 0, "RBI": 1, "HR": 0,
+            "SF": 0, "SH": 1, "runsScored": 0, "SB": 0, "CS": 0,
+            "singles": 1, "doubles": 0, "triples": 0,
+            "pitchCount": 93, "strikesThrown": 73, "ballsThrown": 20,
+            "AVG": 0.5, "OBP": 0.5, "SLG": 0.5,
+            "A": 0, "PO": 0, "E": 0,
+            "IP": 9.0, "IPOuts": 27, "R": 3, "ER": 3, "ERA": 3.0,
+            "H_allowed": 8, "BB_allowed": 0, "SO_pitched": 8
+          }
+        },
+        "away": {
+          "id": "zkv_p09", "name": "Luka Majic", "number": 21, "position": "P", "battingOrder": 9,
+          "photoUrl": "https://bstrana.sirv.com/ybc/player.png",
+          "stats": {
+            "PA": 3, "AB": 3, "H": 0, "BB": 0, "SO": 1, "RBI": 0, "HR": 0,
+            "SF": 0, "SH": 0, "runsScored": 0, "SB": 0, "CS": 0,
+            "singles": 0, "doubles": 0, "triples": 0,
+            "pitchCount": 78, "strikesThrown": 54, "ballsThrown": 24,
+            "AVG": 0, "OBP": 0, "SLG": 0,
+            "A": 0, "PO": 0, "E": 0,
+            "IP": 8.0, "IPOuts": 24, "R": 5, "ER": 5, "ERA": 5.625,
+            "H_allowed": 6, "BB_allowed": 1, "SO_pitched": 7
+          }
+        }
+      }
+    }
+  }
+]
