@@ -280,7 +280,7 @@ const server = http.createServer((req, res) => {
         }
         res.setHeader('Content-Type', 'application/json');
         res.writeHead(200);
-        res.end(JSON.stringify({ success: true }));
+        res.end(JSON.stringify({ success: true, pbRecordId: gameStatePbId || null }));
       } catch (error) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
         if (corsOrigin) {

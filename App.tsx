@@ -142,6 +142,7 @@ const App: React.FC = () => {
     handlePinchRunner,
     handleSettingsUpdate,
     handleManualRunnerAdvance,
+    pbStateRecordId,
   } = useGameState();
   const [isEditingSetup, setIsEditingSetup] = useState(gameState.gameStatus === 'setup');
   const [isControlPanelOpen, setIsControlPanelOpen] = useState(false);
@@ -170,8 +171,13 @@ const App: React.FC = () => {
     setIsConfirmFinalModalOpen(false);
   };
 
+  const addGameParam = (url: URL) => {
+    if (pbStateRecordId) url.searchParams.set('game', pbStateRecordId);
+    return url;
+  };
+
   const copyScoreboardLink = () => {
-    const url = new URL('/scoreboard', window.location.origin);
+    const url = addGameParam(new URL('/scoreboard', window.location.origin));
     navigator.clipboard.writeText(url.href).then(() => {
         setCopiedLink(true);
         setTimeout(() => setCopiedLink(false), 2000);
@@ -180,16 +186,16 @@ const App: React.FC = () => {
 
   const [copiedLowerThirdsLink, setCopiedLowerThirdsLink] = useState(false);
   const copyLowerThirdsLink = () => {
-    const url = new URL('/batter-lower-thirds', window.location.origin);
+    const url = addGameParam(new URL('/batter-lower-thirds', window.location.origin));
     navigator.clipboard.writeText(url.href).then(() => {
         setCopiedLowerThirdsLink(true);
         setTimeout(() => setCopiedLowerThirdsLink(false), 2000);
     });
   };
-  
+
   const [copiedLinescoreLink, setCopiedLinescoreLink] = useState(false);
   const copyLinescoreLink = () => {
-    const url = new URL('/linescore', window.location.origin);
+    const url = addGameParam(new URL('/linescore', window.location.origin));
     navigator.clipboard.writeText(url.href).then(() => {
         setCopiedLinescoreLink(true);
         setTimeout(() => setCopiedLinescoreLink(false), 2000);
@@ -198,7 +204,7 @@ const App: React.FC = () => {
 
   const [copiedLowProfileLink, setCopiedLowProfileLink] = useState(false);
   const copyLowProfileScoreboardLink = () => {
-    const url = new URL('/low-profile-scoreboard', window.location.origin);
+    const url = addGameParam(new URL('/low-profile-scoreboard', window.location.origin));
     navigator.clipboard.writeText(url.href).then(() => {
         setCopiedLowProfileLink(true);
         setTimeout(() => setCopiedLowProfileLink(false), 2000);
@@ -207,7 +213,7 @@ const App: React.FC = () => {
 
   const [copiedFieldPlayersLink, setCopiedFieldPlayersLink] = useState(false);
   const copyFieldPlayersLink = () => {
-    const url = new URL('/field-players', window.location.origin);
+    const url = addGameParam(new URL('/field-players', window.location.origin));
     navigator.clipboard.writeText(url.href).then(() => {
         setCopiedFieldPlayersLink(true);
         setTimeout(() => setCopiedFieldPlayersLink(false), 2000);
@@ -216,7 +222,7 @@ const App: React.FC = () => {
 
   const [copiedBattingOrderLink, setCopiedBattingOrderLink] = useState(false);
   const copyBattingOrderLink = () => {
-    const url = new URL('/batting-order', window.location.origin);
+    const url = addGameParam(new URL('/batting-order', window.location.origin));
     navigator.clipboard.writeText(url.href).then(() => {
         setCopiedBattingOrderLink(true);
         setTimeout(() => setCopiedBattingOrderLink(false), 2000);

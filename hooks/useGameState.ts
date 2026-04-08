@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useRef, type SetStateAction } from 'react';
+import { useState, useCallback, useRef, useEffect, type SetStateAction } from 'react';
 import type { GameState, Player, TeamSetup, PitchType, HitType, OutType, PlateAppearanceResult, PlayerStats, Team, PlateAppearance, DefensivePlays, ScoreboardSettings, HitDescription } from '../types';
 import { getGameDataStore } from '../services/gameDataStore';
 import { broadcastGameState } from '../services/broadcastService';
@@ -216,6 +216,13 @@ export const useGameState = () => {
     }
   });
 
+  // PocketBase game_states record ID for per-game overlay URLs
+  const [pbStateRecordId, setPbStateRecordId] = useState<string | null>(() =>
+    typeof window !== 'undefined' ? localStorage.getItem('pbStateRecordId') : null
+  );
+  const pbStateRecordIdRef = useRef<string | null>(pbStateRecordId);
+  useEffect(() => { pbStateRecordIdRef.current = pbStateRecordId; }, [pbStateRecordId]);
+
   // Debounce localStorage writes and API sync separately to improve performance
   const localStorageWriteTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const apiSyncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -254,7 +261,7 @@ export const useGameState = () => {
           }
           fetch('/api/gamestate', {
             method: 'POST',
-            headers: { 
+            headers: {
               'Content-Type': 'application/json',
               'Cache-Control': 'no-cache, no-store, must-revalidate',
               'Pragma': 'no-cache',
@@ -263,6 +270,14 @@ export const useGameState = () => {
           }).then(res => {
             if (!res.ok) {
               console.debug(`[useGameState] API POST failed: HTTP ${res.status}`);
+              return;
+            }
+            return res.json();
+          }).then((data?: { success: boolean; pbRecordId?: string | null }) => {
+            if (data?.pbRecordId && !pbStateRecordIdRef.current) {
+              pbStateRecordIdRef.current = data.pbRecordId;
+              setPbStateRecordId(data.pbRecordId);
+              localStorage.setItem('pbStateRecordId', data.pbRecordId);
             }
           }).catch(err => {
             // Silently fail - this is just for OBS compatibility
@@ -420,6 +435,13 @@ export const useGameState = () => {
         }
     }
     
+    // Clear the PB overlay record ID so a fresh record is created for the new game
+    if (!isEditing) {
+      pbStateRecordIdRef.current = null;
+      setPbStateRecordId(null);
+      localStorage.removeItem('pbStateRecordId');
+    }
+
     setGameState(newState);
 
     // Sync with configured data store
@@ -1252,8 +1274,9 @@ export const useGameState = () => {
     }));
   }, [setGameState]);
 
-  return { 
+  return {
     gameState,
+    pbStateRecordId,
     updateSetupData,
     handleGameSetup, handlePitch, handleHit, handleOut, handleSacFly, 
     handleFieldersChoice, handleHBP, handleIntentionalWalk, handleRunnerOut,
