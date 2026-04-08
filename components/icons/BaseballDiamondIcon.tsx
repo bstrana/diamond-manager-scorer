@@ -6,31 +6,30 @@ interface BaseballDiamondProps {
   isSecondOccupied: boolean;
   isThirdOccupied: boolean;
   baseSize?: number; // Optional: size of each base square (default: 16 for main scoreboard)
+  compact?: boolean; // Tighter base spacing for overlay use
 }
 
 export const BaseballDiamondIcon: React.FC<BaseballDiamondProps> = ({
   isFirstOccupied,
   isSecondOccupied,
   isThirdOccupied,
-  baseSize = 16, // Default size for main scoreboard
+  baseSize = 16,
+  compact = false,
 }) => {
   const baseColor = 'rgba(255, 255, 255, 0.3)';
   const occupiedColor = '#facc15'; // yellow-400
 
-  // Calculate positions and padding based on base size
-  // For 16px bases: original positions
-  // For 40px bases: adjusted positions with more padding
   const isLarge = baseSize >= 30;
-  const padding = isLarge ? 20 : 5;
+  const padding = compact ? 4 : isLarge ? 20 : 5;
   const viewBoxSize = 100 + (padding * 2);
-  
-  // Calculate base positions
-  const firstX = isLarge ? 70 : 82;
-  const firstY = isLarge ? 30 : 42;
-  const secondX = isLarge ? 30 : 42;
-  const secondY = isLarge ? -10 : 2;
-  const thirdX = isLarge ? -10 : 2;
-  const thirdY = isLarge ? 30 : 42;
+
+  // Compact mode uses tighter base positions (less spread)
+  const firstX  = compact ? 74 : isLarge ? 70 : 82;
+  const firstY  = compact ? 38 : isLarge ? 30 : 42;
+  const secondX = compact ? 38 : isLarge ? 30 : 42;
+  const secondY = compact ?  2 : isLarge ? -10 : 2;
+  const thirdX  = compact ?  2 : isLarge ? -10 : 2;
+  const thirdY  = compact ? 38 : isLarge ? 30 : 42;
 
   return (
     <svg 

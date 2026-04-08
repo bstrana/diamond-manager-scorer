@@ -46,17 +46,16 @@ interface TeamRowProps {
 
 const TeamRow: React.FC<TeamRowProps> = ({ logoUrl, shortName, score, color }) => (
   <div
-    className="flex items-center gap-2 px-3 py-2"
+    className="flex items-center gap-3 px-3 py-2"
     style={{ background: `linear-gradient(to right, ${color}44 0%, rgba(8,10,18,0) 70%)` }}
   >
-    <div className="w-9 h-9 shrink-0 rounded-sm overflow-hidden flex items-center justify-center"
-         style={{ background: 'rgba(255,255,255,0.08)' }}>
+    <div className="w-12 h-12 shrink-0 overflow-hidden flex items-center justify-center">
       {logoUrl
         ? <img src={logoUrl} alt="" className="w-full h-full object-contain" />
-        : <span className="text-base font-black text-white/60">{shortName[0]}</span>
+        : <span className="text-xl font-black text-white/60">{shortName[0]}</span>
       }
     </div>
-    <span className="text-sm font-extrabold tracking-wider uppercase w-10 leading-none text-white">
+    <span className="text-lg font-extrabold tracking-wider uppercase w-14 leading-none text-white">
       {shortName}
     </span>
     <span className="text-3xl font-black tabular-nums leading-none w-12 text-right text-white shrink-0">
@@ -133,10 +132,10 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
           className="flex items-center gap-2 px-3 py-1"
           style={{ background: BAR_BG, borderBottom: `1px solid ${PANEL_BORDER}` }}
         >
-          <span className="text-sm font-bold text-white/90 leading-none ml-auto text-right">
+          <span className="text-base font-bold text-white/90 leading-none ml-auto text-right">
             #{currentPitcher.number} {getDisplayName(currentPitcher.name)}
           </span>
-          <span className="text-xs tabular-nums font-bold text-white/50 leading-none shrink-0">
+          <span className="text-sm tabular-nums font-bold text-white/50 leading-none shrink-0">
             {currentPitcher.stats.pitchCount}<span className="text-white/25 font-normal"> pit</span>
             <span className="text-white/30 font-normal"> · </span>
             {getPitcherKBB(currentPitcher)}
@@ -196,12 +195,13 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
 
             {/* Base diamond */}
             <div className="flex items-center justify-center px-2">
-              <div className="w-16 h-16">
+              <div className="w-20 h-20">
                 <BaseballDiamondIcon
                   isFirstOccupied={!!bases.first}
                   isSecondOccupied={!!bases.second}
                   isThirdOccupied={!!bases.third}
-                  baseSize={22}
+                  baseSize={28}
+                  compact
                 />
               </div>
             </div>
@@ -215,10 +215,10 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
           className="flex items-center gap-2 px-3 py-1"
           style={{ background: BAR_BG, borderTop: `1px solid ${PANEL_BORDER}` }}
         >
-          <span className="text-sm font-bold text-white/90 leading-none ml-auto text-right">
+          <span className="text-base font-bold text-white/90 leading-none ml-auto text-right">
             #{currentBatter.number} {getDisplayName(currentBatter.name)}
           </span>
-          <span className="text-xs tabular-nums font-semibold leading-none shrink-0" style={{ color: battingTeam.color || 'rgba(255,255,255,0.5)' }}>
+          <span className="text-sm tabular-nums font-semibold leading-none shrink-0" style={{ color: battingTeam.color || 'rgba(255,255,255,0.5)' }}>
             {getBatterStat(currentBatter)}
           </span>
         </div>
