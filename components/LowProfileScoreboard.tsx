@@ -17,9 +17,12 @@ const getShortName = (name: string): string => {
   return name.substring(0, 3).toUpperCase();
 };
 
-const getLastName = (name: string): string => {
+const getDisplayName = (name: string): string => {
   const parts = name.trim().split(/\s+/);
-  return parts[parts.length - 1] || name;
+  if (parts.length === 1) return parts[0];
+  const first = parts[0][0]?.toUpperCase() ?? '';
+  const last = parts[parts.length - 1];
+  return `${first}. ${last}`;
 };
 
 const getActiveLineup = (roster: Player[]): Player[] => {
@@ -118,7 +121,7 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
           style={{ background: BAR_BG, borderBottom: `1px solid ${PANEL_BORDER}` }}
         >
           <span className="text-sm font-bold text-white/90 leading-none ml-auto text-right">
-            #{currentPitcher.number} {getLastName(currentPitcher.name)}
+            #{currentPitcher.number} {getDisplayName(currentPitcher.name)}
           </span>
           <span className="text-xs tabular-nums font-bold text-white/50 leading-none shrink-0">
             {currentPitcher.stats.pitchCount}<span className="text-white/25 font-normal"> pit</span>
@@ -200,7 +203,7 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
           style={{ background: BAR_BG, borderTop: `1px solid ${PANEL_BORDER}` }}
         >
           <span className="text-sm font-bold text-white/90 leading-none ml-auto text-right">
-            #{currentBatter.number} {getLastName(currentBatter.name)}
+            #{currentBatter.number} {getDisplayName(currentBatter.name)}
           </span>
           <span className="text-xs tabular-nums font-bold text-white/50 leading-none shrink-0">
             {getBatterStat(currentBatter)}
