@@ -176,18 +176,17 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
 
             <Divider />
 
-            {/* Count dots */}
-            <div className="flex flex-col justify-center gap-1.5 px-3 py-2">
-              <div className="flex items-center gap-1">
-                {[0,1,2].map(i => <Dot key={i} filled={i < balls}   filledColor="#4ade80" />)}
-                <span className="text-[9px] text-white/30 ml-0.5 font-bold">B</span>
+            {/* Count: B-S numbers + O dots */}
+            <div className="flex flex-col justify-center items-center gap-1.5 px-3 py-2">
+              <div className="flex items-center gap-1 leading-none">
+                <span className="text-[10px] text-white/30 font-bold">B</span>
+                <span className="text-xl font-black tabular-nums leading-none" style={{ color: '#4ade80' }}>{balls}</span>
+                <span className="text-white/30 font-bold text-sm leading-none">-</span>
+                <span className="text-xl font-black tabular-nums leading-none" style={{ color: '#f87171' }}>{strikes}</span>
+                <span className="text-[10px] text-white/30 font-bold">S</span>
               </div>
               <div className="flex items-center gap-1">
-                {[0,1].map(i => <Dot key={i} filled={i < strikes} filledColor="#f87171" />)}
-                <span className="text-[9px] text-white/30 ml-0.5 font-bold">S</span>
-              </div>
-              <div className="flex items-center gap-1">
-                {[0,1].map(i => <Dot key={i} filled={i < outs}    filledColor="#fbbf24" />)}
+                {[0,1].map(i => <Dot key={i} filled={i < outs} filledColor="#fbbf24" />)}
                 <span className="text-[9px] text-white/30 ml-0.5 font-bold">O</span>
               </div>
             </div>
