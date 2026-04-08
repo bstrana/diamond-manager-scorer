@@ -247,7 +247,7 @@ const App: React.FC = () => {
                   (e.target as HTMLImageElement).style.display = 'none';
                 }}
               />
-              <h1 className="text-3xl sm:text-4xl font-bold text-yellow-300 tracking-wider">Diamond Manager Scorer</h1>
+              <h1 className="text-xl sm:text-4xl font-bold text-yellow-300 tracking-wider">Diamond Manager Scorer</h1>
             </div>
           </>
         )}
@@ -548,7 +548,7 @@ const AppWithAuth: React.FC = () => {
                   (e.target as HTMLImageElement).style.display = 'none';
                 }}
               />
-              <h1 className="text-3xl sm:text-4xl font-bold text-yellow-300 tracking-wider">Diamond Manager Scorer</h1>
+              <h1 className="text-xl sm:text-4xl font-bold text-yellow-300 tracking-wider">Diamond Manager Scorer</h1>
             </div>
           </header>
           <div className="bg-gray-800 border border-gray-700 rounded-lg p-8 shadow-2xl">
@@ -597,7 +597,7 @@ const AppWithAuth: React.FC = () => {
                     (e.target as HTMLImageElement).style.display = 'none';
                   }}
                 />
-                <h1 className="text-3xl sm:text-4xl font-bold text-yellow-300 tracking-wider">Diamond Manager Scorer</h1>
+                <h1 className="text-xl sm:text-4xl font-bold text-yellow-300 tracking-wider">Diamond Manager Scorer</h1>
               </div>
             </header>
             <div className="bg-gray-800 border border-gray-700 rounded-lg p-8 shadow-2xl">
