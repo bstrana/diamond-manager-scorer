@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import type { TeamSetup, GameState, ScoreboardSettings } from '../types';
 import { getGameScheduleProvider } from '../services/gameScheduleProvider';
 import { getEnvVar } from '../utils/env';
 import { fetchSchedulePayloadOptions, SchedulePayloadOption } from '../services/providers/pocketbaseGameScheduleProvider';
 import { useKeycloakAuth } from './KeycloakAuth';
 import SettingsModal from './SettingsModal';
+import { type GameLock, fetchGameLocks, subscribeToGameLocks } from '../services/gameLockService';
 
 interface GameSetupProps {
   onGameSetup: (
@@ -665,6 +666,8 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameSetup, onUpdateSetupData, o
   const [selectedSchedulePayloadId, setSelectedSchedulePayloadId] = useState('');
   
   const [scheduleProvider, setScheduleProvider] = useState(() => getGameScheduleProvider());
+  const [gameLocks, setGameLocks] = useState<GameLock[]>([]);
+  const unsubscribeLocksRef = useRef<(() => void) | null>(null);
   const auth = useKeycloakAuth();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const orgId = useMemo(() => {
@@ -720,6 +723,12 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameSetup, onUpdateSetupData, o
     
     return () => clearTimeout(timeout);
   }, []);
+
+  // Unsubscribe from game locks when component unmounts
+  useEffect(() => {
+    return () => { unsubscribeLocksRef.current?.(); };
+  }, []);
+
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   
   const isScheduleDisabled = scheduleProvider.provider === 'none';
@@ -824,6 +833,11 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameSetup, onUpdateSetupData, o
         setGamesList(games);
       }
       setIsConnected(true);
+
+      // Load current locks and subscribe to real-time changes
+      const locks = await fetchGameLocks();
+      setGameLocks(locks);
+      unsubscribeLocksRef.current = await subscribeToGameLocks(setGameLocks);
     } catch (err) {
       if (err instanceof Error) {
         setScheduleError(err.message);
@@ -889,6 +903,9 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameSetup, onUpdateSetupData, o
     setSelectedGameId('');
     setSchedulePayloads([]);
     setSelectedSchedulePayloadId('');
+    setGameLocks([]);
+    unsubscribeLocksRef.current?.();
+    unsubscribeLocksRef.current = null;
     setScheduleError(null);
   };
 
@@ -1032,10 +1049,20 @@ const GameSetup: React.FC<GameSetupProps> = ({ onGameSetup, onUpdateSetupData, o
                     <label htmlFor="schedule-game-select" className="block mb-2 text-sm font-medium text-gray-300">Select a Scheduled Game</label>
                     <select id="schedule-game-select" value={selectedGameId} onChange={(e) => setSelectedGameId(e.target.value)} className="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5" disabled={schedulePayloads.length > 0 && !selectedSchedulePayloadId}>
                         <option value="">-- Choose a Game --</option>
-                        {gamesList.length > 0 ? gamesList.map(game => (
-                            <option key={game.id} value={game.id}>{game.title}</option>
-                        )) : <option disabled>No scheduled games found.</option>}
+                        {gamesList.length > 0 ? gamesList.map(game => {
+                          const lock = gameLocks.find(l => l.game_id === String(game.id));
+                          return (
+                            <option key={game.id} value={game.id}>
+                              {lock ? `🔒 ${game.title} (${lock.scorekeeper_name})` : game.title}
+                            </option>
+                          );
+                        }) : <option disabled>No scheduled games found.</option>}
                     </select>
+                    {selectedGameId && gameLocks.find(l => l.game_id === String(selectedGameId)) && (
+                      <p className="text-yellow-400 text-xs mt-1">
+                        ⚠ This game is already being scored by {gameLocks.find(l => l.game_id === String(selectedGameId))?.scorekeeper_name}. You can still take over if needed.
+                      </p>
+                    )}
                 </div>
                  <button type="button" onClick={handleScheduleFetch} disabled={scheduleIsLoading || !selectedGameId} className="text-white bg-sky-600 hover:bg-sky-700 font-medium rounded-lg text-sm px-5 py-2.5 transition-colors disabled:opacity-50 h-10">
                     {scheduleIsLoading ? 'Fetching...' : 'Fetch Selected Game'}

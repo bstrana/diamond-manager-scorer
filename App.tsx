@@ -16,6 +16,7 @@ import BattingOrderPage from './components/BattingOrderPage';
 import ManagerReportPage from './components/ManagerReportPage';
 import { KeycloakAuthProvider } from './components/KeycloakAuth';
 import { getEnvVar } from './utils/env';
+import { createGameLock, releaseStoredLock } from './services/gameLockService';
 
 const getActiveLineup = (roster: Player[]): Player[] => {
     const hasDH = roster.some(p => p.position.toUpperCase() === 'DH');
@@ -153,14 +154,18 @@ const App: React.FC = () => {
 
 
   const setupGame = (
-    homeTeam: TeamSetup, 
-    awayTeam: TeamSetup, 
-    competition: string, 
-    location: string, 
+    homeTeam: TeamSetup,
+    awayTeam: TeamSetup,
+    competition: string,
+    location: string,
     gameId?: number | string,
     scorekeeperName?: string,
     gameDate?: string | Date
   ) => {
+    // Lock the scheduled game so other scorekeepers can see it's claimed
+    if (gameId) {
+      createGameLock(String(gameId), scorekeeperName || 'Scorekeeper').catch(() => {});
+    }
     handleGameSetup(homeTeam, awayTeam, competition, location, gameId, scorekeeperName, gameDate);
     setIsEditingSetup(false);
   };
@@ -371,7 +376,7 @@ const App: React.FC = () => {
                 Final
               </button>
               <button
-                onClick={resetGame}
+                onClick={() => { releaseStoredLock().catch(() => {}); resetGame(); }}
                 className="px-6 py-2 bg-red-600 hover:bg-red-700 rounded-md font-bold transition-colors"
                 title="Clear all game data and return to setup"
               >
