@@ -195,12 +195,13 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
 
             {/* Base diamond */}
             <div className="flex items-center justify-center px-2">
-              <div className="w-16 h-16">
+              <div className="w-20 h-20">
                 <BaseballDiamondIcon
                   isFirstOccupied={!!bases.first}
                   isSecondOccupied={!!bases.second}
                   isThirdOccupied={!!bases.third}
-                  baseSize={22}
+                  baseSize={28}
+                  compact
                 />
               </div>
             </div>
