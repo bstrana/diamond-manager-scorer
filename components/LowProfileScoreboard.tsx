@@ -128,12 +128,11 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
             className="text-[9px] font-black px-1.5 py-0.5 rounded-sm border leading-none"
             style={{ color: pitchingTeam.color || '#888', borderColor: pitchingTeam.color || '#888' }}
           >P</span>
-          <span className="text-xs font-bold text-white/90 leading-none">
+          <span className="text-sm font-bold text-white/90 leading-none ml-auto text-right">
             #{currentPitcher.number} {getLastName(currentPitcher.name)}
           </span>
-          <span className="ml-auto text-xs tabular-nums font-bold text-white/50 leading-none">
-            {currentPitcher.stats.pitchCount}
-            <span className="text-white/25 font-normal"> pit</span>
+          <span className="text-xs tabular-nums font-bold text-white/50 leading-none shrink-0">
+            {currentPitcher.stats.pitchCount}<span className="text-white/25 font-normal"> pit</span>
           </span>
         </div>
       )}
@@ -187,7 +186,6 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
               </div>
               <div className="flex items-center gap-1">
                 {[0,1].map(i => <Dot key={i} filled={i < outs} filledColor="#fbbf24" />)}
-                <span className="text-[9px] text-white/30 ml-0.5 font-bold">O</span>
               </div>
             </div>
 
@@ -218,10 +216,10 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
             className="text-[9px] font-black px-1.5 py-0.5 rounded-sm border leading-none"
             style={{ color: battingTeam.color || '#888', borderColor: battingTeam.color || '#888' }}
           >B</span>
-          <span className="text-xs font-bold text-white/90 leading-none">
+          <span className="text-sm font-bold text-white/90 leading-none ml-auto text-right">
             #{currentBatter.number} {getLastName(currentBatter.name)}
           </span>
-          <span className="ml-auto text-xs tabular-nums font-bold text-white/50 leading-none">
+          <span className="text-xs tabular-nums font-bold text-white/50 leading-none shrink-0">
             {getBatterStat(currentBatter)}
           </span>
         </div>
