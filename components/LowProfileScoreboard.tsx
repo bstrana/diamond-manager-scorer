@@ -42,7 +42,7 @@ const TeamRow: React.FC<TeamRowProps> = ({ logoUrl, shortName, score, color, isB
 
     {/* Team abbreviation */}
     <span
-      className="text-xs font-extrabold tracking-widest uppercase w-9 leading-none"
+      className="text-xs font-extrabold tracking-wider uppercase w-8 leading-none"
       style={{ color: isBatting ? '#ffffff' : 'rgba(255,255,255,0.55)' }}
     >
       {shortName}
@@ -117,19 +117,19 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
 
           {/* ── Count dots (B / S / O) ─────────────────── */}
           <div className="flex flex-col justify-center gap-1.5 px-3 py-2">
-            {/* Balls — green */}
+            {/* Balls — 3 dots — green */}
             <div className="flex items-center gap-1">
-              {[0, 1, 2, 3].map(i => <Dot key={i} filled={i < balls} filledColor="#4ade80" />)}
+              {[0, 1, 2].map(i => <Dot key={i} filled={i < balls} filledColor="#4ade80" />)}
               <span className="text-[9px] text-white/30 ml-0.5 font-bold">B</span>
             </div>
-            {/* Strikes — red */}
+            {/* Strikes — 2 dots — red */}
             <div className="flex items-center gap-1">
-              {[0, 1, 2].map(i => <Dot key={i} filled={i < strikes} filledColor="#f87171" />)}
+              {[0, 1].map(i => <Dot key={i} filled={i < strikes} filledColor="#f87171" />)}
               <span className="text-[9px] text-white/30 ml-0.5 font-bold">S</span>
             </div>
-            {/* Outs — amber */}
+            {/* Outs — 2 dots — amber */}
             <div className="flex items-center gap-1">
-              {[0, 1, 2].map(i => <Dot key={i} filled={i < outs} filledColor="#fbbf24" />)}
+              {[0, 1].map(i => <Dot key={i} filled={i < outs} filledColor="#fbbf24" />)}
               <span className="text-[9px] text-white/30 ml-0.5 font-bold">O</span>
             </div>
           </div>
@@ -137,12 +137,13 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
           <Divider />
 
           {/* ── Base diamond ───────────────────────────── */}
-          <div className="flex items-center justify-center px-3">
-            <div className="w-12 h-12">
+          <div className="flex items-center justify-center px-2">
+            <div className="w-16 h-16">
               <BaseballDiamondIcon
                 isFirstOccupied={!!bases.first}
                 isSecondOccupied={!!bases.second}
                 isThirdOccupied={!!bases.third}
+                baseSize={22}
               />
             </div>
           </div>
