@@ -46,8 +46,8 @@ export type PlateAppearanceRecord = {
   pitch_sequence?: string;
   batter_name?: string;
   pitcher_name?: string;
-  defensive_plays?: unknown;
-  hit_description?: unknown;
+  defensive_plays_json?: unknown;
+  hit_description_json?: unknown;
 };
 
 const getBaseUrl = (): string => {
