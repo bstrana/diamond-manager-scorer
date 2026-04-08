@@ -155,7 +155,10 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ gameState }) => {
             />
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               {gameState.gameStatus === 'final' ? (
-                <span className="font-bold text-xl sm:text-2xl text-yellow-300">FINAL</span>
+                <span className="font-bold text-xl sm:text-2xl text-yellow-300">
+                  <span className="sm:hidden">F</span>
+                  <span className="hidden sm:inline">FINAL</span>
+                </span>
               ) : (
                 <>
                   <div className="flex items-center space-x-0.5 sm:space-x-1">
