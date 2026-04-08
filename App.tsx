@@ -136,6 +136,7 @@ const App: React.FC = () => {
     handlePlayerSubstitution,
     handlePositionSwap,
     handleErrorCorrection,
+    handleScoreCorrection,
     handleStolenBase,
     handleCaughtStealing,
     handleBalk,
@@ -338,6 +339,7 @@ const App: React.FC = () => {
                       onPitchCountCorrection={handlePitchCountCorrection}
                       onBaseRunnerCorrection={handleBaseRunnerCorrection}
                       onErrorCorrection={handleErrorCorrection}
+                      onScoreCorrection={handleScoreCorrection}
                       onStolenBase={handleStolenBase}
                       onCaughtStealing={handleCaughtStealing}
                       onBalk={handleBalk}

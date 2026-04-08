@@ -46,7 +46,7 @@ interface TeamRowProps {
 
 const TeamRow: React.FC<TeamRowProps> = ({ logoUrl, shortName, score, color }) => (
   <div
-    className="flex items-center gap-3 px-3 py-2"
+    className="flex items-center gap-3 px-3 py-[0.1rem]"
     style={{ background: `linear-gradient(to right, ${color}44 0%, rgba(8,10,18,0) 70%)` }}
   >
     <div className="w-12 h-12 shrink-0 overflow-hidden flex items-center justify-center">
@@ -132,7 +132,7 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
           className="flex items-center gap-2 px-3 py-1"
           style={{ background: BAR_BG, borderBottom: `1px solid ${PANEL_BORDER}` }}
         >
-          <span className="text-base font-bold text-white/90 leading-none ml-auto text-right">
+          <span className="text-base font-normal text-white/90 leading-none ml-auto text-right">
             #{currentPitcher.number} {getDisplayName(currentPitcher.name)}
           </span>
           <span className="text-sm tabular-nums font-bold text-white/50 leading-none shrink-0">
@@ -169,16 +169,16 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
           </div>
         ) : (
           <>
-            {/* Inning */}
-            <div className="flex flex-col items-center justify-center px-3 gap-0 w-10 shrink-0">
-              <span className="text-yellow-400 font-black leading-none" style={{ fontSize: 11 }}>
-                {isTopInning ? '▲' : '▼'}
-              </span>
-              <span className="text-white text-2xl font-black tabular-nums leading-tight w-full text-center">{inning}</span>
-            </div>
-
-            {/* Count: B-S numbers + O dots (no divider — flows directly from inning) */}
-            <div className="flex flex-col justify-center items-center gap-1.5 px-3 py-2 w-16 shrink-0">
+            {/* Inning + Count stacked, then diamond (no divider between them) */}
+            <div className="flex flex-col items-center justify-center px-3 gap-0.5 w-16 shrink-0">
+              {/* Inning */}
+              <div className="flex items-center gap-1">
+                <span className="text-yellow-400 font-black leading-none" style={{ fontSize: 11 }}>
+                  {isTopInning ? '▲' : '▼'}
+                </span>
+                <span className="text-white text-2xl font-black tabular-nums leading-none">{inning}</span>
+              </div>
+              {/* Count */}
               <div className="flex items-center gap-1 leading-none">
                 <span className="text-[10px] text-white/30 font-bold">B</span>
                 <span className="text-xl font-black tabular-nums leading-none" style={{ color: '#4ade80' }}>{balls}</span>
@@ -186,21 +186,20 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
                 <span className="text-xl font-black tabular-nums leading-none" style={{ color: '#f87171' }}>{strikes}</span>
                 <span className="text-[10px] text-white/30 font-bold">S</span>
               </div>
+              {/* Outs */}
               <div className="flex items-center gap-1">
                 {[0,1].map(i => <Dot key={i} filled={i < outs} filledColor="#fbbf24" />)}
               </div>
             </div>
 
-            <Divider />
-
-            {/* Base diamond */}
-            <div className="flex items-center justify-center px-2">
+            {/* Base diamond — no divider */}
+            <div className="flex items-center justify-center px-1">
               <div className="w-20 h-20">
                 <BaseballDiamondIcon
                   isFirstOccupied={!!bases.first}
                   isSecondOccupied={!!bases.second}
                   isThirdOccupied={!!bases.third}
-                  baseSize={28}
+                  baseSize={30}
                   compact
                 />
               </div>
@@ -215,7 +214,7 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
           className="flex items-center gap-2 px-3 py-1"
           style={{ background: BAR_BG, borderTop: `1px solid ${PANEL_BORDER}` }}
         >
-          <span className="text-base font-bold text-white/90 leading-none ml-auto text-right">
+          <span className="text-base font-normal text-white/90 leading-none ml-auto text-right">
             #{currentBatter.number} {getDisplayName(currentBatter.name)}
           </span>
           <span className="text-sm tabular-nums font-semibold leading-none shrink-0" style={{ color: battingTeam.color || 'rgba(255,255,255,0.5)' }}>

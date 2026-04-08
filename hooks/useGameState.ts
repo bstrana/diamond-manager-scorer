@@ -1221,6 +1221,15 @@ export const useGameState = () => {
     });
   }, [setGameState]);
 
+  const handleScoreCorrection = useCallback((teamKey: 'homeTeam' | 'awayTeam', delta: 1 | -1) => {
+    setGameState(prevState => {
+        if (prevState.gameStatus !== 'playing') return prevState;
+        const team = prevState[teamKey];
+        const updatedTeam = { ...team, score: Math.max(0, team.score + delta) };
+        return { ...prevState, [teamKey]: updatedTeam };
+    });
+  }, [setGameState]);
+
   const handlePinchRunner = useCallback((runnerId: string, substituteId: string) => {
     setGameState(prevState => {
         if (prevState.gameStatus !== 'playing') return prevState;
@@ -1284,6 +1293,7 @@ export const useGameState = () => {
     handlePitchCountCorrection, handleBaseRunnerCorrection, handlePlayerSubstitution,
     handlePositionSwap,
     handleErrorCorrection,
+    handleScoreCorrection,
     handleStolenBase,
     handleCaughtStealing,
     handleBalk,
