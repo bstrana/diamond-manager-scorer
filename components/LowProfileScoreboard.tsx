@@ -49,14 +49,14 @@ const TeamRow: React.FC<TeamRowProps> = ({ logoUrl, shortName, score, color }) =
     className="flex items-center gap-2 px-3 py-2"
     style={{ background: `linear-gradient(to right, ${color}44 0%, rgba(8,10,18,0) 70%)` }}
   >
-    <div className="w-7 h-7 shrink-0 rounded-sm overflow-hidden flex items-center justify-center"
+    <div className="w-9 h-9 shrink-0 rounded-sm overflow-hidden flex items-center justify-center"
          style={{ background: 'rgba(255,255,255,0.08)' }}>
       {logoUrl
         ? <img src={logoUrl} alt="" className="w-full h-full object-contain" />
-        : <span className="text-sm font-black text-white/60">{shortName[0]}</span>
+        : <span className="text-base font-black text-white/60">{shortName[0]}</span>
       }
     </div>
-    <span className="text-xs font-extrabold tracking-wider uppercase w-8 leading-none text-white">
+    <span className="text-sm font-extrabold tracking-wider uppercase w-10 leading-none text-white">
       {shortName}
     </span>
     <span className="text-3xl font-black tabular-nums leading-none w-7 text-right text-white">
@@ -97,12 +97,25 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
     ? gameState.currentPitcher.home
     : gameState.currentPitcher.away;
 
-  // Batter game stat: hits / at-bats this game
+  // Batter game line: H-AB with RBI / BB extras when non-zero
   const getBatterStat = (batter: Player): string => {
     const pas = plateAppearances.filter(pa => pa.batter.id === batter.id);
     const ab  = pas.filter(pa => !['walk','HBP','IBB','sac_fly','sac_bunt'].includes(pa.result)).length;
-    const h   = pas.filter(pa => ['single','double','triple','homerun'].includes(pa.result as PlateAppearanceResult)).length;
-    return `${h}-${ab}`;
+    const h   = pas.filter(pa => (['single','double','triple','homerun'] as PlateAppearanceResult[]).includes(pa.result as PlateAppearanceResult)).length;
+    const rbi = pas.reduce((s, pa) => s + (pa.rbis ?? 0), 0);
+    const bb  = pas.filter(pa => ['walk','IBB'].includes(pa.result)).length;
+    const extras: string[] = [];
+    if (rbi > 0) extras.push(`${rbi} RBI`);
+    if (bb  > 0) extras.push(`${bb} BB`);
+    return extras.length ? `${h}-${ab} · ${extras.join(' ')}` : `${h}-${ab}`;
+  };
+
+  // Pitcher session K and BB totals
+  const getPitcherKBB = (pitcher: Player): string => {
+    const pit = pitchingTeam.roster.find(p => p.id === pitcher.id);
+    const s = pit?.stats.strikesThrown ?? pitcher.stats.strikesThrown;
+    const b = pit?.stats.ballsThrown   ?? pitcher.stats.ballsThrown;
+    return `${s}S ${b}B`;
   };
 
   const isPlaying = gameStatus === 'playing';
@@ -125,6 +138,8 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
           </span>
           <span className="text-xs tabular-nums font-bold text-white/50 leading-none shrink-0">
             {currentPitcher.stats.pitchCount}<span className="text-white/25 font-normal"> pit</span>
+            <span className="text-white/30 font-normal"> · </span>
+            {getPitcherKBB(currentPitcher)}
           </span>
         </div>
       )}
@@ -163,9 +178,7 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
               <span className="text-white text-2xl font-black tabular-nums leading-tight">{inning}</span>
             </div>
 
-            <Divider />
-
-            {/* Count: B-S numbers + O dots */}
+            {/* Count: B-S numbers + O dots (no divider — flows directly from inning) */}
             <div className="flex flex-col justify-center items-center gap-1.5 px-3 py-2">
               <div className="flex items-center gap-1 leading-none">
                 <span className="text-[10px] text-white/30 font-bold">B</span>
@@ -205,7 +218,7 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
           <span className="text-sm font-bold text-white/90 leading-none ml-auto text-right">
             #{currentBatter.number} {getDisplayName(currentBatter.name)}
           </span>
-          <span className="text-xs tabular-nums font-bold text-white/50 leading-none shrink-0">
+          <span className="text-xs tabular-nums font-semibold leading-none shrink-0" style={{ color: battingTeam.color || 'rgba(255,255,255,0.5)' }}>
             {getBatterStat(currentBatter)}
           </span>
         </div>
