@@ -113,6 +113,22 @@ export interface DefensivePlays {
   errorType?: 'fielding' | 'throwing';
 }
 
+export type GameEventType =
+  | 'stolen_base' | 'caught_stealing' | 'runner_out'
+  | 'balk' | 'advance_on_error' | 'runner_advance' | 'pinch_runner';
+
+export interface GameEvent {
+  type: GameEventType;
+  inning: number;
+  isTopInning: boolean;
+  runner?: { name: string; number: number };
+  toBase?: 'second' | 'third' | 'home';
+  fromBase?: 'first' | 'second' | 'third';
+  pitcher?: { name: string; number: number };
+  outRunner?: { name: string; number: number };
+  inRunner?: { name: string; number: number };
+}
+
 export interface PlateAppearance {
   battingTeam: string;
   batter: Player;
@@ -149,6 +165,7 @@ export interface GameState {
   currentPitcher: { home: Player; away: Player };
   pitchSequence: string;
   plateAppearances: PlateAppearance[];
+  gameEvents: GameEvent[];
   gameStartTime?: number;
   gameEndTime?: number;
   homeRosterString: string;
