@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import type { HitType, OutType, PitchType, GameState, Player, DefensivePlays, HitDescription } from '../types';
 import HitDescriptionModal from './HitDescriptionModal';
 import StrikeoutTypeModal from './StrikeoutTypeModal';
@@ -79,7 +80,7 @@ const DefensivePlayModal: React.FC<DefensivePlayModalProps> = ({
     const fielders = defensiveTeamRoster.filter(p => p.position.toUpperCase() !== 'BENCH');
     const readableOutType = outType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     
-    return (
+    return createPortal(
         <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 p-4">
           <div className="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md border border-gray-600">
             <h2 className="text-xl font-bold text-yellow-300 mb-4">Record Defensive Play ({readableOutType})</h2>
@@ -133,7 +134,8 @@ const DefensivePlayModal: React.FC<DefensivePlayModalProps> = ({
                 <button onClick={handleConfirm} className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-md font-bold transition-colors">Confirm</button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

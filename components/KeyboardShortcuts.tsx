@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 interface KeyboardShortcutsProps {
   isOpen: boolean;
@@ -27,7 +28,7 @@ const KeyboardShortcuts: React.FC<KeyboardShortcutsProps> = ({ isOpen, onClose }
     { key: '?', action: 'Show/Hide Shortcuts' },
   ];
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 p-4" onClick={onClose}>
       <div className="bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl border border-gray-600" onClick={(e) => e.stopPropagation()}>
         <header className="p-4 border-b border-gray-700 flex justify-between items-center">
@@ -70,7 +71,8 @@ const KeyboardShortcuts: React.FC<KeyboardShortcutsProps> = ({ isOpen, onClose }
           </p>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

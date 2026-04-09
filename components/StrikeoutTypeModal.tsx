@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 
 interface StrikeoutTypeModalProps {
   isOpen: boolean;
@@ -13,7 +14,7 @@ const StrikeoutTypeModal: React.FC<StrikeoutTypeModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 p-4">
       <div className="bg-gray-800 rounded-lg shadow-xl w-full max-w-md border border-gray-600">
         <header className="p-4 border-b border-gray-700">
@@ -55,7 +56,8 @@ const StrikeoutTypeModal: React.FC<StrikeoutTypeModalProps> = ({
           </button>
         </footer>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
