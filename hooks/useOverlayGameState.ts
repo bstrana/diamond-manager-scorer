@@ -37,7 +37,9 @@ export const useOverlayGameState = (): GameState => {
       // ── PocketBase realtime mode ─────────────────────────────────────────────
       const pb = getPbClient();
       let cancelled = false;
+      let pollInterval: ReturnType<typeof setInterval> | null = null;
 
+      // Initial fetch
       pb.collection('game_states').getOne(gameParam)
         .then(record => {
           if (cancelled) return;
@@ -46,13 +48,29 @@ export const useOverlayGameState = (): GameState => {
         })
         .catch(err => console.debug('[Overlay] PB initial fetch failed:', err));
 
+      // Try SSE realtime. If a proxy (e.g. Cloudron's outer nginx) blocks the
+      // EventSource stream, subscribe() rejects — fall back to 3-second polling.
       pb.collection('game_states').subscribe(gameParam, (e) => {
         const state = parseStateJson(e.record?.state_json);
         if (state) setGameState(state);
-      }).catch(err => console.debug('[Overlay] PB subscribe failed:', err));
+      }).catch(err => {
+        console.debug('[Overlay] PB SSE blocked, falling back to polling:', err);
+        const poll = async () => {
+          if (cancelled) return;
+          try {
+            const record = await pb.collection('game_states').getOne(gameParam);
+            if (cancelled) return;
+            const state = parseStateJson(record.state_json);
+            if (state) setGameState(state);
+          } catch { /* ignore transient errors */ }
+        };
+        poll();
+        pollInterval = setInterval(poll, 3000);
+      });
 
       return () => {
         cancelled = true;
+        if (pollInterval) clearInterval(pollInterval);
         pb.collection('game_states').unsubscribe(gameParam);
       };
     }
