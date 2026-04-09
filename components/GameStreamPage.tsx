@@ -50,6 +50,16 @@ const RESULT_CONFIG: Record<string, { badge: string; label: string; bg: string; 
   reached_on_error: { badge: 'ROE', label: 'reaches on error',            bg: 'bg-rose-600',   text: 'text-white' },
 };
 
+function buildDefensiveNotation(plays: PlateAppearance['defensivePlays']): string {
+  if (!plays) return '';
+  const parts: string[] = [];
+  if (plays.assistBy?.length) {
+    plays.assistBy.forEach(p => parts.push(p.position.toUpperCase()));
+  }
+  if (plays.putoutBy) parts.push(plays.putoutBy.position.toUpperCase());
+  return parts.length ? `[${parts.join('-')}]` : '';
+}
+
 function describePA(pa: PlateAppearance): { badge: string; badgeBg: string; badgeText: string; main: string; meta: string } {
   const cfg = RESULT_CONFIG[pa.result] ?? { badge: pa.result.toUpperCase(), label: pa.result, bg: 'bg-gray-500', text: 'text-white' };
   const batter  = formatName(pa.batter.name);
@@ -62,13 +72,15 @@ function describePA(pa: PlateAppearance): { badge: string; badgeBg: string; badg
     if (hitText) main += ` — ${hitText.charAt(0).toLowerCase()}${hitText.slice(1)}`;
   }
 
+  const notation = buildDefensiveNotation(pa.defensivePlays);
+  if (notation) main += `  ${notation}`;
+
   const rbis: number = (pa as any).rbis ?? (pa as any).runnersBattedIn ?? 0;
   if (rbis > 0) main += `  ·  ${rbis} RBI`;
 
   const metaParts: string[] = [`vs ${pitcher}`];
-  if (pa.defensivePlays?.putoutBy) metaParts.push(`out: ${formatName(pa.defensivePlays.putoutBy.name)}`);
-  if (pa.defensivePlays?.errorBy)  metaParts.push(`error: ${formatName(pa.defensivePlays.errorBy.name)}`);
-  if (pa.pitchSequence)             metaParts.push(pa.pitchSequence);
+  if (pa.defensivePlays?.errorBy) metaParts.push(`E: ${pa.defensivePlays.errorBy.position.toUpperCase()}`);
+  if (pa.pitchSequence)           metaParts.push(pa.pitchSequence.toUpperCase());
 
   return { badge: cfg.badge, badgeBg: cfg.bg, badgeText: cfg.text, main, meta: metaParts.join('  ·  ') };
 }
