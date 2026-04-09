@@ -149,6 +149,7 @@ const App: React.FC = () => {
   } = useGameState();
   const [isEditingSetup, setIsEditingSetup] = useState(gameState.gameStatus === 'setup');
   const [isControlPanelOpen, setIsControlPanelOpen] = useState(false);
+  const [isLgPanelMinimized, setIsLgPanelMinimized] = useState(false);
   const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
   const [isConfirmFinalModalOpen, setIsConfirmFinalModalOpen] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -425,28 +426,47 @@ const App: React.FC = () => {
             </div>
           )}
 
-          {/* Control Panel — bottom sheet (50vh, always visible on lg, toggleable on mobile) */}
+          {/* Control Panel — bottom sheet (50vh on lg always visible, toggleable on mobile) */}
           <div
-            className={`fixed bottom-0 left-0 right-0 z-40 transition-transform duration-300 ease-in-out h-[55vh] lg:h-[50vh] lg:translate-y-0 ${isControlPanelOpen ? 'translate-y-0' : 'translate-y-full'}`}
+            className={`fixed bottom-0 left-0 right-0 z-40 transition-transform duration-300 ease-in-out h-[55vh] lg:h-[50vh]
+              ${isControlPanelOpen ? 'translate-y-0' : 'translate-y-full'}
+              ${isLgPanelMinimized ? 'lg:translate-y-[calc(100%-2.25rem)]' : 'lg:translate-y-0'}`}
           >
             {/* header */}
             <div className="bg-gray-800 border-t-2 border-yellow-400 rounded-t-2xl flex flex-col h-full">
-              <div className="flex items-center justify-between px-4 py-1.5 border-b border-gray-700 flex-shrink-0">
+              <div
+                className="flex items-center justify-between px-4 py-1.5 border-b border-gray-700 flex-shrink-0 lg:cursor-pointer"
+                onClick={() => setIsLgPanelMinimized(v => !v)}
+              >
                 <button
-                  onClick={() => setIsControlPanelOpen(false)}
+                  onClick={e => { e.stopPropagation(); setIsControlPanelOpen(false); }}
                   className="lg:hidden w-10 h-1.5 bg-gray-500 rounded-full mx-auto absolute left-1/2 -translate-x-1/2 top-2"
                   aria-label="Close"
                 />
                 <h2 className="text-sm font-bold text-yellow-300 lg:pt-0 pt-3">Scoring Controls</h2>
-                <button
-                  onClick={() => setIsControlPanelOpen(false)}
-                  className="lg:hidden p-1 text-gray-400 hover:text-white pt-3"
-                  aria-label="Close Scoring Controls"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+                <div className="flex items-center gap-2">
+                  {/* Desktop minimize/expand toggle */}
+                  <button
+                    onClick={e => { e.stopPropagation(); setIsLgPanelMinimized(v => !v); }}
+                    className="hidden lg:block p-1 text-gray-400 hover:text-white transition-colors"
+                    aria-label={isLgPanelMinimized ? 'Expand panel' : 'Minimize panel'}
+                    title={isLgPanelMinimized ? 'Expand' : 'Minimize'}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 transition-transform" style={{ transform: isLgPanelMinimized ? 'rotate(180deg)' : 'none' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {/* Mobile close button */}
+                  <button
+                    onClick={e => { e.stopPropagation(); setIsControlPanelOpen(false); }}
+                    className="lg:hidden p-1 text-gray-400 hover:text-white pt-3"
+                    aria-label="Close Scoring Controls"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
               </div>
               <div className="overflow-y-auto flex-1 p-2 lg:p-2 lg:overflow-x-auto lg:overflow-y-hidden lg:flex lg:items-stretch">
                 <ControlPanel
