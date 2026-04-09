@@ -465,8 +465,8 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             {gameState.bases.first && (
                 <div className="col-span-3 grid grid-cols-2 md:grid-cols-5 gap-2 border-t border-gray-700 pt-2 mt-2">
                     <div className="col-span-full text-sm text-gray-300">1B: #{gameState.bases.first.number} {gameState.bases.first.name}</div>
-                    <ControlButton onClick={() => onStolenBase(gameState.bases.first!.id, 'second')} className="bg-green-600 hover:bg-green-700 text-sm py-2">SB 2B</ControlButton>
-                    <ControlButton onClick={() => handleOpenModal('caught_stealing', 'second', gameState.bases.first!.id)} className="bg-red-600 hover:bg-red-700 text-sm py-2">CS 2B</ControlButton>
+                    <ControlButton onClick={() => onStolenBase(gameState.bases.first!.id, 'second')} disabled={!!gameState.bases.second} className="bg-green-600 hover:bg-green-700 text-sm py-2">SB 2B</ControlButton>
+                    <ControlButton onClick={() => handleOpenModal('caught_stealing', 'second', gameState.bases.first!.id)} disabled={!!gameState.bases.second} className="bg-red-600 hover:bg-red-700 text-sm py-2">CS 2B</ControlButton>
                     <ControlButton onClick={() => onManualRunnerAdvance(gameState.bases.first!.id, 'first')} className="bg-cyan-600 hover:bg-cyan-700 text-sm py-2">Adv (H)</ControlButton>
                     <ControlButton onClick={() => handleOpenModal('runner_advance_on_error', 'first', gameState.bases.first!.id)} className="bg-rose-500 hover:bg-rose-600 text-sm py-2">Adv (E)</ControlButton>
                      {pinchRunnerTarget === gameState.bases.first.id ? (
@@ -485,8 +485,8 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
              {gameState.bases.second && (
                 <div className="col-span-3 grid grid-cols-2 md:grid-cols-5 gap-2 border-t border-gray-700 pt-2 mt-2">
                     <div className="col-span-full text-sm text-gray-300">2B: #{gameState.bases.second.number} {gameState.bases.second.name}</div>
-                    <ControlButton onClick={() => onStolenBase(gameState.bases.second!.id, 'third')} className="bg-green-600 hover:bg-green-700 text-sm py-2">SB 3B</ControlButton>
-                    <ControlButton onClick={() => handleOpenModal('caught_stealing', 'third', gameState.bases.second!.id)} className="bg-red-600 hover:bg-red-700 text-sm py-2">CS 3B</ControlButton>
+                    <ControlButton onClick={() => onStolenBase(gameState.bases.second!.id, 'third')} disabled={!!gameState.bases.third} className="bg-green-600 hover:bg-green-700 text-sm py-2">SB 3B</ControlButton>
+                    <ControlButton onClick={() => handleOpenModal('caught_stealing', 'third', gameState.bases.second!.id)} disabled={!!gameState.bases.third} className="bg-red-600 hover:bg-red-700 text-sm py-2">CS 3B</ControlButton>
                     <ControlButton onClick={() => onManualRunnerAdvance(gameState.bases.second!.id, 'second')} className="bg-cyan-600 hover:bg-cyan-700 text-sm py-2">Adv (H)</ControlButton>
                     <ControlButton onClick={() => handleOpenModal('runner_advance_on_error', 'second', gameState.bases.second!.id)} className="bg-rose-500 hover:bg-rose-600 text-sm py-2">Adv (E)</ControlButton>
                     {pinchRunnerTarget === gameState.bases.second.id ? (
