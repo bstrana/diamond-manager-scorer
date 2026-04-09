@@ -1100,6 +1100,13 @@ export const useGameState = () => {
       return { ...prevState, inning: Math.max(1, prevState.inning + delta) };
     });
   }, [setGameState]);
+
+  const handleTopBottomToggle = useCallback(() => {
+    setGameState(prevState => {
+      if (prevState.gameStatus !== 'playing') return prevState;
+      return { ...prevState, isTopInning: !prevState.isTopInning };
+    });
+  }, [setGameState]);
   
   const handlePitchCountCorrection = useCallback((delta: 1 | -1) => {
     setGameState(prevState => {
@@ -1289,7 +1296,7 @@ export const useGameState = () => {
     updateSetupData,
     handleGameSetup, handlePitch, handleHit, handleOut, handleSacFly, 
     handleFieldersChoice, handleHBP, handleIntentionalWalk, handleRunnerOut,
-    resetGame, handleFinalGame, handleCountCorrection, handleInningCorrection,
+    resetGame, handleFinalGame, handleCountCorrection, handleInningCorrection, handleTopBottomToggle,
     handlePitchCountCorrection, handleBaseRunnerCorrection, handlePlayerSubstitution,
     handlePositionSwap,
     handleErrorCorrection,

@@ -131,6 +131,7 @@ const App: React.FC = () => {
     resetGame,
     handleCountCorrection,
     handleInningCorrection,
+    handleTopBottomToggle,
     handlePitchCountCorrection,
     handleBaseRunnerCorrection,
     handlePlayerSubstitution,
@@ -340,6 +341,7 @@ const App: React.FC = () => {
                       onBaseRunnerCorrection={handleBaseRunnerCorrection}
                       onErrorCorrection={handleErrorCorrection}
                       onScoreCorrection={handleScoreCorrection}
+                      onTopBottomToggle={handleTopBottomToggle}
                       onStolenBase={handleStolenBase}
                       onCaughtStealing={handleCaughtStealing}
                       onBalk={handleBalk}
@@ -497,6 +499,8 @@ const App: React.FC = () => {
                     onPitchCountCorrection={handlePitchCountCorrection}
                     onBaseRunnerCorrection={handleBaseRunnerCorrection}
                     onErrorCorrection={handleErrorCorrection}
+                    onScoreCorrection={handleScoreCorrection}
+                    onTopBottomToggle={handleTopBottomToggle}
                     onStolenBase={handleStolenBase}
                     onCaughtStealing={handleCaughtStealing}
                     onBalk={handleBalk}

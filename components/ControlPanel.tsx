@@ -24,6 +24,7 @@ interface ControlPanelProps {
   onBaseRunnerCorrection: (base: 'first' | 'second' | 'third', playerId: string | null) => void;
   onErrorCorrection: (teamKey: 'homeTeam' | 'awayTeam', delta: 1 | -1) => void;
   onScoreCorrection: (teamKey: 'homeTeam' | 'awayTeam', delta: 1 | -1) => void;
+  onTopBottomToggle: () => void;
   onStolenBase: (runnerId: string, base: 'second' | 'third' | 'home') => void;
   onCaughtStealing: (runnerId: string, base: 'second' | 'third' | 'home', defensivePlays?: DefensivePlays) => void;
   onPinchRun: (runnerId: string, substituteId: string) => void;
@@ -141,8 +142,8 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   onPitch, onHit, onOut, onSacFly, onSacBunt, onFieldersChoice, onReachedOnError, 
   onHBP, onIntentionalWalk, onBalk, onRunnerOut, onRunnerAdvanceOnError, onManualRunnerAdvance,
   onCountCorrection, onInningCorrection, onPitchCountCorrection, onBaseRunnerCorrection,
-  onErrorCorrection, onScoreCorrection, onStolenBase, onCaughtStealing, onPinchRun,
-  gameState 
+  onErrorCorrection, onScoreCorrection, onTopBottomToggle, onStolenBase, onCaughtStealing, onPinchRun,
+  gameState
 }) => {
   const isGameOver = gameState.gameStatus === 'final';
   const [isCorrectionsOpen, setIsCorrectionsOpen] = useState(false);
@@ -548,6 +549,16 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             <CorrectionControl label="Strikes" value={gameState.strikes} onDecrement={() => onCountCorrection('strike', -1)} onIncrement={() => onCountCorrection('strike', 1)} />
             <CorrectionControl label="Outs" value={gameState.outs} onDecrement={() => onCountCorrection('out', -1)} onIncrement={() => onCountCorrection('out', 1)} />
             <CorrectionControl label="Inning" value={gameState.inning} onDecrement={() => onInningCorrection(-1)} onIncrement={() => onInningCorrection(1)} />
+            <div className="flex flex-col items-center gap-1">
+              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Top/Bot</span>
+              <button
+                onClick={onTopBottomToggle}
+                className="w-full py-2 rounded font-bold text-sm tracking-wider"
+                style={{ background: gameState.isTopInning ? 'rgba(250,204,21,0.15)' : 'rgba(96,165,250,0.15)', color: gameState.isTopInning ? '#facc15' : '#60a5fa', border: `1px solid ${gameState.isTopInning ? 'rgba(250,204,21,0.3)' : 'rgba(96,165,250,0.3)'}` }}
+              >
+                {gameState.isTopInning ? '▲ Top' : '▼ Bot'}
+              </button>
+            </div>
             <CorrectionControl label="Pitches" value={currentPitcher?.stats.pitchCount || 0} onDecrement={() => onPitchCountCorrection(-1)} onIncrement={() => onPitchCountCorrection(1)} />
             <CorrectionControl label="Away Score" value={gameState.awayTeam.score} onDecrement={() => onScoreCorrection('awayTeam', -1)} onIncrement={() => onScoreCorrection('awayTeam', 1)} />
             <CorrectionControl label="Home Score" value={gameState.homeTeam.score} onDecrement={() => onScoreCorrection('homeTeam', -1)} onIncrement={() => onScoreCorrection('homeTeam', 1)} />
