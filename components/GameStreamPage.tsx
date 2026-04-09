@@ -1,7 +1,29 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useOverlayGameState } from '../hooks/useOverlayGameState';
 import type { PlateAppearance, Player, Team, Bases, GameEvent, GameEventType } from '../types';
 import { generateHitDescriptionText } from './HitDescriptionModal';
+
+// ─── Game duration ────────────────────────────────────────────────────────────
+
+const fmtDuration = (ms: number): string => {
+  const totalSec = Math.floor(ms / 1000);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  return `${m}:${String(s).padStart(2, '0')}`;
+};
+
+const useGameDuration = (startTime?: number, endTime?: number): string => {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!startTime || endTime) return; // stopped — no need to tick
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [startTime, endTime]);
+  if (!startTime) return '';
+  return fmtDuration((endTime ?? now) - startTime);
+};
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -448,6 +470,7 @@ const GameStreamPage: React.FC = () => {
   } = gameState;
 
   const isPlaying = gameStatus === 'playing';
+  const duration = useGameDuration(gameState.gameStartTime, gameState.gameEndTime);
 
   // Batting team lineup + current/on-deck batter
   const awayLineup = useMemo(() => getLineup(awayTeam.roster), [awayTeam]);
@@ -538,10 +561,9 @@ const GameStreamPage: React.FC = () => {
                     <span className="text-amber-600 font-bold text-base leading-none">
                       {isTopInning ? '▲' : '▼'} {inning}
                     </span>
-                    <span className="flex items-center gap-1 mt-0.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                      <span className="text-[10px] text-green-600 font-semibold">Live</span>
-                    </span>
+                    {duration && (
+                      <span className="text-[10px] text-gray-500 font-mono mt-0.5">{duration}</span>
+                    )}
                   </>
                 ) : (
                   <span className="text-gray-400 text-xs">Not started</span>
