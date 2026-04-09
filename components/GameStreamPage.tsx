@@ -504,6 +504,16 @@ const GameStreamPage: React.FC = () => {
     for (const event of (gameState.gameEvents ?? [])) {
       const group = getOrCreate(event.inning, event.isTopInning);
       group.items.push({ kind: 'event', event });
+      group.runsScored += event.runsScored ?? 0;
+    }
+
+    // Sort each group's items chronologically by seq (events without seq sort last)
+    for (const group of map.values()) {
+      group.items.sort((a, b) => {
+        const seqA = a.kind === 'pa' ? (a.pa.seq ?? Infinity) : (a.event.seq ?? Infinity);
+        const seqB = b.kind === 'pa' ? (b.pa.seq ?? Infinity) : (b.event.seq ?? Infinity);
+        return seqA - seqB;
+      });
     }
 
     return Array.from(map.values()).sort((a, b) => {
@@ -746,6 +756,9 @@ const GameStreamPage: React.FC = () => {
                         {badge}
                       </span>
                       <p className="text-sm text-gray-700 leading-snug flex-1 min-w-0">{main}</p>
+                      {(item.event.runsScored ?? 0) > 0 && (
+                        <span className="text-[10px] font-black px-1.5 py-0.5 rounded shrink-0 mt-0.5 bg-green-600 text-white">RUN</span>
+                      )}
                     </div>
                   );
                 }

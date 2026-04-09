@@ -68,6 +68,7 @@ export const initialGameState: GameState = {
   pitchSequence: '',
   plateAppearances: [],
   gameEvents: [],
+  nextEventSeq: 0,
   gameStartTime: undefined,
   gameEndTime: undefined,
   homeRosterString: '',
@@ -526,6 +527,7 @@ export const useGameState = () => {
         pitchSequence: prevState.pitchSequence,
         result,
         runnersBattedIn: runsScored,
+        seq: prevState.nextEventSeq,
         hitDescription: hitDescription, // Store hit description if provided
         defensivePlays: resolvedDefensivePlays,
     };
@@ -553,6 +555,7 @@ export const useGameState = () => {
           [nextBattingTeamKey]: newBatterIndex
       },
       plateAppearances: [...prevState.plateAppearances, newPA],
+      nextEventSeq: prevState.nextEventSeq + 1,
     };
   }, []);
 
@@ -921,8 +924,9 @@ export const useGameState = () => {
         
         newState.bases = newBases;
         const balkPitcher = prevState.isTopInning ? prevState.currentPitcher.home : prevState.currentPitcher.away;
-        const balkEvt: GameEvent = { type: 'balk', inning: prevState.inning, isTopInning: prevState.isTopInning, pitcher: { name: balkPitcher.name, number: balkPitcher.number } };
-        return { ...newState, gameEvents: [...(prevState.gameEvents ?? []), balkEvt] };
+        const balkRuns = bases.third ? 1 : 0;
+        const balkEvt: GameEvent = { type: 'balk', inning: prevState.inning, isTopInning: prevState.isTopInning, seq: prevState.nextEventSeq, runsScored: balkRuns, pitcher: { name: balkPitcher.name, number: balkPitcher.number } };
+        return { ...newState, nextEventSeq: prevState.nextEventSeq + 1, gameEvents: [...(prevState.gameEvents ?? []), balkEvt] };
     });
   }, [setGameState, advanceRunners, startNewPlateAppearance]);
 
@@ -936,15 +940,15 @@ export const useGameState = () => {
         const newOuts = stateToUpdate.outs + 1;
         const newBases = { ...stateToUpdate.bases, [base]: null };
 
-        const runnerOutEvt: GameEvent = { type: 'runner_out', inning: prevState.inning, isTopInning: prevState.isTopInning, runner: outRunner ? { name: outRunner.name, number: outRunner.number } : undefined };
+        const runnerOutEvt: GameEvent = { type: 'runner_out', inning: prevState.inning, isTopInning: prevState.isTopInning, seq: prevState.nextEventSeq, runner: outRunner ? { name: outRunner.name, number: outRunner.number } : undefined };
 
         if (newOuts >= 3) {
             let newState = { ...stateToUpdate, outs: newOuts, bases: newBases };
             newState = advanceInning(newState);
-            return { ...newState, gameEvents: [...(prevState.gameEvents ?? []), runnerOutEvt] };
+            return { ...newState, nextEventSeq: prevState.nextEventSeq + 1, gameEvents: [...(prevState.gameEvents ?? []), runnerOutEvt] };
         }
 
-        return { ...stateToUpdate, outs: newOuts, bases: newBases, gameEvents: [...(prevState.gameEvents ?? []), runnerOutEvt] };
+        return { ...stateToUpdate, outs: newOuts, bases: newBases, nextEventSeq: prevState.nextEventSeq + 1, gameEvents: [...(prevState.gameEvents ?? []), runnerOutEvt] };
     });
   }, [setGameState, advanceInning]);
 
@@ -980,12 +984,13 @@ export const useGameState = () => {
             return p;
         });
 
-        const sbEvt: GameEvent = { type: 'stolen_base', inning: prevState.inning, isTopInning: prevState.isTopInning, runner: { name: runner.name, number: runner.number }, toBase: base };
+        const sbEvt: GameEvent = { type: 'stolen_base', inning: prevState.inning, isTopInning: prevState.isTopInning, seq: prevState.nextEventSeq, runsScored: base === 'home' ? 1 : 0, runner: { name: runner.name, number: runner.number }, toBase: base };
 
         return {
             ...newState,
             bases: newBases,
             [battingTeamKey]: { ...team, roster: updatedRoster },
+            nextEventSeq: prevState.nextEventSeq + 1,
             gameEvents: [...(prevState.gameEvents ?? []), sbEvt],
         };
     });
@@ -1020,12 +1025,13 @@ export const useGameState = () => {
             return p;
         });
 
-        const csEvt: GameEvent = { type: 'caught_stealing', inning: prevState.inning, isTopInning: prevState.isTopInning, runner: { name: runner.name, number: runner.number }, toBase: base };
+        const csEvt: GameEvent = { type: 'caught_stealing', inning: prevState.inning, isTopInning: prevState.isTopInning, seq: prevState.nextEventSeq, runner: { name: runner.name, number: runner.number }, toBase: base };
 
         let finalState = {
             ...prevState,
             bases: newBases,
             [battingTeamKey]: { ...battingTeam, roster: updatedRoster },
+            nextEventSeq: prevState.nextEventSeq + 1,
             gameEvents: [...(prevState.gameEvents ?? []), csEvt],
         };
 
@@ -1052,7 +1058,7 @@ export const useGameState = () => {
 
         if (runner && runner.id === runnerId) {
             const toBase: 'second' | 'third' | 'home' = base === 'third' ? 'home' : base === 'second' ? 'third' : 'second';
-            const aoeEvt: GameEvent = { type: 'advance_on_error', inning: prevState.inning, isTopInning: prevState.isTopInning, runner: { name: runner.name, number: runner.number }, fromBase: base, toBase };
+            const aoeEvt: GameEvent = { type: 'advance_on_error', inning: prevState.inning, isTopInning: prevState.isTopInning, seq: prevState.nextEventSeq, runsScored: toBase === 'home' ? 1 : 0, runner: { name: runner.name, number: runner.number }, fromBase: base, toBase };
 
             if (base === 'third') {
                 newState = scoreRun(runner, newState); // Score sync happens inside scoreRun
@@ -1065,7 +1071,7 @@ export const useGameState = () => {
                 newBases.first = null;
             }
 
-            return { ...newState, bases: newBases, gameEvents: [...(prevState.gameEvents ?? []), aoeEvt] };
+            return { ...newState, bases: newBases, nextEventSeq: prevState.nextEventSeq + 1, gameEvents: [...(prevState.gameEvents ?? []), aoeEvt] };
         }
 
         return { ...newState, bases: newBases };
@@ -1085,7 +1091,7 @@ export const useGameState = () => {
         newBases[fromBase] = null; // Vacate the current base
 
         const toBase: 'second' | 'third' | 'home' = fromBase === 'third' ? 'home' : fromBase === 'second' ? 'third' : 'second';
-        const advEvt: GameEvent = { type: 'runner_advance', inning: prevState.inning, isTopInning: prevState.isTopInning, runner: { name: runner.name, number: runner.number }, fromBase, toBase };
+        const advEvt: GameEvent = { type: 'runner_advance', inning: prevState.inning, isTopInning: prevState.isTopInning, seq: prevState.nextEventSeq, runsScored: toBase === 'home' ? 1 : 0, runner: { name: runner.name, number: runner.number }, fromBase, toBase };
 
         if (fromBase === 'third') {
             newState = scoreRun(runner, newState); // Score sync happens inside scoreRun
@@ -1095,7 +1101,7 @@ export const useGameState = () => {
             newBases.second = runner;
         }
 
-        return { ...newState, bases: newBases, gameEvents: [...(prevState.gameEvents ?? []), advEvt] };
+        return { ...newState, bases: newBases, nextEventSeq: prevState.nextEventSeq + 1, gameEvents: [...(prevState.gameEvents ?? []), advEvt] };
     });
   }, [setGameState]);
 
@@ -1297,9 +1303,9 @@ export const useGameState = () => {
             }
         });
 
-        const prEvt: GameEvent = { type: 'pinch_runner', inning: prevState.inning, isTopInning: prevState.isTopInning, outRunner: { name: playerOut.name, number: playerOut.number }, inRunner: { name: playerIn.name, number: playerIn.number } };
+        const prEvt: GameEvent = { type: 'pinch_runner', inning: prevState.inning, isTopInning: prevState.isTopInning, seq: prevState.nextEventSeq, outRunner: { name: playerOut.name, number: playerOut.number }, inRunner: { name: playerIn.name, number: playerIn.number } };
 
-        return { ...prevState, [teamKey]: newTeam, bases: newBases, gameEvents: [...(prevState.gameEvents ?? []), prEvt] };
+        return { ...prevState, [teamKey]: newTeam, bases: newBases, nextEventSeq: prevState.nextEventSeq + 1, gameEvents: [...(prevState.gameEvents ?? []), prEvt] };
     });
   }, [setGameState]);
 
