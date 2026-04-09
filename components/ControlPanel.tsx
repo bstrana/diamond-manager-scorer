@@ -324,16 +324,16 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
     <button
       onClick={onClick}
       disabled={disabled || isGameOver}
-      className={`font-bold py-2 px-3 lg:py-1.5 lg:px-2 text-sm lg:text-xs rounded-lg lg:rounded shadow-md transition-all duration-150 transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+      className={`font-bold py-2 px-3 lg:py-2 lg:px-2 text-sm rounded-lg shadow-md transition-all duration-150 transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed lg:h-full lg:w-full ${className}`}
     >
       {children}
     </button>
   );
 
   const Section: React.FC<{ title: string; children: React.ReactNode; cols?: number }> = ({ title, children, cols }) => (
-    <div className="bg-gray-800 p-3 lg:p-2 rounded-lg lg:flex-none lg:min-w-[148px]">
-      <h3 className="text-base lg:text-[10px] font-bold text-yellow-300 mb-2 lg:mb-1.5 text-center tracking-wider uppercase">{title}</h3>
-      <div className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-${cols ?? 3} gap-2 lg:gap-1`}>
+    <div className="bg-gray-800 p-3 lg:p-3 rounded-lg lg:flex-1 lg:min-w-[160px] lg:flex lg:flex-col">
+      <h3 className="text-base lg:text-xs font-bold text-yellow-300 mb-2 lg:mb-2 text-center tracking-wider uppercase">{title}</h3>
+      <div className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-${cols ?? 3} gap-2 lg:gap-2 lg:flex-1 lg:[grid-auto-rows:minmax(0,1fr)]`}>
         {children}
       </div>
     </div>
@@ -398,7 +398,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   const modalIsErrorRequired = modalState?.outType === 'reached_on_error' || modalState?.outType === 'runner_advance_on_error';
 
   return (
-    <div className="bg-gray-900 lg:bg-transparent lg:border-0 p-2 lg:p-0 rounded-xl space-y-3 lg:space-y-0 lg:flex lg:flex-wrap lg:gap-2 lg:items-start lg:content-start">
+    <div className="bg-gray-900 lg:bg-transparent lg:border-0 p-2 lg:p-0 rounded-xl space-y-3 lg:space-y-0 lg:flex lg:flex-nowrap lg:gap-2 lg:h-full lg:items-stretch lg:w-full">
       <DefensivePlayModal 
         isOpen={modalState?.isOpen || false}
         onClose={() => setModalState(null)}
