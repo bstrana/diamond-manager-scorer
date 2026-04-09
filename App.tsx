@@ -247,7 +247,7 @@ const App: React.FC = () => {
 
 
   return (
-    <div className="bg-gray-900 min-h-screen text-white p-4 sm:p-6 lg:p-8 flex flex-col items-center">
+    <div className="bg-gray-900 min-h-screen text-white p-3 sm:p-4 lg:p-6 pb-[55vh] lg:pb-[50vh] flex flex-col items-center">
       <header className="w-full max-w-7xl mb-6 text-center relative">
         {gameState.gameStatus !== 'playing' && (
           <>
