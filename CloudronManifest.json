@@ -4,7 +4,7 @@
   "author": "bstrana",
   "description": "Live baseball scoring app with real-time scoreboard overlay for streaming. Tracks teams, rosters, score, counts, and game progress, and logs each plate appearance.",
   "tagline": "Live baseball scoring and streaming overlay",
-  "version": "1.0.33",
+  "version": "1.0.34",
   "manifestVersion": 2,
 
   "image": {
@@ -58,6 +58,7 @@
   ],
 
   "changelog": {
+    "1.0.34": "Game stream: events now appear in chronological order (seq counter interleaves PAs and baserunning events); RUN badge marks scoring plays; +N runs header includes non-PA scored runs.",
     "1.0.33": "Game stream: defensive out notation [SS-1B] on outs; pitch sequences uppercase; game duration timer replaces Live dot.",
     "1.0.32": "Fix modals appearing inside the control panel: use React portals so Hit Description, Strikeout Type, Defensive Play, and Keyboard Shortcuts modals render over the full screen.",
     "1.0.31": "Game stream now shows all baserunning events: stolen bases, caught stealing, balks, runner outs, advances on error, manual advances, and pinch runners appear inline in the play-by-play timeline.",
