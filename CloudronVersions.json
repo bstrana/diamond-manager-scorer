@@ -1,6 +1,36 @@
 {
   "stable": true,
   "versions": {
+    "1.0.31": {
+      "manifest": {
+        "id": "io.github.bstrana.diamond-manager-scorer",
+        "title": "Diamond Manager Scorer",
+        "author": "bstrana",
+        "description": "Live baseball scoring app with real-time scoreboard overlay for streaming. Tracks teams, rosters, score, counts, and game progress, and logs each plate appearance.",
+        "tagline": "Live baseball scoring and streaming overlay",
+        "version": "1.0.31",
+        "manifestVersion": 2,
+        "minBoxVersion": "9.1.0",
+        "website": "https://github.com/bstrana/diamond-manager-scorer",
+        "contactEmail": "support@example.com",
+        "healthCheckPath": "/health",
+        "httpPort": 8000,
+        "dockerImage": "ghcr.io/bstrana/diamond-manager-scorer:1.0.31",
+        "addons": { "localstorage": {} },
+        "icon": "file://appicon.png",
+        "iconUrl": "https://bstrana.sirv.com/ybc/ybc-logo.png",
+        "tags": ["sports", "baseball", "scoring", "obs", "streaming"],
+        "mediaLinks": [
+          "https://raw.githubusercontent.com/bstrana/diamond-scheduler/main/public/logo.png"
+        ],
+        "changelog": "Game stream now shows all baserunning events: stolen bases, caught stealing, balks, runner outs, advances on error, manual advances, and pinch runners appear inline in the play-by-play timeline.",
+        "packagerName": "bstrana",
+        "packagerUrl": "https://github.com/bstrana"
+      },
+      "creationDate": "Wed, 09 Apr 2026 23:00:00 GMT",
+      "ts": "Wed, 09 Apr 2026 23:00:00 GMT",
+      "publishState": "published"
+    },
     "1.0.30": {
       "manifest": {
         "id": "io.github.bstrana.diamond-manager-scorer",

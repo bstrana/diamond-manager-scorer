@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useOverlayGameState } from '../hooks/useOverlayGameState';
-import type { PlateAppearance, Player, Team, Bases } from '../types';
+import type { PlateAppearance, Player, Team, Bases, GameEvent, GameEventType } from '../types';
 import { generateHitDescriptionText } from './HitDescriptionModal';
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -71,6 +71,57 @@ function describePA(pa: PlateAppearance): { badge: string; badgeBg: string; badg
   if (pa.pitchSequence)             metaParts.push(pa.pitchSequence);
 
   return { badge: cfg.badge, badgeBg: cfg.bg, badgeText: cfg.text, main, meta: metaParts.join('  ·  ') };
+}
+
+// ─── Game event description ───────────────────────────────────────────────────
+
+const EVENT_CONFIG: Record<GameEventType, { badge: string; bg: string; text: string }> = {
+  stolen_base:      { badge: 'SB',  bg: 'bg-emerald-600', text: 'text-white' },
+  caught_stealing:  { badge: 'CS',  bg: 'bg-rose-600',    text: 'text-white' },
+  runner_out:       { badge: 'OUT', bg: 'bg-orange-600',  text: 'text-white' },
+  balk:             { badge: 'BLK', bg: 'bg-purple-600',  text: 'text-white' },
+  advance_on_error: { badge: 'AOE', bg: 'bg-rose-500',    text: 'text-white' },
+  runner_advance:   { badge: 'ADV', bg: 'bg-sky-600',     text: 'text-white' },
+  pinch_runner:     { badge: 'PR',  bg: 'bg-indigo-500',  text: 'text-white' },
+};
+
+const BASE_LABEL: Record<string, string> = { first: '1st', second: '2nd', third: '3rd', home: 'home' };
+
+function describeGameEvent(e: GameEvent): { badge: string; badgeBg: string; badgeText: string; main: string } {
+  const cfg = EVENT_CONFIG[e.type];
+  const runner   = e.runner   ? formatName(e.runner.name)   : 'Runner';
+  const pitcher  = e.pitcher  ? formatName(e.pitcher.name)  : 'Pitcher';
+  const inRunner = e.inRunner ? formatName(e.inRunner.name) : '?';
+  const outRunner= e.outRunner? formatName(e.outRunner.name): '?';
+
+  let main: string;
+  switch (e.type) {
+    case 'stolen_base':
+      main = `${runner} steals ${e.toBase ? BASE_LABEL[e.toBase] : 'base'}`;
+      break;
+    case 'caught_stealing':
+      main = `${runner} caught stealing ${e.toBase ? BASE_LABEL[e.toBase] : 'base'}`;
+      break;
+    case 'runner_out':
+      main = `${runner} thrown out on the bases`;
+      break;
+    case 'balk':
+      main = `Balk — ${pitcher}. Runners advance.`;
+      break;
+    case 'advance_on_error':
+      main = `${runner} advances on error (${e.fromBase ? BASE_LABEL[e.fromBase] : '?'} → ${e.toBase ? BASE_LABEL[e.toBase] : '?'})`;
+      break;
+    case 'runner_advance':
+      main = `${runner} advances (${e.fromBase ? BASE_LABEL[e.fromBase] : '?'} → ${e.toBase ? BASE_LABEL[e.toBase] : '?'})`;
+      break;
+    case 'pinch_runner':
+      main = `Pinch runner: ${inRunner} for ${outRunner}`;
+      break;
+    default:
+      main = e.type;
+  }
+
+  return { badge: cfg.badge, badgeBg: cfg.bg, badgeText: cfg.text, main };
 }
 
 // ─── Mini diamond (light-theme colours) ──────────────────────────────────────
@@ -359,12 +410,16 @@ const LineScore: React.FC<LineScoreProps> = ({
 
 // ─── Half-inning group ────────────────────────────────────────────────────────
 
+type StreamItem =
+  | { kind: 'pa';    pa: PlateAppearance }
+  | { kind: 'event'; event: GameEvent };
+
 interface HalfInningGroup {
   inning: number;
   isTopInning: boolean;
   teamName: string;
   teamColor: string;
-  pas: PlateAppearance[];
+  items: StreamItem[];
   runsScored: number;
 }
 
@@ -395,27 +450,32 @@ const GameStreamPage: React.FC = () => {
   const groups = useMemo((): HalfInningGroup[] => {
     const map = new Map<string, HalfInningGroup>();
 
-    for (const pa of gameState.plateAppearances) {
-      const ing   = pa.inning ?? 1;
-      const isTop = pa.isTopInning ?? true;
-      const key   = `${ing}-${isTop ? 'top' : 'bot'}`;
-
+    const getOrCreate = (ing: number, isTop: boolean): HalfInningGroup => {
+      const key = `${ing}-${isTop ? 'top' : 'bot'}`;
       if (!map.has(key)) {
         const team = isTop ? awayTeam : homeTeam;
-        map.set(key, { inning: ing, isTopInning: isTop, teamName: team.name, teamColor: team.color || '#888', pas: [], runsScored: 0 });
+        map.set(key, { inning: ing, isTopInning: isTop, teamName: team.name, teamColor: team.color || '#888', items: [], runsScored: 0 });
       }
+      return map.get(key)!;
+    };
 
-      const group = map.get(key)!;
-      group.pas.push(pa);
+    for (const pa of gameState.plateAppearances) {
+      const group = getOrCreate(pa.inning ?? 1, pa.isTopInning ?? true);
+      group.items.push({ kind: 'pa', pa });
       const rbis: number = (pa as any).rbis ?? (pa as any).runnersBattedIn ?? 0;
       group.runsScored += rbis;
+    }
+
+    for (const event of (gameState.gameEvents ?? [])) {
+      const group = getOrCreate(event.inning, event.isTopInning);
+      group.items.push({ kind: 'event', event });
     }
 
     return Array.from(map.values()).sort((a, b) => {
       if (b.inning !== a.inning) return b.inning - a.inning;
       return (a.isTopInning ? 1 : 0) - (b.isTopInning ? 1 : 0);
     });
-  }, [gameState.plateAppearances, awayTeam, homeTeam]);
+  }, [gameState.plateAppearances, gameState.gameEvents, awayTeam, homeTeam]);
 
   const halfInningsWithData = useMemo(
     () => new Set(groups.map(g => `${g.inning}-${g.isTopInning ? 'top' : 'bot'}`)),
@@ -627,22 +687,34 @@ const GameStreamPage: React.FC = () => {
               )}
             </div>
 
-            {/* PA rows */}
+            {/* Stream rows (PAs + game events) */}
             <div className="divide-y divide-gray-100">
-              {[...group.pas].reverse().map((pa, i) => {
-                const { badge, badgeBg, badgeText, main, meta } = describePA(pa);
-                return (
-                  <div key={i} className="flex items-start gap-3 px-3 py-2.5 hover:bg-amber-50/50 transition-colors">
-                    <span className={`text-[10px] font-black px-1.5 py-0.5 rounded shrink-0 mt-0.5 min-w-[28px] text-center ${badgeBg} ${badgeText}`}>
-                      {badge}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-900 leading-snug">{main}</p>
-                      <p className="text-[11px] text-gray-400 mt-0.5 leading-snug">{meta}</p>
+              {[...group.items].reverse().map((item, i) => {
+                if (item.kind === 'pa') {
+                  const { badge, badgeBg, badgeText, main, meta } = describePA(item.pa);
+                  return (
+                    <div key={i} className="flex items-start gap-3 px-3 py-2.5 hover:bg-amber-50/50 transition-colors">
+                      <span className={`text-[10px] font-black px-1.5 py-0.5 rounded shrink-0 mt-0.5 min-w-[28px] text-center ${badgeBg} ${badgeText}`}>
+                        {badge}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-gray-900 leading-snug">{main}</p>
+                        <p className="text-[11px] text-gray-400 mt-0.5 leading-snug">{meta}</p>
+                      </div>
+                      <span className="text-xs text-gray-300 shrink-0 mt-0.5 font-mono">#{item.pa.batter.number}</span>
                     </div>
-                    <span className="text-xs text-gray-300 shrink-0 mt-0.5 font-mono">#{pa.batter.number}</span>
-                  </div>
-                );
+                  );
+                } else {
+                  const { badge, badgeBg, badgeText, main } = describeGameEvent(item.event);
+                  return (
+                    <div key={i} className="flex items-start gap-3 px-3 py-2 hover:bg-amber-50/50 transition-colors">
+                      <span className={`text-[10px] font-black px-1.5 py-0.5 rounded shrink-0 mt-0.5 min-w-[28px] text-center ${badgeBg} ${badgeText}`}>
+                        {badge}
+                      </span>
+                      <p className="text-sm text-gray-700 leading-snug flex-1 min-w-0">{main}</p>
+                    </div>
+                  );
+                }
               })}
             </div>
           </div>
