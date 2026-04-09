@@ -121,6 +121,8 @@ export interface GameEvent {
   type: GameEventType;
   inning: number;
   isTopInning: boolean;
+  seq?: number;
+  runsScored?: number;
   runner?: { name: string; number: number };
   toBase?: 'second' | 'third' | 'home';
   fromBase?: 'first' | 'second' | 'third';
@@ -136,6 +138,7 @@ export interface PlateAppearance {
   pitchSequence: string;
   result: PlateAppearanceResult;
   runnersBattedIn: number;
+  seq?: number;
   inning?: number;
   isTopInning?: boolean;
   hitDescription?: HitDescription; // Only present when result is a hit
@@ -166,6 +169,7 @@ export interface GameState {
   pitchSequence: string;
   plateAppearances: PlateAppearance[];
   gameEvents: GameEvent[];
+  nextEventSeq: number;
   gameStartTime?: number;
   gameEndTime?: number;
   homeRosterString: string;
