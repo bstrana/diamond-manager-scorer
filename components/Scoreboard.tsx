@@ -147,32 +147,41 @@ const Scoreboard: React.FC<ScoreboardProps> = ({ gameState }) => {
 
         {/* Base Runners & Inning */}
         <div className="flex justify-center items-center shrink-0">
-          <div className="relative w-20 h-20 sm:w-24 sm:h-24">
-            <BaseballDiamondIcon
-              isFirstOccupied={!!bases.first}
-              isSecondOccupied={!!bases.second}
-              isThirdOccupied={!!bases.third}
-            />
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              {gameState.gameStatus === 'final' ? (
+          <div className="flex flex-col items-center gap-0.5">
+            {gameState.gameStatus === 'final' ? (
+              <>
                 <span className="font-bold text-xl sm:text-2xl text-yellow-300">
                   <span className="sm:hidden">F</span>
                   <span className="hidden sm:inline">FINAL</span>
                 </span>
-              ) : (
-                <>
-                  <div className="flex items-center space-x-0.5 sm:space-x-1">
-                    <span className="font-bold text-base sm:text-2xl">{isTopInning ? '▲' : '▼'}</span>
-                    <span className="font-bold text-2xl sm:text-3xl">{inning}</span>
+                <div className="w-20 h-20 sm:w-24 sm:h-24">
+                  <BaseballDiamondIcon
+                    isFirstOccupied={!!bases.first}
+                    isSecondOccupied={!!bases.second}
+                    isThirdOccupied={!!bases.third}
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center space-x-0.5 sm:space-x-1">
+                  <span className="font-bold text-base sm:text-2xl">{isTopInning ? '▲' : '▼'}</span>
+                  <span className="font-bold text-2xl sm:text-3xl">{inning}</span>
+                </div>
+                <div className="w-20 h-20 sm:w-24 sm:h-24">
+                  <BaseballDiamondIcon
+                    isFirstOccupied={!!bases.first}
+                    isSecondOccupied={!!bases.second}
+                    isThirdOccupied={!!bases.third}
+                  />
+                </div>
+                {gameState.gameStatus === 'playing' && (
+                  <div className="text-center text-xs sm:text-sm text-gray-200">
+                    <span className="font-mono">{duration}</span>
                   </div>
-                  {gameState.gameStatus === 'playing' && (
-                    <div className="text-center mt-0.5 sm:mt-1 text-xs sm:text-lg text-gray-200">
-                      <span className="font-mono">{duration}</span>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>
