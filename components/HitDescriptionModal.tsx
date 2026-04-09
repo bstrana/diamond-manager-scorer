@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import type { HitType, HitDescription, HitTrajectory, HitDepth, FieldDirection, InfieldPosition, PositionGap, SpecialLocation } from '../types';
 
 interface HitDescriptionModalProps {
@@ -140,7 +141,7 @@ const HitDescriptionModal: React.FC<HitDescriptionModalProps> = ({
                      description.fieldDirection &&
                      hitType !== 'homerun';
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-end sm:items-center z-[60] sm:p-4">
       <div className="bg-gray-800 shadow-xl w-full border-t-2 border-yellow-400 flex flex-col max-h-[90dvh] sm:max-w-2xl sm:rounded-lg sm:border sm:border-gray-600 overflow-hidden">
         <header className="p-4 border-b border-gray-700 flex justify-between items-center flex-shrink-0">
@@ -436,7 +437,8 @@ const HitDescriptionModal: React.FC<HitDescriptionModalProps> = ({
           </div>
         </footer>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
