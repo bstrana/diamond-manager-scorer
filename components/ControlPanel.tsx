@@ -24,6 +24,7 @@ interface ControlPanelProps {
   onBaseRunnerCorrection: (base: 'first' | 'second' | 'third', playerId: string | null) => void;
   onErrorCorrection: (teamKey: 'homeTeam' | 'awayTeam', delta: 1 | -1) => void;
   onScoreCorrection: (teamKey: 'homeTeam' | 'awayTeam', delta: 1 | -1) => void;
+  onTopBottomToggle: () => void;
   onStolenBase: (runnerId: string, base: 'second' | 'third' | 'home') => void;
   onCaughtStealing: (runnerId: string, base: 'second' | 'third' | 'home', defensivePlays?: DefensivePlays) => void;
   onPinchRun: (runnerId: string, substituteId: string) => void;
@@ -141,8 +142,8 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   onPitch, onHit, onOut, onSacFly, onSacBunt, onFieldersChoice, onReachedOnError, 
   onHBP, onIntentionalWalk, onBalk, onRunnerOut, onRunnerAdvanceOnError, onManualRunnerAdvance,
   onCountCorrection, onInningCorrection, onPitchCountCorrection, onBaseRunnerCorrection,
-  onErrorCorrection, onScoreCorrection, onStolenBase, onCaughtStealing, onPinchRun,
-  gameState 
+  onErrorCorrection, onScoreCorrection, onTopBottomToggle, onStolenBase, onCaughtStealing, onPinchRun,
+  gameState
 }) => {
   const isGameOver = gameState.gameStatus === 'final';
   const [isCorrectionsOpen, setIsCorrectionsOpen] = useState(false);
@@ -323,16 +324,16 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
     <button
       onClick={onClick}
       disabled={disabled || isGameOver}
-      className={`font-bold py-3 px-4 rounded-lg shadow-md transition-all duration-150 transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+      className={`font-bold py-2 px-3 lg:py-1.5 lg:px-2 text-sm lg:text-xs rounded-lg lg:rounded shadow-md transition-all duration-150 transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
     >
       {children}
     </button>
   );
 
-  const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-    <div className="bg-gray-800 p-4 rounded-lg">
-      <h3 className="text-lg font-bold text-yellow-300 mb-4 text-center tracking-wider">{title}</h3>
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+  const Section: React.FC<{ title: string; children: React.ReactNode; cols?: number }> = ({ title, children, cols }) => (
+    <div className="bg-gray-800 p-3 lg:p-2 rounded-lg lg:flex-none lg:min-w-[148px]">
+      <h3 className="text-base lg:text-[10px] font-bold text-yellow-300 mb-2 lg:mb-1.5 text-center tracking-wider uppercase">{title}</h3>
+      <div className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-${cols ?? 3} gap-2 lg:gap-1`}>
         {children}
       </div>
     </div>
@@ -397,7 +398,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   const modalIsErrorRequired = modalState?.outType === 'reached_on_error' || modalState?.outType === 'runner_advance_on_error';
 
   return (
-    <div className="bg-gray-900 border border-gray-700 p-4 sm:p-6 rounded-xl space-y-6">
+    <div className="bg-gray-900 lg:bg-transparent lg:border-0 p-2 lg:p-0 rounded-xl space-y-3 lg:space-y-0 lg:flex lg:flex-wrap lg:gap-2 lg:items-start lg:content-start">
       <DefensivePlayModal 
         isOpen={modalState?.isOpen || false}
         onClose={() => setModalState(null)}
@@ -406,7 +407,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
         outType={modalState?.outType || ''}
         isErrorRequired={modalIsErrorRequired}
       />
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex justify-between items-center mb-2 lg:hidden">
         <h2 className="text-xl sm:text-2xl font-bold">Control Panel</h2>
         <button
           onClick={() => setShowKeyboardShortcuts(!showKeyboardShortcuts)}
@@ -548,6 +549,16 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             <CorrectionControl label="Strikes" value={gameState.strikes} onDecrement={() => onCountCorrection('strike', -1)} onIncrement={() => onCountCorrection('strike', 1)} />
             <CorrectionControl label="Outs" value={gameState.outs} onDecrement={() => onCountCorrection('out', -1)} onIncrement={() => onCountCorrection('out', 1)} />
             <CorrectionControl label="Inning" value={gameState.inning} onDecrement={() => onInningCorrection(-1)} onIncrement={() => onInningCorrection(1)} />
+            <div className="flex flex-col items-center gap-1">
+              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Top/Bot</span>
+              <button
+                onClick={onTopBottomToggle}
+                className="w-full py-2 rounded font-bold text-sm tracking-wider"
+                style={{ background: gameState.isTopInning ? 'rgba(250,204,21,0.15)' : 'rgba(96,165,250,0.15)', color: gameState.isTopInning ? '#facc15' : '#60a5fa', border: `1px solid ${gameState.isTopInning ? 'rgba(250,204,21,0.3)' : 'rgba(96,165,250,0.3)'}` }}
+              >
+                {gameState.isTopInning ? '▲ Top' : '▼ Bot'}
+              </button>
+            </div>
             <CorrectionControl label="Pitches" value={currentPitcher?.stats.pitchCount || 0} onDecrement={() => onPitchCountCorrection(-1)} onIncrement={() => onPitchCountCorrection(1)} />
             <CorrectionControl label="Away Score" value={gameState.awayTeam.score} onDecrement={() => onScoreCorrection('awayTeam', -1)} onIncrement={() => onScoreCorrection('awayTeam', 1)} />
             <CorrectionControl label="Home Score" value={gameState.homeTeam.score} onDecrement={() => onScoreCorrection('homeTeam', -1)} onIncrement={() => onScoreCorrection('homeTeam', 1)} />

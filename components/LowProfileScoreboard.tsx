@@ -58,7 +58,7 @@ const TeamRow: React.FC<TeamRowProps> = ({ logoUrl, shortName, score, color }) =
     <span className="text-lg font-extrabold tracking-wider uppercase w-14 leading-none text-white">
       {shortName}
     </span>
-    <span className="text-3xl font-black tabular-nums leading-none w-12 text-right text-white shrink-0">
+    <span className="text-3xl font-black tabular-nums leading-none w-12 text-center text-white shrink-0">
       {score}
     </span>
   </div>
@@ -170,7 +170,7 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
         ) : (
           <>
             {/* Inning + Count stacked, then diamond (no divider between them) */}
-            <div className="flex flex-col items-center justify-center px-3 gap-0.5 w-16 shrink-0">
+            <div className="flex flex-col items-center justify-center px-3 gap-2 w-16 shrink-0">
               {/* Inning */}
               <div className="flex items-center gap-1">
                 <span className="text-yellow-400 font-black leading-none" style={{ fontSize: 11 }}>
@@ -194,13 +194,11 @@ const LowProfileScoreboard: React.FC<LowProfileScoreboardProps> = ({ gameState }
 
             {/* Base diamond — no divider */}
             <div className="flex items-center justify-center px-1">
-              <div className="w-20 h-20">
+              <div className="w-20 h-[74px]">
                 <BaseballDiamondIcon
                   isFirstOccupied={!!bases.first}
                   isSecondOccupied={!!bases.second}
                   isThirdOccupied={!!bases.third}
-                  baseSize={30}
-                  compact
                 />
               </div>
             </div>

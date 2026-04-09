@@ -131,6 +131,7 @@ const App: React.FC = () => {
     resetGame,
     handleCountCorrection,
     handleInningCorrection,
+    handleTopBottomToggle,
     handlePitchCountCorrection,
     handleBaseRunnerCorrection,
     handlePlayerSubstitution,
@@ -246,7 +247,7 @@ const App: React.FC = () => {
 
 
   return (
-    <div className="bg-gray-900 min-h-screen text-white p-4 sm:p-6 lg:p-8 flex flex-col items-center">
+    <div className="bg-gray-900 min-h-screen text-white p-3 sm:p-4 lg:p-6 pb-[55vh] lg:pb-[50vh] flex flex-col items-center">
       <header className="w-full max-w-7xl mb-6 text-center relative">
         {gameState.gameStatus !== 'playing' && (
           <>
@@ -312,45 +313,15 @@ const App: React.FC = () => {
         />
       ) : (
         <>
-          <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-5 gap-8">
-            <main className="lg:col-span-5 flex flex-col items-center">
-<div className="w-full p-4 bg-black/50 rounded-lg border border-gray-700">
+          <div className="w-full max-w-7xl space-y-4">
+            <main className="flex flex-col items-center">
+              <div className="w-full p-2 sm:p-3 bg-black/50 rounded-lg border border-gray-700">
                   <Scoreboard gameState={gameState} />
               </div>
             </main>
-            
-            {viewMode !== 'stats' && (
-                <aside className={`hidden lg:block ${viewMode === 'score' ? 'lg:col-span-5' : 'lg:col-span-2'}`}>
-                   <ControlPanel 
-                      onPitch={handlePitch}
-                      onHit={handleHit}
-                      onOut={handleOut}
-                      onSacFly={handleSacFly}
-                      onSacBunt={handleSacBunt}
-                      onFieldersChoice={handleFieldersChoice}
-                      onReachedOnError={handleReachedOnError}
-                      onHBP={handleHBP}
-                      onIntentionalWalk={handleIntentionalWalk}
-                      onRunnerOut={handleRunnerOut}
-                      onRunnerAdvanceOnError={handleRunnerAdvanceOnError}
-                      onManualRunnerAdvance={handleManualRunnerAdvance}
-                      onCountCorrection={handleCountCorrection}
-                      onInningCorrection={handleInningCorrection}
-                      onPitchCountCorrection={handlePitchCountCorrection}
-                      onBaseRunnerCorrection={handleBaseRunnerCorrection}
-                      onErrorCorrection={handleErrorCorrection}
-                      onScoreCorrection={handleScoreCorrection}
-                      onStolenBase={handleStolenBase}
-                      onCaughtStealing={handleCaughtStealing}
-                      onBalk={handleBalk}
-                      onPinchRun={handlePinchRunner}
-                      gameState={gameState}
-                    />
-                </aside>
-            )}
 
             {viewMode !== 'score' && (
-                <section className={`${viewMode === 'stats' ? 'lg:col-span-5' : 'lg:col-span-3'} space-y-8`}>
+                <section className="space-y-4">
                   <PlayerStats 
                     homeTeam={gameState.homeTeam} 
                     awayTeam={gameState.awayTeam} 
@@ -367,8 +338,8 @@ const App: React.FC = () => {
                   />
                 </section>
             )}
-            
-            <footer className="lg:col-span-5 mt-8 text-center flex justify-center flex-wrap gap-4">
+
+            <footer className="mt-4 text-center flex justify-center flex-wrap gap-3">
               <button
                 onClick={() => setIsConfirmFinalModalOpen(true)}
                 disabled={gameState.gameStatus === 'final'}
@@ -454,23 +425,22 @@ const App: React.FC = () => {
             </div>
           )}
 
-          {/* Mobile Control Panel — bottom sheet (bottom 50% of screen) */}
+          {/* Control Panel — bottom sheet (50vh, always visible on lg, toggleable on mobile) */}
           <div
-            className={`fixed bottom-0 left-0 right-0 z-50 transition-transform duration-300 ease-in-out lg:hidden`}
-            style={{ height: '50vh', transform: isControlPanelOpen ? 'translateY(0)' : 'translateY(100%)' }}
+            className={`fixed bottom-0 left-0 right-0 z-50 transition-transform duration-300 ease-in-out h-[55vh] lg:h-[50vh] lg:translate-y-0 ${isControlPanelOpen ? 'translate-y-0' : 'translate-y-full'}`}
           >
-            {/* drag handle / header */}
+            {/* header */}
             <div className="bg-gray-800 border-t-2 border-yellow-400 rounded-t-2xl flex flex-col h-full">
-              <div className="flex items-center justify-between px-4 py-2 border-b border-gray-700 flex-shrink-0">
+              <div className="flex items-center justify-between px-4 py-1.5 border-b border-gray-700 flex-shrink-0">
                 <button
                   onClick={() => setIsControlPanelOpen(false)}
-                  className="w-10 h-1.5 bg-gray-500 rounded-full mx-auto absolute left-1/2 -translate-x-1/2 top-2"
+                  className="lg:hidden w-10 h-1.5 bg-gray-500 rounded-full mx-auto absolute left-1/2 -translate-x-1/2 top-2"
                   aria-label="Close"
                 />
-                <h2 className="text-base font-bold text-yellow-300 pt-3">Scoring Controls</h2>
+                <h2 className="text-sm font-bold text-yellow-300 lg:pt-0 pt-3">Scoring Controls</h2>
                 <button
                   onClick={() => setIsControlPanelOpen(false)}
-                  className="p-1 text-gray-400 hover:text-white pt-3"
+                  className="lg:hidden p-1 text-gray-400 hover:text-white pt-3"
                   aria-label="Close Scoring Controls"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -478,7 +448,7 @@ const App: React.FC = () => {
                   </svg>
                 </button>
               </div>
-              <div className="overflow-y-auto flex-1 p-3">
+              <div className="overflow-y-auto flex-1 p-2 lg:p-3">
                 <ControlPanel
                     onPitch={handlePitch}
                     onHit={handleHit}
@@ -497,6 +467,8 @@ const App: React.FC = () => {
                     onPitchCountCorrection={handlePitchCountCorrection}
                     onBaseRunnerCorrection={handleBaseRunnerCorrection}
                     onErrorCorrection={handleErrorCorrection}
+                    onScoreCorrection={handleScoreCorrection}
+                    onTopBottomToggle={handleTopBottomToggle}
                     onStolenBase={handleStolenBase}
                     onCaughtStealing={handleCaughtStealing}
                     onBalk={handleBalk}

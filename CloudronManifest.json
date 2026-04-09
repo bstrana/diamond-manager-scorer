@@ -4,7 +4,7 @@
   "author": "bstrana",
   "description": "Live baseball scoring app with real-time scoreboard overlay for streaming. Tracks teams, rosters, score, counts, and game progress, and logs each plate appearance.",
   "tagline": "Live baseball scoring and streaming overlay",
-  "version": "1.0.22",
+  "version": "1.0.23",
   "manifestVersion": 2,
 
   "image": {
@@ -58,6 +58,7 @@
   ],
 
   "changelog": {
+    "1.0.23": "Large-screen redesign: persistent half-screen bottom panel with compact keyboard-style controls; compact scoreboard; top/bottom inning correction; new base diamond SVG; overlay score center-aligned.",
     "1.0.14": "Mobile UI improvements: 3-char team names, smaller pitcher/batter labels, full-screen hit modal, manager report public access.",
     "1.0.13": "Mobile scoring controls: bottom sheet (50vh) slides up from bottom so scoreboard stays visible on small screens.",
     "1.0.12": "Fix team lookup: collect teams from data.leagues[*].teams as well as data.teams so all teams resolve correctly.",
