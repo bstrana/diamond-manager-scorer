@@ -142,7 +142,7 @@ const HitDescriptionModal: React.FC<HitDescriptionModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-end sm:items-center z-[60] sm:p-4">
-      <div className="bg-gray-800 shadow-xl w-full border-t-2 border-yellow-400 flex flex-col h-full sm:h-auto sm:max-h-[90vh] sm:max-w-2xl sm:rounded-lg sm:border sm:border-gray-600">
+      <div className="bg-gray-800 shadow-xl w-full border-t-2 border-yellow-400 flex flex-col h-full sm:h-auto sm:max-h-[90vh] sm:max-w-2xl sm:rounded-lg sm:border sm:border-gray-600 overflow-hidden">
         <header className="p-4 border-b border-gray-700 flex justify-between items-center flex-shrink-0">
           <h2 className="text-xl font-bold text-yellow-300">
             Hit Description - {hitTypeLabels[hitType]}
@@ -169,7 +169,7 @@ const HitDescriptionModal: React.FC<HitDescriptionModalProps> = ({
           </button>
         </header>
 
-        <div className="p-6 overflow-y-auto flex-1">
+        <div className="p-6 overflow-y-auto flex-1 min-h-0">
           <div className="space-y-6">
             {/* Trajectory Selection */}
             <div>
@@ -398,7 +398,7 @@ const HitDescriptionModal: React.FC<HitDescriptionModalProps> = ({
           </div>
         </div>
 
-        <footer className="p-4 border-t border-gray-700 flex justify-between items-center">
+        <footer className="p-4 border-t border-gray-700 flex justify-between items-center flex-shrink-0">
           <button
             onClick={() => setShowSkipOption(!showSkipOption)}
             className="text-sm text-gray-400 hover:text-gray-300 underline"
