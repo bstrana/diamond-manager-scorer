@@ -233,6 +233,130 @@ const LineupModal: React.FC<LineupModalProps> = ({ team, label, onClose }) => {
   );
 };
 
+// ─── Line score ──────────────────────────────────────────────────────────────
+
+interface LineScoreProps {
+  awayTeam: Team;
+  homeTeam: Team;
+  currentInning: number;
+  isTopInning: boolean;
+  gameStatus: 'setup' | 'playing' | 'final';
+  halfInningsWithData: Set<string>; // e.g. "3-top", "5-bot"
+}
+
+const LineScore: React.FC<LineScoreProps> = ({
+  awayTeam, homeTeam, currentInning, isTopInning, gameStatus, halfInningsWithData,
+}) => {
+  const awayRuns = awayTeam.runsByInning ?? [];
+  const homeRuns = homeTeam.runsByInning ?? [];
+  const totalInnings = Math.max(9, awayRuns.length, homeRuns.length,
+    gameStatus !== 'setup' ? currentInning : 1);
+  const innings = Array.from({ length: totalInnings }, (_, i) => i + 1);
+  const isFinal = gameStatus === 'final';
+
+  // "x" in home's last cell when they won and didn't need to bat
+  const homeDidntBat = isFinal && homeTeam.score > awayTeam.score &&
+    homeRuns.length < awayRuns.length;
+
+  const scrollTo = (ing: number, isTop: boolean) => {
+    const el = document.getElementById(`inning-${ing}-${isTop ? 'top' : 'bot'}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const runCell = (
+    runs: number | undefined,
+    isActive: boolean,
+    hasData: boolean,
+    isXCell: boolean,
+    onClick: () => void,
+  ) => {
+    const base = 'text-center tabular-nums min-w-[1.75rem] px-1 py-1.5 text-xs leading-none select-none';
+    const active = isActive ? 'font-black text-amber-700' : 'font-medium text-gray-700';
+    const link = hasData ? 'cursor-pointer hover:bg-amber-100 hover:text-amber-900 rounded transition-colors' : '';
+    return (
+      <td key={undefined} className={`${base} ${active} ${link} ${isActive ? 'bg-amber-50' : ''}`}
+        onClick={hasData ? onClick : undefined}
+      >
+        {isXCell ? <span className="text-gray-400 font-normal">x</span>
+          : runs !== undefined ? runs
+          : isActive ? <span className="text-gray-400">·</span>
+          : ''}
+      </td>
+    );
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto px-3 pb-3">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="text-sm border-collapse w-full">
+            <thead>
+              <tr className="border-b border-gray-100">
+                {/* Team name col */}
+                <th className="sticky left-0 bg-white z-10 text-left pl-3 pr-2 py-1.5 text-[10px] font-black text-gray-400 uppercase tracking-widest min-w-[4.5rem]" />
+                {/* Inning numbers */}
+                {innings.map(i => (
+                  <th key={i} className={`text-center min-w-[1.75rem] px-1 py-1.5 text-[10px] font-bold ${
+                    i === currentInning && gameStatus === 'playing' ? 'text-amber-600' : 'text-gray-400'
+                  }`}>{i}</th>
+                ))}
+                {/* Totals */}
+                <th className="text-center px-2 py-1.5 text-[10px] font-black text-gray-500 border-l border-gray-200 min-w-[1.75rem]">R</th>
+                <th className="text-center px-2 py-1.5 text-[10px] font-black text-gray-400 min-w-[1.75rem]">H</th>
+                <th className="text-center pl-2 pr-3 py-1.5 text-[10px] font-black text-gray-400 min-w-[1.75rem]">E</th>
+              </tr>
+            </thead>
+            <tbody>
+              {/* Away */}
+              <tr className="border-b border-gray-100">
+                <td className="sticky left-0 bg-white z-10 pl-3 pr-2 py-1.5">
+                  <div className="flex items-center gap-1.5">
+                    {awayTeam.logoUrl && <img src={awayTeam.logoUrl} alt="" className="w-4 h-4 object-contain shrink-0" />}
+                    <span className="text-xs font-black text-gray-800 truncate" style={{ maxWidth: '3rem' }}>
+                      {awayTeam.name.slice(0, 3).toUpperCase()}
+                    </span>
+                  </div>
+                </td>
+                {innings.map(i => runCell(
+                  awayRuns[i - 1],
+                  i === currentInning && isTopInning && gameStatus === 'playing',
+                  halfInningsWithData.has(`${i}-top`),
+                  false,
+                  () => scrollTo(i, true),
+                ))}
+                <td className="text-center px-2 py-1.5 text-xs font-black text-gray-900 border-l border-gray-200">{awayTeam.score}</td>
+                <td className="text-center px-2 py-1.5 text-xs font-medium text-gray-600">{awayTeam.hits}</td>
+                <td className="text-center pl-2 pr-3 py-1.5 text-xs font-medium text-gray-600">{awayTeam.errors}</td>
+              </tr>
+              {/* Home */}
+              <tr>
+                <td className="sticky left-0 bg-white z-10 pl-3 pr-2 py-1.5">
+                  <div className="flex items-center gap-1.5">
+                    {homeTeam.logoUrl && <img src={homeTeam.logoUrl} alt="" className="w-4 h-4 object-contain shrink-0" />}
+                    <span className="text-xs font-black text-gray-800 truncate" style={{ maxWidth: '3rem' }}>
+                      {homeTeam.name.slice(0, 3).toUpperCase()}
+                    </span>
+                  </div>
+                </td>
+                {innings.map(i => runCell(
+                  homeRuns[i - 1],
+                  i === currentInning && !isTopInning && gameStatus === 'playing',
+                  halfInningsWithData.has(`${i}-bot`),
+                  homeDidntBat && i === awayRuns.length,
+                  () => scrollTo(i, false),
+                ))}
+                <td className="text-center px-2 py-1.5 text-xs font-black text-gray-900 border-l border-gray-200">{homeTeam.score}</td>
+                <td className="text-center px-2 py-1.5 text-xs font-medium text-gray-600">{homeTeam.hits}</td>
+                <td className="text-center pl-2 pr-3 py-1.5 text-xs font-medium text-gray-600">{homeTeam.errors}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ─── Half-inning group ────────────────────────────────────────────────────────
 
 interface HalfInningGroup {
@@ -292,6 +416,11 @@ const GameStreamPage: React.FC = () => {
       return (a.isTopInning ? 1 : 0) - (b.isTopInning ? 1 : 0);
     });
   }, [gameState.plateAppearances, awayTeam, homeTeam]);
+
+  const halfInningsWithData = useMemo(
+    () => new Set(groups.map(g => `${g.inning}-${g.isTopInning ? 'top' : 'bot'}`)),
+    [groups],
+  );
 
   return (
     <div className="min-h-screen bg-amber-50 text-gray-900 font-sans">
@@ -443,6 +572,20 @@ const GameStreamPage: React.FC = () => {
         )}
       </div>
 
+      {/* ── Line score ───────────────────────────────────────────────────── */}
+      {gameStatus !== 'setup' && (
+        <div className="pt-3">
+          <LineScore
+            awayTeam={awayTeam}
+            homeTeam={homeTeam}
+            currentInning={inning}
+            isTopInning={isTopInning}
+            gameStatus={gameStatus}
+            halfInningsWithData={halfInningsWithData}
+          />
+        </div>
+      )}
+
       {/* ── Play-by-play timeline ─────────────────────────────────────────── */}
       <div className="max-w-2xl mx-auto px-3 py-4 space-y-3">
 
@@ -459,8 +602,9 @@ const GameStreamPage: React.FC = () => {
         {groups.map((group) => (
           <div
             key={`${group.inning}-${group.isTopInning}`}
+            id={`inning-${group.inning}-${group.isTopInning ? 'top' : 'bot'}`}
             className="rounded-xl overflow-hidden shadow-sm bg-white"
-            style={{ border: `1px solid ${group.teamColor}33` }}
+            style={{ border: `1px solid ${group.teamColor}33`, scrollMarginTop: '10rem' }}
           >
             {/* Half-inning header */}
             <div
