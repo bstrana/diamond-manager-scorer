@@ -14,6 +14,7 @@ import LowProfileScoreboardPage from './components/LowProfileScoreboardPage';
 import FieldPlayersPage from './components/FieldPlayersPage';
 import BattingOrderPage from './components/BattingOrderPage';
 import ManagerReportPage from './components/ManagerReportPage';
+import GameStreamPage from './components/GameStreamPage';
 import { KeycloakAuthProvider } from './components/KeycloakAuth';
 import { getEnvVar } from './utils/env';
 import { createGameLock, releaseStoredLock } from './services/gameLockService';
@@ -111,6 +112,10 @@ const App: React.FC = () => {
 
   if (window.location.pathname.toLowerCase() === '/manager-report') {
     return <ManagerReportPage />;
+  }
+
+  if (window.location.pathname.toLowerCase() === '/game-stream') {
+    return <GameStreamPage />;
   }
 
   const { 
@@ -234,6 +239,15 @@ const App: React.FC = () => {
     navigator.clipboard.writeText(url.href).then(() => {
         setCopiedBattingOrderLink(true);
         setTimeout(() => setCopiedBattingOrderLink(false), 2000);
+    });
+  };
+
+  const [copiedGameStreamLink, setCopiedGameStreamLink] = useState(false);
+  const copyGameStreamLink = () => {
+    const url = addGameParam(new URL('/game-stream', window.location.origin));
+    navigator.clipboard.writeText(url.href).then(() => {
+        setCopiedGameStreamLink(true);
+        setTimeout(() => setCopiedGameStreamLink(false), 2000);
     });
   };
 
@@ -398,6 +412,13 @@ const App: React.FC = () => {
               >
                 {copiedBattingOrderLink ? 'Copied!' : 'Copy Batting Order Link'}
               </button>
+              <button
+                onClick={copyGameStreamLink}
+                className="px-6 py-2 bg-violet-600 hover:bg-violet-700 rounded-md font-bold transition-colors"
+                title="Copy the live game stream play-by-play URL"
+              >
+                {copiedGameStreamLink ? 'Copied!' : 'Copy Game Stream Link'}
+              </button>
               <a
                 href="/manager-report"
                 target="_blank"
@@ -523,7 +544,7 @@ const App: React.FC = () => {
 // Wrapper component that handles Keycloak authentication
 const AppWithAuth: React.FC = () => {
   // Overlay pages are public - bypass authentication
-  const overlayPages = ['/scoreboard', '/batter-lower-thirds', '/linescore', '/low-profile-scoreboard', '/field-players', '/batting-order', '/manager-report'];
+  const overlayPages = ['/scoreboard', '/batter-lower-thirds', '/linescore', '/low-profile-scoreboard', '/field-players', '/batting-order', '/manager-report', '/game-stream'];
   const currentPath = window.location.pathname.toLowerCase();
   const isOverlayPage = overlayPages.some(page => currentPath === page);
   
