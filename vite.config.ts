@@ -1,6 +1,7 @@
 import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
@@ -8,8 +9,17 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 3000,
         host: '0.0.0.0',
+        proxy: {
+          // Proxy PocketBase API + realtime SSE for local development.
+          // In production nginx handles /_pb → PocketBase before node.js.
+          '/_pb': {
+            target: 'http://127.0.0.1:8090',
+            changeOrigin: true,
+            rewrite: (path) => path.replace(/^\/_pb/, ''),
+          },
+        },
       },
-      plugins: [react()],
+      plugins: [react(), tailwindcss()],
       define: {
         // Use window.__ENV__ if available (injected at runtime by server), otherwise use build-time env
         'process.env.WP_SITE_URL': JSON.stringify(env.VITE_WP_SITE_URL || env.WP_SITE_URL || ''),
