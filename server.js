@@ -362,6 +362,57 @@ const server = http.createServer((req, res) => {
     res.end();
     return;
   }
+
+  // ── PocketBase proxy ──────────────────────────────────────────────────────────
+  // In production nginx handles /_pb → PocketBase before node.js sees the
+  // request, so this branch never runs there.  When running locally without
+  // nginx (npm start / npm run dev), this lets the PocketBase SDK reach the
+  // embedded PocketBase instance including the realtime SSE endpoint.
+  if (req.url.startsWith('/_pb')) {
+    const pbInternal = PB_URL || 'http://127.0.0.1:8090';
+    // Strip the /_pb prefix to get the path PocketBase expects.
+    const pbPath = req.url.slice('/_pb'.length) || '/';
+
+    let parsedPb;
+    try { parsedPb = new URL(pbPath, pbInternal); } catch {
+      res.writeHead(400);
+      res.end('Bad Request');
+      return;
+    }
+
+    const pbTransport = parsedPb.protocol === 'https:' ? https : http;
+    const proxyReq = pbTransport.request(
+      {
+        hostname: parsedPb.hostname,
+        port: parsedPb.port || (parsedPb.protocol === 'https:' ? 443 : 80),
+        path: parsedPb.pathname + parsedPb.search,
+        method: req.method,
+        // Forward all incoming headers (includes Accept: text/event-stream).
+        headers: { ...req.headers, host: parsedPb.host },
+      },
+      (proxyRes) => {
+        // Forward status + all headers (Content-Type: text/event-stream for SSE).
+        res.writeHead(proxyRes.statusCode || 502, proxyRes.headers);
+        // Pipe directly — no buffering — so SSE events arrive immediately.
+        proxyRes.pipe(res, { end: true });
+      }
+    );
+
+    proxyReq.on('error', (err) => {
+      console.error('[pb-proxy] upstream error:', err.message);
+      if (!res.headersSent) {
+        res.writeHead(502, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'PocketBase is not available.' }));
+      }
+    });
+
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      req.pipe(proxyReq, { end: true });
+    } else {
+      proxyReq.end();
+    }
+    return;
+  }
   
   // Remove query string and decode URL
   let filePath = decodeURIComponent(req.url.split('?')[0]);

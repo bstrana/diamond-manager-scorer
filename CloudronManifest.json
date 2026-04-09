@@ -4,7 +4,7 @@
   "author": "bstrana",
   "description": "Live baseball scoring app with real-time scoreboard overlay for streaming. Tracks teams, rosters, score, counts, and game progress, and logs each plate appearance.",
   "tagline": "Live baseball scoring and streaming overlay",
-  "version": "1.0.26",
+  "version": "1.0.27",
   "manifestVersion": 2,
 
   "image": {
@@ -58,6 +58,7 @@
   ],
 
   "changelog": {
+    "1.0.27": "Fix PocketBase realtime SSE in dev mode: add /_pb proxy to Vite dev server and server.js; replace Tailwind CDN with build-time Tailwind 4.",
     "1.0.26": "Add /game-stream live play-by-play timeline page grouped by innings with realtime PocketBase SSE updates.",
     "1.0.25": "Inning+timer stacked left of diamond; minimize toggle for control panel on large screens.",
     "1.0.24": "Fix inning/timer overlap with bases; fix modals hidden behind control panel; controls fill panel height on large screens.",
