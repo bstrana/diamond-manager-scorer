@@ -1309,6 +1309,53 @@ export const useGameState = () => {
     });
   }, [setGameState]);
 
+  const handleMultiOutPlay = useCallback((
+    batterResult: 'groundout' | 'flyout',
+    runnerBasesOut: Array<'first' | 'second' | 'third'>,
+    defensivePlays?: DefensivePlays,
+  ) => {
+    setGameState(prevState => {
+      if (prevState.gameStatus !== 'playing') return prevState;
+
+      let state = applyDefensiveStats(prevState, defensivePlays);
+      state = incrementPitchCount(state, 'strike');
+
+      // Record a game event for each runner put out
+      const newBases = { ...state.bases };
+      const runnerEvents: GameEvent[] = [];
+      let seq = state.nextEventSeq;
+
+      for (const base of runnerBasesOut) {
+        const runner = state.bases[base];
+        if (runner) {
+          runnerEvents.push({
+            type: 'runner_out',
+            inning: state.inning,
+            isTopInning: state.isTopInning,
+            seq: seq++,
+            runner: { name: runner.name, number: runner.number },
+          });
+          newBases[base] = null;
+        }
+      }
+
+      const totalNewOuts = 1 + runnerEvents.length; // batter + each runner
+      const newOuts = state.outs + totalNewOuts;
+
+      state = { ...state, bases: newBases, outs: newOuts, nextEventSeq: seq };
+
+      // Batter PA (seq = seq, nextEventSeq auto-incremented inside)
+      state = startNewPlateAppearance(state, batterResult, 0, defensivePlays);
+
+      state = { ...state, gameEvents: [...(state.gameEvents ?? []), ...runnerEvents] };
+
+      if (newOuts >= 3) {
+        return advanceInning(state);
+      }
+      return state;
+    });
+  }, [setGameState, startNewPlateAppearance, advanceInning, incrementPitchCount]);
+
   const handleSettingsUpdate = useCallback((settings: Partial<ScoreboardSettings>) => {
     setGameState(prevState => ({
       ...prevState,
@@ -1338,6 +1385,7 @@ export const useGameState = () => {
     handleRunnerAdvanceOnError,
     handleManualRunnerAdvance,
     handlePinchRunner,
+    handleMultiOutPlay,
     handleSettingsUpdate,
   };
 };
