@@ -4,6 +4,7 @@ import type { HitType, OutType, PitchType, GameState, Player, DefensivePlays, Hi
 import HitDescriptionModal from './HitDescriptionModal';
 import StrikeoutTypeModal from './StrikeoutTypeModal';
 import KeyboardShortcuts from './KeyboardShortcuts';
+import MultiOutPlayModal from './MultiOutPlayModal';
 
 interface ControlPanelProps {
   onPitch: (type: PitchType, strikeoutType?: 'looking' | 'swinging') => void;
@@ -29,6 +30,7 @@ interface ControlPanelProps {
   onStolenBase: (runnerId: string, base: 'second' | 'third' | 'home') => void;
   onCaughtStealing: (runnerId: string, base: 'second' | 'third' | 'home', defensivePlays?: DefensivePlays) => void;
   onPinchRun: (runnerId: string, substituteId: string) => void;
+  onMultiOutPlay: (batterResult: 'groundout' | 'flyout', runnerBasesOut: Array<'first' | 'second' | 'third'>, defensivePlays?: DefensivePlays) => void;
   gameState: GameState;
 }
 
@@ -145,7 +147,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   onHBP, onIntentionalWalk, onBalk, onRunnerOut, onRunnerAdvanceOnError, onManualRunnerAdvance,
   onCountCorrection, onInningCorrection, onPitchCountCorrection, onBaseRunnerCorrection,
   onErrorCorrection, onScoreCorrection, onTopBottomToggle, onStolenBase, onCaughtStealing, onPinchRun,
-  gameState
+  onMultiOutPlay, gameState
 }) => {
   const isGameOver = gameState.gameStatus === 'final';
   const [isCorrectionsOpen, setIsCorrectionsOpen] = useState(false);
@@ -164,6 +166,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   } | null>(null);
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
   const [pinchRunnerTarget, setPinchRunnerTarget] = useState<string | null>(null);
+  const [showMultiOutModal, setShowMultiOutModal] = useState(false);
 
   const defensiveTeam = gameState.isTopInning ? gameState.homeTeam : gameState.awayTeam;
   const battingTeam = gameState.isTopInning ? gameState.awayTeam : gameState.homeTeam;
@@ -452,6 +455,14 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
         <ControlButton onClick={() => handleOpenModal('sac_bunt')} className="bg-indigo-600 hover:bg-indigo-700 col-span-1">Sac Bunt</ControlButton>
         <ControlButton onClick={() => handleOpenModal('fielders_choice')} className="bg-teal-500 hover:bg-teal-600 col-span-1">Fielder's Choice</ControlButton>
         <ControlButton onClick={() => handleOpenModal('reached_on_error')} className="bg-rose-500 hover:bg-rose-600 col-span-3">Reached on Error</ControlButton>
+        <ControlButton
+          onClick={() => setShowMultiOutModal(true)}
+          disabled={!hasRunners}
+          className="bg-red-700 hover:bg-red-800 col-span-3 font-black tracking-wide"
+          title={!hasRunners ? 'Need runners on base for a double/triple play' : ''}
+        >
+          DP / TP — Double &amp; Triple Play
+        </ControlButton>
       </Section>
       
       {hasRunners && (
@@ -601,6 +612,18 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
           }}
         />
       )}
+
+      {/* Multi-Out Play Modal (Double Play / Triple Play) */}
+      <MultiOutPlayModal
+        isOpen={showMultiOutModal}
+        onClose={() => setShowMultiOutModal(false)}
+        onConfirm={(batterResult, runnerBasesOut, dp) => {
+          onMultiOutPlay(batterResult, runnerBasesOut, dp);
+          setShowMultiOutModal(false);
+        }}
+        runners={gameState.bases}
+        defensiveRoster={defensiveTeam.roster}
+      />
 
       {/* Keyboard Shortcuts Help */}
       <KeyboardShortcuts

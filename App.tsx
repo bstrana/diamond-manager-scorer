@@ -148,6 +148,7 @@ const App: React.FC = () => {
     handleBalk,
     handleFinalGame,
     handlePinchRunner,
+    handleMultiOutPlay,
     handleSettingsUpdate,
     handleManualRunnerAdvance,
     pbStateRecordId,
@@ -514,6 +515,7 @@ const App: React.FC = () => {
                     onCaughtStealing={handleCaughtStealing}
                     onBalk={handleBalk}
                     onPinchRun={handlePinchRunner}
+                    onMultiOutPlay={handleMultiOutPlay}
                     gameState={gameState}
                   />
               </div>
