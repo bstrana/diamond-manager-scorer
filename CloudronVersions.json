@@ -1,6 +1,36 @@
 {
   "stable": true,
   "versions": {
+    "1.0.35": {
+      "manifest": {
+        "id": "io.github.bstrana.diamond-manager-scorer",
+        "title": "Diamond Manager Scorer",
+        "author": "bstrana",
+        "description": "Live baseball scoring app with real-time scoreboard overlay for streaming. Tracks teams, rosters, score, counts, and game progress, and logs each plate appearance.",
+        "tagline": "Live baseball scoring and streaming overlay",
+        "version": "1.0.35",
+        "manifestVersion": 2,
+        "minBoxVersion": "9.1.0",
+        "website": "https://github.com/bstrana/diamond-manager-scorer",
+        "contactEmail": "support@example.com",
+        "healthCheckPath": "/health",
+        "httpPort": 8000,
+        "dockerImage": "ghcr.io/bstrana/diamond-manager-scorer:1.0.35",
+        "addons": { "localstorage": {} },
+        "icon": "file://appicon.png",
+        "iconUrl": "https://bstrana.sirv.com/ybc/ybc-logo.png",
+        "tags": ["sports", "baseball", "scoring", "obs", "streaming"],
+        "mediaLinks": [
+          "https://raw.githubusercontent.com/bstrana/diamond-scheduler/main/public/logo.png"
+        ],
+        "changelog": "Fix game stream missing bottom half of inning: plate appearances now correctly store inning and isTopInning fields so they appear in the right half-inning group.",
+        "packagerName": "bstrana",
+        "packagerUrl": "https://github.com/bstrana"
+      },
+      "creationDate": "Fri, 11 Apr 2026 01:00:00 GMT",
+      "ts": "Fri, 11 Apr 2026 01:00:00 GMT",
+      "publishState": "published"
+    },
     "1.0.34": {
       "manifest": {
         "id": "io.github.bstrana.diamond-manager-scorer",

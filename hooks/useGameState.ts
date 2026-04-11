@@ -528,6 +528,8 @@ export const useGameState = () => {
         result,
         runnersBattedIn: runsScored,
         seq: prevState.nextEventSeq,
+        inning: prevState.inning,
+        isTopInning: prevState.isTopInning,
         hitDescription: hitDescription, // Store hit description if provided
         defensivePlays: resolvedDefensivePlays,
     };
